@@ -8,6 +8,8 @@ Application indépendante d’apprentissage de la grammaire arabe et du iʿrāb 
 - 25 leçons bilingues français–arabe
 - 52 exercices avec correction expliquée
 - révision ciblée des erreurs
+- répétition espacée avec échéances adaptatives
+- lecture audio arabe par synthèse vocale du navigateur
 - progression sauvegardée dans le navigateur
 - interface responsive mobile et ordinateur
 
