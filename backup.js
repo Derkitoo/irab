@@ -1,9 +1,11 @@
+import { migrateProgress } from './progress-schema.js'
+
 export function createBackup(progress, exportedAt = new Date()) {
   return {
     app: 'irab-fr',
     version: 1,
     exportedAt: exportedAt.toISOString(),
-    progress,
+    progress: migrateProgress(progress),
   }
 }
 
@@ -19,12 +21,5 @@ export function parseBackup(text) {
   ) {
     throw new Error('Invalid Iʿrāb backup')
   }
-  return {
-    lessons: progress.lessons,
-    questions: progress.questions,
-    wrongs: progress.wrongs && typeof progress.wrongs === 'object' ? progress.wrongs : {},
-    cards: progress.cards && typeof progress.cards === 'object' ? progress.cards : {},
-    activity: Array.isArray(progress.activity) ? progress.activity : [],
-    preferences: progress.preferences && typeof progress.preferences === 'object' ? progress.preferences : {},
-  }
+  return migrateProgress(progress)
 }

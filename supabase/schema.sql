@@ -1,6 +1,6 @@
 create table if not exists public.learning_progress (
   user_id uuid primary key references auth.users(id) on delete cascade,
-  progress jsonb not null default '{"lessons":[],"questions":[],"wrongs":{},"cards":{}}'::jsonb,
+  progress jsonb not null default '{"schemaVersion":1,"lessons":[],"questions":[],"wrongs":{},"cards":{},"activity":[],"preferences":{}}'::jsonb,
   updated_at timestamptz not null default now()
 );
 
