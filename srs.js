@@ -1,8 +1,9 @@
+import { localDayKey } from './day.js'
+
+// Les échéances de révision étaient déjà exprimées en jour local ; day.js en
+// est désormais l'unique implémentation, partagée avec le bilan et le coach.
 export function dateKey(date = new Date()) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  return localDayKey(date)
 }
 
 export function addDays(date, days) {

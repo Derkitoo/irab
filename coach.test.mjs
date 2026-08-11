@@ -23,4 +23,27 @@ const nextCoach = createCoach({ lessons: ['l1'] }, curriculum, [], now)
 assert.equal(nextCoach.recommendation.lessonId, 'l2')
 assert.equal(nextCoach.daily.goal, 5)
 
+// L'objectif du jour suit le fuseau local : une tentative faite après minuit
+// heure locale compte pour le nouveau jour, pas pour la veille.
+const localNow = new Date(2026, 7, 13, 0, 30, 0)
+const localCoach = createCoach(
+  { activity: [
+    { id: 'y', at: new Date(2026, 7, 12, 23, 0, 0).toISOString() },
+    { id: 'z', at: new Date(2026, 7, 13, 0, 15, 0).toISOString() },
+  ] },
+  curriculum,
+  [],
+  localNow,
+)
+assert.equal(localCoach.daily.attempts, 1)
+
+// La maîtrise vient des cartes : une question ratée en dernier reste à traiter.
+const masteryCoach = createCoach(
+  { lessons: [], questions: ['q1', 'q2'], cards: { q1: { reps: 1 }, q2: { reps: 0 } } },
+  curriculum,
+  [],
+  now,
+)
+assert.equal(masteryCoach.recommendation.lessonId, 'l1')
+
 console.log('Coach tests passed')

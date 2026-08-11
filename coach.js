@@ -1,16 +1,13 @@
-function dateKey(value) {
-  const date = value instanceof Date ? value : new Date(value)
-  return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10)
-}
+import { localDayKey } from './day.js'
+import { isMastered } from './mastery.js'
 
 export function createCoach(progress = {}, curriculum = [], reviewIds = [], now = new Date()) {
   const activity = Array.isArray(progress.activity) ? progress.activity : []
-  const today = dateKey(now)
-  const attemptsToday = activity.filter(event => dateKey(event?.at) === today).length
+  const today = localDayKey(now)
+  const attemptsToday = activity.filter(event => localDayKey(event?.at) === today).length
   const configuredGoal = Number(progress.preferences?.dailyGoal)
   const goal = [5, 10, 15].includes(configuredGoal) ? configuredGoal : 5
   const completedLessons = new Set(Array.isArray(progress.lessons) ? progress.lessons : [])
-  const masteredQuestions = new Set(Array.isArray(progress.questions) ? progress.questions : [])
 
   if (reviewIds.length) {
     return {
@@ -23,7 +20,7 @@ export function createCoach(progress = {}, curriculum = [], reviewIds = [], now 
     const questions = (module.lessons ?? []).flatMap(lesson => lesson.questions ?? [])
     const events = activity.filter(event => questions.some(question => question.id === event.questionId))
     const accuracy = events.length ? events.filter(event => event.correct).length / events.length : 1
-    const mastery = questions.length ? questions.filter(question => masteredQuestions.has(question.id)).length / questions.length : 0
+    const mastery = questions.length ? questions.filter(question => isMastered(progress, question.id)).length / questions.length : 0
     return { module, index, events: events.length, accuracy, mastery }
   })
   const weak = modules
