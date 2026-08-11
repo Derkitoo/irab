@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { allQuestions } from './curriculum.js'
 import { TOPICS, baseTopicIds, isKnownTopic, topicLabel, topicOf } from './question-topics.js'
 
 assert.equal(topicOf('types-1'), 'nature')
@@ -20,11 +20,10 @@ assert.equal(topicLabel('inexistant'), 'Autre')
 assert.ok(TOPICS.every(topic => isKnownTopic(topic.id)))
 assert.ok(baseTopicIds().every(id => isKnownTopic(topicOf(id))))
 
-// Chaque exercice écrit à la main doit porter une catégorie : sans ce contrôle,
-// une question ajoutée plus tard disparaîtrait silencieusement du bilan.
-const sources = ['app.js', 'content-advanced.js'].map(file => readFileSync(new URL(file, import.meta.url), 'utf8')).join('\n')
-const declared = [...sources.matchAll(/\b[qQ]\('([a-z0-9-]+)'/g)].map(match => match[1])
-assert.ok(declared.length >= 52, `attendu au moins 52 exercices, trouvé ${declared.length}`)
+// Chaque exercice doit porter une catégorie : sans ce contrôle, une question
+// ajoutée plus tard disparaîtrait silencieusement du bilan.
+const declared = allQuestions.filter(question => question.type !== 'builder' && !question.id.endsWith('-c')).map(question => question.id)
+assert.equal(declared.length, 52)
 const untagged = declared.filter(id => !topicOf(id))
 assert.deepEqual(untagged, [], `exercices sans catégorie : ${untagged.join(', ')}`)
 

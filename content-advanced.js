@@ -1,7 +1,6 @@
-const L = (id, title, ar, summary, rule, example, translation, analysis, questions) => ({ id, title, ar, summary, rule, example, translation, analysis, questions })
-const Q = (id, prompt, arabic, choices, answer, explanation, analysis = '') => ({ id, prompt, arabic, choices, answer, explanation, analysis })
-const cases = () => [['Nominatif — مرفوع', 'raf'], ['Accusatif — منصوب', 'nasb'], ['Génitif — مجرور', 'jarr'], ['Apocopé — مجزوم', 'jazm']]
+import { caseChoices as cases, lesson as L, question as Q } from './content-helpers.js'
 
+// Modules 5 à 12 : particules, fonctions, verbes et synthèse.
 export const advancedModules = [
   {
     id: 'particles', title: 'Les particules régissantes', ar: 'الْحُرُوفُ الْعَامِلَةُ',
