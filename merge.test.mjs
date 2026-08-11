@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { mergeProgress, normalizeProgress } from './merge.js'
 import { CURRENT_SCHEMA_VERSION } from './progress-schema.js'
 
-const empty = { schemaVersion: CURRENT_SCHEMA_VERSION, lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {} }
+const empty = { schemaVersion: CURRENT_SCHEMA_VERSION, lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {}, resume: null }
 assert.deepEqual(normalizeProgress(), empty)
 assert.deepEqual(normalizeProgress(null), empty)
 assert.deepEqual(mergeProgress({ lessons: ['types'] }, null).lessons, ['types'])
@@ -74,5 +74,14 @@ assert.equal(mergeProgress({ wrongs: { 'types-9': 2 } }, {}).wrongs['types-9'], 
 // La fusion conserve la version de format la plus élevée des deux côtés.
 assert.equal(mergeProgress({}, {}).schemaVersion, CURRENT_SCHEMA_VERSION)
 assert.equal(mergeProgress({}, { schemaVersion: CURRENT_SCHEMA_VERSION + 1 }).schemaVersion, CURRENT_SCHEMA_VERSION + 1)
+
+// Le point de reprise le plus récent gagne.
+const resumeMerged = mergeProgress(
+  { resume: { lessonId: 'types', index: 2, at: '2026-08-10T10:00:00Z' } },
+  { resume: { lessonId: 'states', index: 5, at: '2026-08-11T10:00:00Z' } },
+)
+assert.equal(resumeMerged.resume.lessonId, 'states')
+assert.equal(mergeProgress({ resume: { lessonId: 'types', index: 2, at: '2026-08-10T10:00:00Z' } }, {}).resume.lessonId, 'types')
+assert.equal(mergeProgress({}, {}).resume, null)
 
 console.log('Merge tests passed')

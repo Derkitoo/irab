@@ -49,5 +49,8 @@ export function mergeProgress(localProgress, remoteProgress) {
       .sort((left, right) => String(left.at).localeCompare(String(right.at)))
       .slice(-1000),
     preferences: String(remote.preferences.updatedAt ?? '') > String(local.preferences.updatedAt ?? '') ? remote.preferences : local.preferences,
+    // Le point de reprise le plus récent gagne : c'est le dernier appareil
+    // utilisé qui sait où l'apprenant s'est arrêté.
+    resume: String(remote.resume?.at ?? '') > String(local.resume?.at ?? '') ? remote.resume : local.resume,
   }
 }

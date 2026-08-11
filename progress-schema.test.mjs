@@ -9,6 +9,7 @@ assert.deepEqual(emptyProgress(), {
   cards: {},
   activity: [],
   preferences: {},
+  resume: null,
 })
 
 assert.equal(detectSchemaVersion(undefined), 0)
@@ -40,5 +41,11 @@ assert.equal(isFutureSchema(legacy), false)
 const keptFuture = migrateProgress(future)
 assert.equal(keptFuture.schemaVersion, CURRENT_SCHEMA_VERSION + 1)
 assert.deepEqual(keptFuture.badges, ['first-analysis'])
+
+// Point de reprise : normalisé, ou null quand il est inexploitable.
+assert.deepEqual(migrateProgress({ resume: { lessonId: 'types', index: 3, at: '2026-08-12T09:00:00Z' } }).resume, { lessonId: 'types', index: 3, at: '2026-08-12T09:00:00Z' })
+assert.equal(migrateProgress({ resume: { index: 3 } }).resume, null)
+assert.equal(migrateProgress({ resume: 'types' }).resume, null)
+assert.equal(migrateProgress({ resume: { lessonId: 'types', index: -2 } }).resume.index, 0)
 
 console.log('Progress schema tests passed')

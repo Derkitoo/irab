@@ -30,6 +30,10 @@ jobs:
           node --check analytics.js
           node --check coach.js
           node --check cloud.js
+          node --check day.js
+          node --check mastery.js
+          node --check question-topics.js
+          node --check session.js
           node --check progress-schema.js
           node --check cloud-errors.js
           node --check sync.js
@@ -41,6 +45,8 @@ jobs:
           node progress-schema.test.mjs
           node cloud-errors.test.mjs
           node sync.test.mjs
+          node question-topics.test.mjs
+          node session.test.mjs
 
       - name: Check required static files
         run: |
@@ -57,6 +63,10 @@ jobs:
           test -f analytics.js
           test -f coach.js
           test -f cloud.js
+          test -f day.js
+          test -f mastery.js
+          test -f question-topics.js
+          test -f session.js
           test -f progress-schema.js
           test -f cloud-errors.js
           test -f sync.js

@@ -3,6 +3,9 @@ import { dateKey, isDue, scheduleCard } from './srs.js'
 import { createBackup, parseBackup } from './backup.js'
 import { computeAnalytics } from './analytics.js'
 import { createCoach } from './coach.js'
+import { countMastered, isMastered } from './mastery.js'
+import { topicLabel, topicOf } from './question-topics.js'
+import { buildQuickSession } from './session.js'
 import { migrateProgress } from './progress-schema.js'
 import { describeCloudError } from './cloud-errors.js'
 import { publish, synchronize } from './sync.js'
@@ -123,6 +126,23 @@ function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progr
 function save(){ persist(); queueCloudSave() }
 function completed(id){ return state.progress.lessons.includes(id) }
 function reviewQuestions(){ return allQuestions.filter(question => state.progress.wrongs[question.id] > 0 || isDue(state.progress.cards[question.id])) }
+function masteredTotal(){ return countMastered(state.progress, allQuestions.map(question => question.id)) }
+
+// Point de reprise : seules les vraies leçons sont mémorisées. Une révision ou
+// une session rapide se rejoue à la demande, il n'y a rien à y reprendre.
+function rememberPosition(){
+  if(state.review||!state.lesson||state.stage!=='practice')return
+  state.progress.resume={ lessonId:state.lesson.id, index:state.qi, at:new Date().toISOString() }
+}
+function forgetPosition(){ state.progress.resume=null }
+function resumeTarget(){
+  const resume=state.progress.resume
+  if(!resume)return null
+  const lesson=allLessons.find(item=>item.id===resume.lessonId)
+  if(!lesson||completed(lesson.id))return null
+  const index=Math.min(resume.index,lesson.questions.length-1)
+  return index>0?{ lesson, index }:null
+}
 function schedule(questionId, correct){
   state.progress.activity.push({ id:globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`, at:new Date().toISOString(), questionId, correct })
   state.progress.activity=state.progress.activity.slice(-1000)
@@ -138,14 +158,24 @@ function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
   const reviews = reviewQuestions().length
   const coach = createCoach(state.progress,curriculum,reviewQuestions().map(question=>question.id))
+  const resume = resumeTarget()
+  const quick = buildQuickSession(state.progress,curriculum,reviewQuestions().map(question=>question.id))
   return `<div class="shell">${header()}<main class="container">${cloudBanner()}
-    <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div></div>
-    <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${state.progress.questions.length}/${allQuestions.length}</strong><span>réponses maîtrisées</span></div></div></aside></section>
-    <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span>Mon rythme</span>${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}">${goal}</button>`).join('')}</div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}</div></section>
+    <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div>${resume?`<button class="resume-line" data-action="resume"><span class="resume-mark">↩</span><span><strong>Reprendre où tu t’es arrêté</strong><small>${escapeHtml(resume.lesson.title)} · question ${resume.index+1} sur ${resume.lesson.questions.length}</small></span></button>`:''}</div>
+    <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${masteredTotal()}/${allQuestions.length}</strong><span>exercices maîtrisés</span></div></div></aside></section>
+    <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span>Mon rythme</span>${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}">${goal}</button>`).join('')}</div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}${quick.questionIds.length?`<button class="quick-button" data-action="quick">Session rapide · ${quick.questionIds.length} exercice${quick.questionIds.length>1?'s':''}<small>${quickComposition(quick)}</small></button>`:''}</div></section>
     <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><button data-action="privacy">Confidentialité</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
     <div class="section-title"><div><h2>Maîtrise par compétence</h2><p>Les résultats sont calculés à partir des exercices réussis.</p></div></div><section class="competencies">${curriculum.map(competenceCard).join('')}</section>
     <div class="section-title"><div><h2>Le parcours</h2><p>Douze modules, des fondations jusqu’à l’analyse complète.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
   </main></div>`
+}
+
+function quickComposition(quick){
+  const parts=[]
+  if(quick.composition.due)parts.push(`${quick.composition.due} à revoir`)
+  if(quick.composition.weak)parts.push(`${quick.composition.weak} sur tes points faibles`)
+  if(quick.composition.fresh)parts.push(`${quick.composition.fresh} nouveau${quick.composition.fresh>1?'x':''}`)
+  return parts.join(' · ')
 }
 
 function moduleCard(m,i){ const done=m.lessons.filter(l=>completed(l.id)).length; return `<article class="module"><div class="module-head"><span class="module-number">${i+1}</span><div><h3>${m.title}</h3><p class="module-ar ar">${m.ar}</p></div><span class="badge">${done}/${m.lessons.length}</span></div><p class="module-description">${m.description}</p><div class="lesson-list">${m.lessons.map(l=>`<button class="lesson-row" data-lesson="${l.id}"><span class="lesson-status ${completed(l.id)?'done':''}">${completed(l.id)?'✓':'○'}</span><span><strong>${l.title}</strong><small class="ar">${l.ar}</small></span><span>›</span></button>`).join('')}</div></article>` }
@@ -154,12 +184,13 @@ function statsView(){
   const stats=computeAnalytics(state.progress,curriculum)
   const reviews=reviewQuestions().length
   const maxDay=Math.max(1,...stats.days.map(day=>day.attempts))
-  const mastered=state.progress.questions.length
+  const mastered=stats.mastered
   const empty=stats.attempts===0
+  const practisedTopics=stats.topics.filter(topic=>topic.attempts>0)
   return `<div class="shell">${header(true)}<main class="stats-shell">
     <header class="stats-title"><span class="eyebrow">Bilan pédagogique</span><h1>Ta progression en détail</h1><p>Les nouvelles tentatives sont enregistrées sur cet appareil et synchronisées avec ton compte.</p></header>
     <section class="metric-grid">
-      <article class="metric"><span>Maîtrise</span><strong>${mastered}/${allQuestions.length}</strong><small>exercices réussis</small></article>
+      <article class="metric"><span>Maîtrise</span><strong>${mastered}/${allQuestions.length}</strong><small>réussis et pas ratés depuis</small></article>
       <article class="metric"><span>Réussite</span><strong>${empty?'—':`${stats.accuracy}%`}</strong><small>${stats.attempts} tentative${stats.attempts>1?'s':''} suivie${stats.attempts>1?'s':''}</small></article>
       <article class="metric"><span>Série active</span><strong>${stats.streak}</strong><small>jour${stats.streak>1?'s':''} consécutif${stats.streak>1?'s':''}</small></article>
       <article class="metric"><span>À revoir</span><strong>${reviews}</strong><small>exercices ciblés</small></article>
@@ -167,7 +198,8 @@ function statsView(){
     ${empty?'<p class="stats-notice">L’historique commence aujourd’hui. Réponds à quelques exercices pour voir apparaître ton taux de réussite et tes erreurs fréquentes.</p>':''}
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Régularité</span><h2>Activité sur 7 jours</h2></div><strong>${stats.attempts} au total</strong></div><div class="activity-chart">${stats.days.map(day=>`<div class="activity-day"><span class="activity-value">${day.attempts||''}</span><i style="height:${Math.max(day.attempts?12:3,Math.round(day.attempts/maxDay*100))}%"></i><small>${day.label}</small></div>`).join('')}</div></section>
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Compétences</span><h2>Maîtrise par thème</h2></div></div><div class="topic-list">${stats.modules.map(module=>`<article class="topic-row"><div><strong>${module.title}</strong><span>${module.mastered}/${module.total} maîtrisés${module.attempts?` · ${module.accuracy}% de réussite`:''}</span></div><div class="topic-bar"><i style="width:${module.mastery}%"></i></div><b>${module.mastery}%</b></article>`).join('')}</div></section>
-    <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Révision ciblée</span><h2>Erreurs fréquentes</h2></div>${reviews?'<button class="review-button" data-action="review">Réviser maintenant</button>':''}</div>${stats.trouble.length?`<div class="trouble-list">${stats.trouble.map(item=>`<article><span>${item.moduleTitle}</span><strong>${escapeHtml(item.prompt)}</strong><small>${item.errors} erreur${item.errors>1?'s':''} sur ${item.attempts} tentative${item.attempts>1?'s':''}</small></article>`).join('')}</div>`:'<p class="empty-note">Aucune erreur enregistrée pour le moment.</p>'}</section>
+    ${practisedTopics.length?`<section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Types d’erreurs</span><h2>Sur quoi tu butes</h2></div></div><p class="panel-lead">Chaque exercice teste une étape de la méthode. Cible directement celle qui te résiste.</p><div class="topic-kinds">${practisedTopics.map(topic=>`<article class="topic-kind ${topic.errors&&topic.accuracy<70?'weak':''}"><div><strong>${topic.label}</strong><span>${topic.errors?`${topic.errors} erreur${topic.errors>1?'s':''} sur ${topic.attempts} tentative${topic.attempts>1?'s':''}`:`${topic.attempts} tentative${topic.attempts>1?'s':''}, aucune erreur`}</span></div><div class="topic-bar"><i style="width:${topic.accuracy}%"></i></div><b>${topic.accuracy}%</b>${topicReviewCount(topic.id)?`<button class="topic-review" data-topic="${topic.id}">Réviser ${topicReviewCount(topic.id)}</button>`:'<span class="topic-clear">à jour</span>'}</article>`).join('')}</div></section>`:''}
+    <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Révision ciblée</span><h2>Erreurs fréquentes</h2></div>${reviews?'<button class="review-button" data-action="review">Réviser maintenant</button>':''}</div>${stats.trouble.length?`<div class="trouble-list">${stats.trouble.map(item=>`<article><span>${item.moduleTitle}${item.topic?` · ${topicLabel(item.topic)}`:''}</span><strong>${escapeHtml(item.prompt)}</strong><small>${item.errors} erreur${item.errors>1?'s':''} sur ${item.attempts} tentative${item.attempts>1?'s':''}</small></article>`).join('')}</div>`:'<p class="empty-note">Aucune erreur enregistrée pour le moment.</p>'}</section>
   </main></div>`
 }
 
@@ -204,7 +236,8 @@ function accountView(){
 
 function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='blocked'?'Mise à jour requise':state.cloud.status==='error'?'Erreur':'Connecté' }
 
-function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>lesson.questions); const mastered=questions.filter(question=>state.progress.questions.includes(question.id)).length; const pct=Math.round(mastered/questions.length*100); return `<article class="competence"><div><strong>${module.title}</strong><span>${mastered}/${questions.length}</span></div><div class="skill-bar" role="progressbar" aria-label="${module.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></article>` }
+function topicReviewCount(topicId){ return reviewQuestions().filter(question=>topicOf(question.id)===topicId).length }
+function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>lesson.questions); const mastered=questions.filter(question=>isMastered(state.progress,question.id)).length; const pct=Math.round(mastered/questions.length*100); return `<article class="competence"><div><strong>${module.title}</strong><span>${mastered}/${questions.length}</span></div><div class="skill-bar" role="progressbar" aria-label="${module.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></article>` }
 
 function answerIsCorrect(question){ return question.type==='builder' ? state.built.map(index=>question.tokens[index]).join(' ')===question.answer : state.selected===question.answer }
 function exerciseReady(question){ return question.type==='builder' ? state.built.length===question.tokens.length : state.selected!==null }
@@ -214,15 +247,18 @@ function exerciseBody(question){ return question.type==='builder' ? builderExerc
 
 function lessonView(){ const l=state.lesson; if(state.stage==='learn') return `<div class="shell">${header(true)}<main class="lesson-shell"><header class="lesson-title"><span class="eyebrow">Règle essentielle</span><h1>${l.title}</h1><p class="ar">${l.ar}</p></header><p class="lead">${l.summary}</p><div class="lesson-grid"><section class="panel"><span class="panel-label">La règle</span><p>${l.rule}</p></section><section class="panel example"><span class="panel-label">Exemple</span><button class="speak" data-speak="${encodeURIComponent(l.example)}" aria-label="Écouter l’exemple">◖))</button><p class="example-ar ar">${l.example}</p><p>${l.translation}</p></section><section class="panel analysis"><span class="panel-label">Analyse</span><p class="ar">${l.analysis}</p></section></div><div class="method"><span>1 · Nature</span><span>2 · Fonction</span><span>3 · État</span><span>4 · Marque</span></div><div class="lesson-actions"><button class="primary" data-action="practice">Passer aux exercices</button></div></main></div>`
   const x=l.questions[state.qi]; const correct=answerIsCorrect(x)
-  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
+  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(l.id==='quick'?'Terminer la session':state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
 }
 
 function bind(){
   document.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(b.dataset.lesson))
-  document.querySelector('[data-action="continue"]')?.addEventListener('click',()=>openLesson(allLessons.find(l=>!completed(l.id))?.id||allLessons[0].id))
+  document.querySelector('[data-action="continue"]')?.addEventListener('click',()=>{const target=resumeTarget();if(target){openLesson(target.lesson.id,target.index);return}openLesson(allLessons.find(l=>!completed(l.id))?.id||allLessons[0].id)})
   document.querySelectorAll('[data-action="home"]').forEach(b=>b.onclick=()=>{state.view='home';state.review=false;render()})
-  document.querySelector('[data-action="review"]')?.addEventListener('click',openReview)
+  document.querySelector('[data-action="review"]')?.addEventListener('click',()=>openReview())
   document.querySelector('[data-action="coach"]')?.addEventListener('click',openCoachRecommendation)
+  document.querySelector('[data-action="quick"]')?.addEventListener('click',openQuickSession)
+  document.querySelector('[data-action="resume"]')?.addEventListener('click',resumeLesson)
+  document.querySelectorAll('[data-topic]').forEach(button=>button.onclick=()=>openReview(button.dataset.topic))
   document.querySelectorAll('[data-goal]').forEach(button=>button.onclick=()=>setDailyGoal(Number(button.dataset.goal)))
   document.querySelectorAll('[data-action="account"]').forEach(button=>button.onclick=()=>{state.view='account';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="stats"]').forEach(button=>button.onclick=()=>{state.view='stats';render();scrollTo(0,0)})
@@ -238,7 +274,7 @@ function bind(){
   document.querySelector('[data-action="export"]')?.addEventListener('click',exportProgress)
   document.querySelector('[data-action="choose-import"]')?.addEventListener('click',()=>document.querySelector('#progress-import')?.click())
   document.querySelector('#progress-import')?.addEventListener('change',importProgress)
-  document.querySelector('[data-action="practice"]')?.addEventListener('click',()=>{state.stage='practice';state.qi=0;render();scrollTo(0,0)})
+  document.querySelector('[data-action="practice"]')?.addEventListener('click',()=>{state.stage='practice';state.qi=0;rememberPosition();save();render();scrollTo(0,0)})
   document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.choice;render()})
   document.querySelectorAll('[data-token]').forEach(b=>b.onclick=()=>{state.built=[...state.built,Number(b.dataset.token)];render()})
   document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{state.built=state.built.filter((_,index)=>index!==Number(b.dataset.remove));render()})
@@ -247,11 +283,34 @@ function bind(){
   document.querySelector('[data-action="next"]')?.addEventListener('click',next)
 }
 
-function openLesson(id){ state={...state,view:'lesson',lesson:allLessons.find(l=>l.id===id),stage:'learn',qi:0,selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
-function openReview(){ const questions=reviewQuestions(); if(!questions.length)return; state={...state,view:'lesson',lesson:{id:'review',title:'Révision ciblée',ar:'مُرَاجَعَةُ الْأَخْطَاءِ',questions},stage:'practice',qi:0,selected:null,built:[],checked:false,review:true};render();scrollTo(0,0) }
+function openLesson(id,index=0){ const lesson=allLessons.find(l=>l.id===id); if(!lesson)return; state={...state,view:'lesson',lesson,stage:index>0?'practice':'learn',qi:Math.min(index,lesson.questions.length-1),selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
+function resumeLesson(){ const target=resumeTarget(); if(!target)return; openLesson(target.lesson.id,target.index) }
+
+// Une révision peut être limitée à un type d'erreur : nature, fonction, état,
+// marque ou analyse complète.
+function openReview(topicId=null){
+  const questions=reviewQuestions().filter(question=>!topicId||topicOf(question.id)===topicId)
+  if(!questions.length)return
+  const title=topicId?`Révision · ${topicLabel(topicId)}`:'Révision ciblée'
+  state={...state,view:'lesson',lesson:{id:'review',title,ar:'مُرَاجَعَةُ الْأَخْطَاءِ',questions},stage:'practice',qi:0,selected:null,built:[],checked:false,review:true};render();scrollTo(0,0)
+}
+
+function openQuickSession(){
+  const plan=buildQuickSession(state.progress,curriculum,reviewQuestions().map(question=>question.id))
+  const questions=plan.questionIds.map(id=>allQuestions.find(question=>question.id===id)).filter(Boolean)
+  if(!questions.length)return
+  state={...state,view:'lesson',lesson:{id:'quick',title:'Session rapide',ar:'جَلْسَةٌ سَرِيعَةٌ',questions},stage:'practice',qi:0,selected:null,built:[],checked:false,review:true};render();scrollTo(0,0)
+}
 function openCoachRecommendation(){ const reviews=reviewQuestions();const coach=createCoach(state.progress,curriculum,reviews.map(question=>question.id));if(coach.recommendation.type==='review')openReview();else if(coach.recommendation.lessonId)openLesson(coach.recommendation.lessonId) }
 function setDailyGoal(dailyGoal){ if(![5,10,15].includes(dailyGoal))return;state.progress.preferences={...state.progress.preferences,dailyGoal,updatedAt:new Date().toISOString()};save();render() }
-function next(){ const x=state.lesson.questions[state.qi]; if(answerIsCorrect(x)&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id); if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;save();render();scrollTo(0,0);return} if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id);save();state.view='home';state.review=false;state.built=[];render();scrollTo(0,0) }
+function next(){
+  const x=state.lesson.questions[state.qi]
+  if(answerIsCorrect(x)&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id)
+  if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;rememberPosition();save();render();scrollTo(0,0);return}
+  if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id)
+  if(!state.review)forgetPosition()
+  save();state.view='home';state.review=false;state.built=[];render();scrollTo(0,0)
+}
 
 async function installApp(){ if(!installPrompt)return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt=null; render() }
 function exportProgress(){ const payload=createBackup(state.progress); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=`irab-progression-${dateKey()}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000) }

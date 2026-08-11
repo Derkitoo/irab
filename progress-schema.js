@@ -13,6 +13,17 @@ function stringList(value) {
   return Array.isArray(value) ? value.filter(item => typeof item === 'string') : []
 }
 
+// Point de reprise : la leçon et la question quittées en cours de route.
+function resumePoint(value) {
+  const source = plainObject(value)
+  if (typeof source.lessonId !== 'string' || !source.lessonId) return null
+  return {
+    lessonId: source.lessonId,
+    index: Number.isInteger(source.index) && source.index >= 0 ? source.index : 0,
+    at: typeof source.at === 'string' ? source.at : '',
+  }
+}
+
 export function detectSchemaVersion(progress) {
   const version = Number(plainObject(progress).schemaVersion)
   return Number.isInteger(version) && version >= 0 ? version : 0
@@ -43,6 +54,7 @@ function shape(source) {
     cards: plainObject(source.cards),
     activity: (Array.isArray(source.activity) ? source.activity : []).filter(event => plainObject(event).id),
     preferences: plainObject(source.preferences),
+    resume: resumePoint(source.resume),
   }
 }
 
