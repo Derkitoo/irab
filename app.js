@@ -82,14 +82,28 @@ for (const module of curriculum) {
       choices: [...question.choices.slice(1), question.choices[0]],
       explanation: `À retenir : ${question.explanation}`,
     }))
-    lesson.questions = [...lesson.questions, ...consolidation]
+    const source = lesson.questions.find(question => question.analysis) ?? lesson.questions[0]
+    const builderAnalysis = source?.analysis || lesson.analysis
+    const tokens = builderAnalysis?.trim().split(/\s+/) ?? []
+    const builder = tokens.length > 2 ? [{
+      id: `${lesson.id}-builder`,
+      type: 'builder',
+      prompt: 'Construis l’analyse dans le bon ordre.',
+      arabic: source.arabic,
+      tokens,
+      order: [tokens.length - 1, ...tokens.slice(0, -1).map((_, index) => index)],
+      answer: tokens.join(' '),
+      explanation: 'L’analyse suit l’ordre : fonction, état grammatical, puis marque et justification.',
+      analysis: builderAnalysis,
+    }] : []
+    lesson.questions = [...lesson.questions, ...consolidation, ...builder]
   }
 }
 
 const allLessons = curriculum.flatMap(m => m.lessons)
 const allQuestions = allLessons.flatMap(l => l.questions)
 const saved = loadProgress()
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}} }
 const app = document.querySelector('#app')
 
 function loadProgress(){ try { return JSON.parse(localStorage.getItem('irab-fr:progress') || '{}') } catch { return {} } }
@@ -120,9 +134,15 @@ function moduleCard(m,i){ const done=m.lessons.filter(l=>completed(l.id)).length
 
 function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>lesson.questions); const mastered=questions.filter(question=>state.progress.questions.includes(question.id)).length; const pct=Math.round(mastered/questions.length*100); return `<article class="competence"><div><strong>${module.title}</strong><span>${mastered}/${questions.length}</span></div><div class="skill-bar" role="progressbar" aria-label="${module.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></article>` }
 
+function answerIsCorrect(question){ return question.type==='builder' ? state.built.map(index=>question.tokens[index]).join(' ')===question.answer : state.selected===question.answer }
+function exerciseReady(question){ return question.type==='builder' ? state.built.length===question.tokens.length : state.selected!==null }
+function choiceExercise(question){ const wordMode=question.choices.every(choice=>!/\p{L}/u.test(choice[0].replace(/[\u0600-\u06ff]/g,''))); const endingMode=/terminaison|marque|forme convient/i.test(question.prompt); return `<div class="choices ${wordMode?'choices--words':''} ${endingMode?'choices--endings':''}">${question.choices.map(choice=>`<button class="choice ${state.selected===choice[1]?'selected':''}" data-choice="${choice[1]}" ${state.checked?'disabled':''}>${choice[0]}</button>`).join('')}</div>` }
+function builderExercise(question){ const remaining=question.order.filter(index=>!state.built.includes(index)); return `<section class="builder"><span class="builder-label">Ton analyse</span><div class="builder-answer ar">${state.built.length?state.built.map((index,position)=>`<button data-remove="${position}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join(' '):'<span>Choisis les blocs ci-dessous…</span>'}</div><span class="builder-label">Blocs disponibles</span><div class="builder-pool ar">${remaining.map(index=>`<button data-token="${index}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join('')}</div></section>` }
+function exerciseBody(question){ return question.type==='builder' ? builderExercise(question) : choiceExercise(question) }
+
 function lessonView(){ const l=state.lesson; if(state.stage==='learn') return `<div class="shell">${header(true)}<main class="lesson-shell"><header class="lesson-title"><span class="eyebrow">Règle essentielle</span><h1>${l.title}</h1><p class="ar">${l.ar}</p></header><p class="lead">${l.summary}</p><div class="lesson-grid"><section class="panel"><span class="panel-label">La règle</span><p>${l.rule}</p></section><section class="panel example"><span class="panel-label">Exemple</span><button class="speak" data-speak="${encodeURIComponent(l.example)}" aria-label="Écouter l’exemple">◖))</button><p class="example-ar ar">${l.example}</p><p>${l.translation}</p></section><section class="panel analysis"><span class="panel-label">Analyse</span><p class="ar">${l.analysis}</p></section></div><div class="method"><span>1 · Nature</span><span>2 · Fonction</span><span>3 · État</span><span>4 · Marque</span></div><div class="lesson-actions"><button class="primary" data-action="practice">Passer aux exercices</button></div></main></div>`
-  const x=l.questions[state.qi]; const correct=state.selected===x.answer
-  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div><div class="choices">${x.choices.map(c=>`<button class="choice ${state.selected===c[1]?'selected':''}" data-choice="${c[1]}" ${state.checked?'disabled':''}>${c[0]}</button>`).join('')}</div>${state.checked?`<div class="feedback ${correct?'ok':'bad'}"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${state.selected===null?'disabled':''}>Vérifier</button></div>`}</main></div>`
+  const x=l.questions[state.qi]; const correct=answerIsCorrect(x)
+  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
 }
 
 function bind(){
@@ -132,13 +152,15 @@ function bind(){
   document.querySelector('[data-action="review"]')?.addEventListener('click',openReview)
   document.querySelector('[data-action="practice"]')?.addEventListener('click',()=>{state.stage='practice';state.qi=0;render();scrollTo(0,0)})
   document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.choice;render()})
+  document.querySelectorAll('[data-token]').forEach(b=>b.onclick=()=>{state.built=[...state.built,Number(b.dataset.token)];render()})
+  document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{state.built=state.built.filter((_,index)=>index!==Number(b.dataset.remove));render()})
   document.querySelectorAll('[data-speak]').forEach(b=>b.onclick=()=>speakArabic(decodeURIComponent(b.dataset.speak)))
-  document.querySelector('[data-action="check"]')?.addEventListener('click',()=>{if(state.selected!==null){const x=state.lesson.questions[state.qi];schedule(x.id,state.selected===x.answer);state.checked=true;save();render()}})
+  document.querySelector('[data-action="check"]')?.addEventListener('click',()=>{const x=state.lesson.questions[state.qi];if(exerciseReady(x)){schedule(x.id,answerIsCorrect(x));state.checked=true;save();render()}})
   document.querySelector('[data-action="next"]')?.addEventListener('click',next)
 }
 
-function openLesson(id){ state={...state,view:'lesson',lesson:allLessons.find(l=>l.id===id),stage:'learn',qi:0,selected:null,checked:false,review:false}; render(); scrollTo(0,0) }
-function openReview(){ const questions=reviewQuestions(); if(!questions.length)return; state={...state,view:'lesson',lesson:{id:'review',title:'Révision ciblée',ar:'مُرَاجَعَةُ الْأَخْطَاءِ',questions},stage:'practice',qi:0,selected:null,checked:false,review:true};render();scrollTo(0,0) }
-function next(){ const x=state.lesson.questions[state.qi]; if(state.selected===x.answer&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id); if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.checked=false;save();render();scrollTo(0,0);return} if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id);save();state.view='home';state.review=false;render();scrollTo(0,0) }
+function openLesson(id){ state={...state,view:'lesson',lesson:allLessons.find(l=>l.id===id),stage:'learn',qi:0,selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
+function openReview(){ const questions=reviewQuestions(); if(!questions.length)return; state={...state,view:'lesson',lesson:{id:'review',title:'Révision ciblée',ar:'مُرَاجَعَةُ الْأَخْطَاءِ',questions},stage:'practice',qi:0,selected:null,built:[],checked:false,review:true};render();scrollTo(0,0) }
+function next(){ const x=state.lesson.questions[state.qi]; if(answerIsCorrect(x)&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id); if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;save();render();scrollTo(0,0);return} if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id);save();state.view='home';state.review=false;state.built=[];render();scrollTo(0,0) }
 
 render()

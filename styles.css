@@ -100,9 +100,21 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 .speak--question { position: absolute; right: 14px; bottom: 14px; }
 .speak:hover { background: rgba(255,255,255,.22); }
 .choices { display: grid; gap: 12px; margin-top: 22px; }
+.choices--words { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.choices--words .choice { direction: rtl; text-align: center; font-family: "Noto Naskh Arabic", serif; font-size: 24px; }
+.choices--endings { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .choice { padding: 17px 18px; border: 2px solid var(--line); border-radius: 15px; color: var(--ink); background: var(--surface); text-align: left; cursor: pointer; font-weight: 600; }
 .choice.selected { border-color: var(--green-2); background: var(--mint); }
 .choice:disabled { opacity: 1; cursor: default; }
+.builder { display: grid; gap: 10px; margin-top: 22px; }
+.builder-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.builder-answer, .builder-pool { display: flex; flex-wrap: wrap; gap: 9px; min-height: 70px; padding: 14px; border-radius: 18px; }
+.builder-answer { align-items: center; border: 2px dashed var(--green-2); background: var(--mint); }
+.builder-answer > span { width: 100%; color: var(--muted); text-align: center; font-family: "DM Sans", sans-serif; font-size: 14px; }
+.builder-pool { border: 1px solid var(--line); background: var(--surface); }
+.builder button { padding: 9px 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: white; cursor: pointer; font-family: inherit; font-size: 20px; box-shadow: 0 3px 10px rgba(23,63,56,.06); }
+.builder-answer button { border-color: var(--green-2); color: var(--green); }
+.builder button:disabled { opacity: 1; cursor: default; }
 .quiz-actions { margin-top: 18px; }
 .quiz-actions .primary { width: 100%; }
 .feedback { margin-top: 18px; padding: 22px; border-radius: 20px; }

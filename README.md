@@ -6,7 +6,9 @@ Application indépendante d’apprentissage de la grammaire arabe et du iʿrāb 
 
 - 12 modules progressifs
 - 25 leçons bilingues français–arabe
-- 104 exercices avec correction expliquée et consolidation
+- 129 exercices avec correction expliquée et consolidation
+- construction du iʿrāb par blocs ordonnables
+- sélection directe de mots et exercices de terminaisons
 - tableau de maîtrise par compétence
 - révision ciblée des erreurs
 - répétition espacée avec échéances adaptatives
