@@ -22,7 +22,12 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
+          node --check curriculum.js
+          node --check content-core.js
           node --check content-advanced.js
+          node --check content-helpers.js
+          node --check glossary.js
+          node --check glossary-index.js
           node --check srs.js
           node --check sw.js
           node --check backup.js
@@ -47,13 +52,20 @@ jobs:
           node sync.test.mjs
           node question-topics.test.mjs
           node session.test.mjs
+          node curriculum.test.mjs
+          node glossary.test.mjs
 
       - name: Check required static files
         run: |
           test -f index.html
           test -f styles.css
           test -f app.js
+          test -f curriculum.js
+          test -f content-core.js
           test -f content-advanced.js
+          test -f content-helpers.js
+          test -f glossary.js
+          test -f glossary-index.js
           test -f srs.js
           test -f sw.js
           test -f manifest.webmanifest
@@ -72,4 +84,5 @@ jobs:
           test -f sync.js
           test -f supabase-config.js
           test -f supabase/schema.sql
-          grep -q 'content-advanced.js' app.js
+          grep -q 'curriculum.js' app.js
+          grep -q 'content-advanced.js' curriculum.js

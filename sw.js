@@ -1,10 +1,15 @@
-const CACHE = 'irab-fr-v6'
+const CACHE = 'irab-fr-v7'
 const SHELL = [
   './',
   './index.html',
   './styles.css',
   './app.js',
+  './curriculum.js',
+  './content-core.js',
   './content-advanced.js',
+  './content-helpers.js',
+  './glossary.js',
+  './glossary-index.js',
   './srs.js',
   './backup.js',
   './merge.js',

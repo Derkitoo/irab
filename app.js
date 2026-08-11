@@ -6,6 +6,8 @@ import { createCoach } from './coach.js'
 import { countMastered, isMastered } from './mastery.js'
 import { topicLabel, topicOf } from './question-topics.js'
 import { buildQuickSession } from './session.js'
+import { GLOSSARY_GROUPS, buildGlossary } from './glossary.js'
+import { normalizeArabic } from './glossary-index.js'
 import { migrateProgress } from './progress-schema.js'
 import { describeCloudError } from './cloud-errors.js'
 import { publish, synchronize } from './sync.js'
@@ -15,7 +17,7 @@ let installPrompt = null
 let online = navigator.onLine
 
 const STORAGE_KEY = 'irab-fr:progress'
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, glossaryQuery:'', progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
 const app = document.querySelector('#app')
 let cloudSaveTimer = null
 
@@ -50,7 +52,7 @@ function schedule(questionId, correct){
   delete state.progress.wrongs[questionId]
 }
 function speakArabic(text){ if(!('speechSynthesis' in window))return; speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='ar-SA'; utterance.rate=.78; const voice=speechSynthesis.getVoices().find(item=>item.lang.toLowerCase().startsWith('ar')); if(voice)utterance.voice=voice; speechSynthesis.speak(utterance) }
-function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : state.view === 'privacy' ? privacyView() : state.view === 'stats' ? statsView() : lessonView(); bind() }
+function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : state.view === 'privacy' ? privacyView() : state.view === 'glossary' ? glossaryView() : state.view === 'stats' ? statsView() : lessonView(); bind() }
 function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="stats">Bilan</button><button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
@@ -63,7 +65,7 @@ function homeView(){
     <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div>${resume?`<button class="resume-line" data-action="resume"><span class="resume-mark">↩</span><span><strong>Reprendre où tu t’es arrêté</strong><small>${escapeHtml(resume.lesson.title)} · question ${resume.index+1} sur ${resume.lesson.questions.length}</small></span></button>`:''}</div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${masteredTotal()}/${allQuestions.length}</strong><span>exercices maîtrisés</span></div></div></aside></section>
     <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span>Mon rythme</span>${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}">${goal}</button>`).join('')}</div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}${quick.questionIds.length?`<button class="quick-button" data-action="quick">Session rapide · ${quick.questionIds.length} exercice${quick.questionIds.length>1?'s':''}<small>${quickComposition(quick)}</small></button>`:''}</div></section>
-    <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><button data-action="privacy">Confidentialité</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
+    <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><button data-action="glossary">Glossaire</button><button data-action="privacy">Confidentialité</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
     <div class="section-title"><div><h2>Maîtrise par compétence</h2><p>Les résultats sont calculés à partir des exercices réussis.</p></div></div><section class="competencies">${curriculum.map(competenceCard).join('')}</section>
     <div class="section-title"><div><h2>Le parcours</h2><p>Douze modules, des fondations jusqu’à l’analyse complète.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
   </main></div>`
@@ -135,6 +137,42 @@ function accountView(){
 
 function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='blocked'?'Mise à jour requise':state.cloud.status==='error'?'Erreur':'Connecté' }
 
+// Glossaire : la liste est construite une fois, la recherche ne refait pas
+// tout le rendu pour ne pas voler le focus du champ à chaque frappe.
+const glossary = buildGlossary(curriculum)
+function matchesGlossaryQuery(entry,query){
+  if(!query)return true
+  const plain=query.toLowerCase()
+  const arabic=normalizeArabic(query)
+  return entry.fr.toLowerCase().includes(plain)
+    || entry.tr.toLowerCase().includes(plain)
+    || entry.def.toLowerCase().includes(plain)
+    || (Boolean(arabic)&&normalizeArabic(entry.ar).includes(arabic))
+}
+function glossaryEntryCard(entry){
+  return `<article class="term"><div class="term-head"><span class="term-ar ar">${entry.ar}</span><button class="speak speak--term" data-speak="${encodeURIComponent(entry.ar)}" aria-label="Écouter le terme">◖))</button></div><strong>${escapeHtml(entry.fr)}</strong><span class="term-tr">${escapeHtml(entry.tr)}</span><p>${escapeHtml(entry.def)}</p>${entry.lessons.length?`<div class="term-lessons">${entry.lessons.slice(0,4).map(lesson=>`<button data-lesson="${lesson.id}">${escapeHtml(lesson.title)}</button>`).join('')}</div>`:'<span class="term-orphan">Terme de référence, pas encore travaillé dans une leçon.</span>'}</article>`
+}
+function glossaryList(query=''){
+  const groups=GLOSSARY_GROUPS.map(group=>({ group, entries:glossary.filter(entry=>entry.group===group.id&&matchesGlossaryQuery(entry,query)) })).filter(item=>item.entries.length)
+  if(!groups.length)return `<p class="empty-note">Aucun terme ne correspond à « ${escapeHtml(query)} ».</p>`
+  return groups.map(({group,entries})=>`<section class="term-group"><div class="section-title"><div><h2>${group.label}</h2><p>${entries.length} terme${entries.length>1?'s':''}</p></div></div><div class="term-grid">${entries.map(glossaryEntryCard).join('')}</div></section>`).join('')
+}
+function glossaryView(){
+  return `<div class="shell">${header(true)}<main class="container">
+    <header class="stats-title"><span class="eyebrow">Glossaire français–arabe</span><h1>Les mots de l’analyse</h1><p>${glossary.length} termes de grammaire, avec leur translittération et les leçons où ils apparaissent.</p></header>
+    <div class="glossary-search"><input id="glossary-query" type="search" autocomplete="off" placeholder="Chercher un terme, en français ou en arabe…" value="${escapeHtml(state.glossaryQuery)}"></div>
+    <div id="glossary-results">${glossaryList(state.glossaryQuery)}</div>
+  </main></div>`
+}
+
+// Après un filtrage, seuls les nœuds recréés ont besoin d'être reliés.
+function bindGlossaryResults(){
+  const results=document.querySelector('#glossary-results')
+  if(!results)return
+  results.querySelectorAll('[data-lesson]').forEach(button=>button.onclick=()=>openLesson(button.dataset.lesson))
+  results.querySelectorAll('[data-speak]').forEach(button=>button.onclick=()=>speakArabic(decodeURIComponent(button.dataset.speak)))
+}
+
 function topicReviewCount(topicId){ return reviewQuestions().filter(question=>topicOf(question.id)===topicId).length }
 function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>lesson.questions); const mastered=questions.filter(question=>isMastered(state.progress,question.id)).length; const pct=Math.round(mastered/questions.length*100); return `<article class="competence"><div><strong>${module.title}</strong><span>${mastered}/${questions.length}</span></div><div class="skill-bar" role="progressbar" aria-label="${module.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></article>` }
 
@@ -144,7 +182,7 @@ function choiceExercise(question){ const wordMode=question.choices.every(choice=
 function builderExercise(question){ const remaining=question.order.filter(index=>!state.built.includes(index)); return `<section class="builder"><span class="builder-label">Ton analyse</span><div class="builder-answer ar">${state.built.length?state.built.map((index,position)=>`<button data-remove="${position}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join(' '):'<span>Choisis les blocs ci-dessous…</span>'}</div><span class="builder-label">Blocs disponibles</span><div class="builder-pool ar">${remaining.map(index=>`<button data-token="${index}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join('')}</div></section>` }
 function exerciseBody(question){ return question.type==='builder' ? builderExercise(question) : choiceExercise(question) }
 
-function lessonView(){ const l=state.lesson; if(state.stage==='learn') return `<div class="shell">${header(true)}<main class="lesson-shell"><header class="lesson-title"><span class="eyebrow">Règle essentielle</span><h1>${l.title}</h1><p class="ar">${l.ar}</p></header><p class="lead">${l.summary}</p><div class="lesson-grid"><section class="panel"><span class="panel-label">La règle</span><p>${l.rule}</p></section><section class="panel example"><span class="panel-label">Exemple</span><button class="speak" data-speak="${encodeURIComponent(l.example)}" aria-label="Écouter l’exemple">◖))</button><p class="example-ar ar">${l.example}</p><p>${l.translation}</p></section><section class="panel analysis"><span class="panel-label">Analyse</span><p class="ar">${l.analysis}</p></section></div><div class="method"><span>1 · Nature</span><span>2 · Fonction</span><span>3 · État</span><span>4 · Marque</span></div><div class="lesson-actions"><button class="primary" data-action="practice">Passer aux exercices</button></div></main></div>`
+function lessonView(){ const l=state.lesson; if(state.stage==='learn') return `<div class="shell">${header(true)}<main class="lesson-shell"><header class="lesson-title"><span class="eyebrow">Règle essentielle</span><h1>${l.title}</h1><p class="ar">${l.ar}</p></header><p class="lead">${l.summary}</p><div class="lesson-grid"><section class="panel"><span class="panel-label">La règle</span><p>${l.rule}</p></section><section class="panel example"><span class="panel-label">Exemple</span><button class="speak" data-speak="${encodeURIComponent(l.example)}" aria-label="Écouter l’exemple">◖))</button><p class="example-ar ar">${l.example}</p><p>${l.translation}</p></section><section class="panel analysis"><span class="panel-label">Analyse</span><p class="ar">${l.analysis}</p></section></div><div class="method"><span>1 · Nature</span><span>2 · Fonction</span><span>3 · État</span><span>4 · Marque</span></div><div class="lesson-actions"><button class="primary" data-action="practice">Passer aux exercices</button><button class="ghost-link" data-action="glossary">Un terme t’échappe ? Ouvre le glossaire</button></div></main></div>`
   const x=l.questions[state.qi]; const correct=answerIsCorrect(x)
   return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(l.id==='quick'?'Terminer la session':state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
 }
@@ -162,6 +200,9 @@ function bind(){
   document.querySelectorAll('[data-action="account"]').forEach(button=>button.onclick=()=>{state.view='account';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="stats"]').forEach(button=>button.onclick=()=>{state.view='stats';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="privacy"]').forEach(button=>button.onclick=()=>{state.view='privacy';render();scrollTo(0,0)})
+  document.querySelectorAll('[data-action="glossary"]').forEach(button=>button.onclick=()=>{state.view='glossary';state.glossaryQuery='';render();scrollTo(0,0)})
+  const glossaryInput=document.querySelector('#glossary-query')
+  if(glossaryInput)glossaryInput.oninput=()=>{state.glossaryQuery=glossaryInput.value;const results=document.querySelector('#glossary-results');results.innerHTML=glossaryList(state.glossaryQuery);bindGlossaryResults()}
   document.querySelector('[data-action="retry"]')?.addEventListener('click',()=>{const retry=state.cloud.retry;if(!retry)return;clearCloudError();render();retry()})
   document.querySelector('[data-action="dismiss-error"]')?.addEventListener('click',()=>{clearCloudError();render()})
   document.querySelector('[data-action="wipe-local"]')?.addEventListener('click',wipeLocalData)
