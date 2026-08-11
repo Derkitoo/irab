@@ -1,7 +1,7 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 11 août 2026
-- Dernier jalon livré : sprint 1 — sécurité utilisateur
+- Dernier jalon livré : sprint 2 — session intelligente
 - Commit de référence : `a2e1edd` (coach), puis les correctifs de fusion du sprint 1
 
 ## 1. Liens utiles
@@ -29,7 +29,12 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - coach personnalisé : objectif quotidien 5/10/15, priorité aux révisions, détection des thèmes faibles et recommandation de la prochaine leçon ;
 - page Confidentialité, effacement des données locales et suppression définitive du compte ;
 - messages d’erreur réseau explicites, avec bouton de nouvelle tentative et reprise automatique au retour du réseau ;
-- format de progression versionné, migré automatiquement et protégé contre l’écrasement par une version plus ancienne.
+- format de progression versionné, migré automatiquement et protégé contre l’écrasement par une version plus ancienne ;
+- session rapide de dix exercices composée par le coach ;
+- catégories d’erreurs — nature, fonction, état, marque, analyse — avec révision ciblée par catégorie ;
+- reprise d’une leçon à la question interrompue, synchronisée entre appareils ;
+- jours, séries et objectif quotidien calculés dans le fuseau de l’appareil ;
+- maîtrise révocable : un exercice raté ne compte plus comme maîtrisé.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -45,6 +50,10 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `srs.js` | Planification de la répétition espacée |
 | `analytics.js` | Calcul du bilan pédagogique |
 | `coach.js` | Objectif quotidien et moteur de recommandation |
+| `session.js` | Composition de la session rapide |
+| `question-topics.js` | Catégorie de compétence de chaque exercice |
+| `mastery.js` | Définition unique de « maîtrisé » |
+| `day.js` | Jour local, décalage et libellés de jours |
 | `progress-schema.js` | Version du format de progression et migrations |
 | `sync.js` | Orchestration pull/merge/push, indépendante du DOM |
 | `cloud-errors.js` | Traduction des erreurs Supabase et réseau |
@@ -83,6 +92,7 @@ Une ligne `learning_progress` existe par utilisateur. Le champ JSON `progress` c
 - `cards` : échéances de répétition espacée ;
 - `activity` : tentatives horodatées, limitées aux 1 000 plus récentes ;
 - `preferences` : objectif quotidien et date de dernière modification ;
+- `resume` : leçon et question quittées en cours de route, ou `null` ;
 - `schemaVersion` : version du format, gérée par `progress-schema.js`.
 
 Les champs ajoutés dans le JSON ne nécessitent pas de migration SQL. `merge.js` doit néanmoins être mis à jour pour chaque nouvelle donnée synchronisée.
@@ -95,6 +105,8 @@ Les champs ajoutés dans le JSON ne nécessitent pas de migration SQL. `merge.js
 4. couvrir l’ancien format dans `progress-schema.test.mjs`.
 
 Les champs inconnus sont conservés à l’identique et une progression distante portant une version supérieure n’est jamais fusionnée ni réécrite : la synchronisation rend l’état `blocked` et invite à actualiser l’application.
+
+Un champ optionnel ajouté sans incrémenter la version, comme `resume`, ne bloque pas les anciennes versions ; en revanche `mergeProgress` liste ses champs explicitement, donc un ancien client qui fusionne effacera ce champ. N’incrémenter la version que lorsqu’une ancienne version interpréterait mal des données existantes.
 
 ## 5. Supabase et sécurité
 
@@ -126,6 +138,10 @@ node --check app.js
 node --check srs.js
 node --check analytics.js
 node --check coach.js
+node --check day.js
+node --check mastery.js
+node --check question-topics.js
+node --check session.js
 node --check progress-schema.js
 node --check cloud-errors.js
 node --check sync.js
@@ -141,6 +157,8 @@ node backup.test.mjs
 node progress-schema.test.mjs
 node cloud-errors.test.mjs
 node sync.test.mjs
+node question-topics.test.mjs
+node session.test.mjs
 git diff --check
 ```
 
@@ -163,6 +181,10 @@ git push origin main:gh-pages
 - La déconnexion efface la progression locale : elle appartient au compte quitté et se retrouverait sinon fusionnée dans le compte suivant.
 - Le choix d’objectif le plus récent gagne grâce à `preferences.updatedAt`.
 - Le coach recommande dans cet ordre : révision due, thème sous 70 % après au moins deux tentatives, prochaine leçon inachevée.
+- « Maîtrisé » se lit sur la carte de répétition espacée (`reps > 0`), pas sur `questions` : la maîtrise est révocable dès qu'un exercice est raté. `questions` reste l'historique des réussites et sert la fusion.
+- La session rapide se remplit dans cet ordre : révisions dues, thèmes fragiles, suite du parcours.
+- Les catégories d'exercices vivent dans `question-topics.js`, hors des fichiers de contenu ; un test échoue si un exercice est ajouté sans catégorie.
+- Les jours viennent de `day.js` et suivent le fuseau de l'appareil. Les échéances SRS étaient déjà locales.
 - Les anciennes sauvegardes sans `activity` ou `preferences` restent compatibles.
 - Le contenu utilisateur ou distant inséré dans le HTML doit passer par `escapeHtml`.
 - La logique de synchronisation vit dans `sync.js`, sans DOM : c’est ce qui la rend testable sous Node.
@@ -173,8 +195,10 @@ git push origin main:gh-pages
 
 - Les statistiques commencent à la date d’installation du journal d’activité ; les anciennes réponses maîtrisées n’ont pas d’historique rétroactif.
 - Le journal est limité à 1 000 tentatives et ne constitue pas une conservation analytique illimitée.
-- Les jours et séries sont calculés en UTC : une session entre minuit et 2 h heure de Paris s'affiche sur la barre de la veille et peut casser la série. Correction prévue au sprint 2.
-- « Maîtrise » signifie « réussi au moins une fois » et n'est jamais révoqué : une question peut compter comme maîtrisée et figurer en même temps dans les erreurs fréquentes. Définition à trancher.
+- Le découpage des exercices en cinq catégories est un choix pédagogique, à confirmer lors de la relecture du corpus par un enseignant.
+- La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur réel.
+- L'objectif quotidien se remet à zéro à minuit local ; un horaire de bascule personnalisé reste à faire.
+- Les compteurs de maîtrise ont baissé pour les comptes existants au passage à la maîtrise révocable : c'est attendu, les données ne sont pas perdues.
 - Les 129 exercices sont 52 questions écrites, 52 consolidations générées automatiquement et 25 constructions par blocs.
 - `app.js` concentre encore beaucoup de responsabilités et deviendra difficile à maintenir si le contenu grandit fortement.
 - `sync.test.mjs` couvre le parcours complet inscription, première synchronisation vide, deux appareils, pannes réseau et isolation entre comptes, mais contre un faux Supabase : il ne remplace pas un test dans un vrai navigateur contre le vrai service.
@@ -196,13 +220,10 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 
 ### P1 — Expérience pédagogique
 
-1. Adapter la révision au type d’erreur : nature, fonction, état ou marque.
-2. Ajouter un mode « session rapide » de 5 minutes construit par le coach.
-3. Permettre de reprendre une leçon exactement à la question interrompue.
-4. Ajouter des explications alternatives et davantage d’exemples pour chaque erreur récurrente.
-5. Calculer le jour local et autoriser un horaire personnel de remise à zéro de l’objectif.
-6. Ajouter des badges sobres pour les étapes réellement utiles : première analyse complète, semaine régulière, module maîtrisé.
-7. Améliorer l’accessibilité : navigation clavier complète, vérification des contrastes, annonces vocales des retours et test avec lecteur d’écran.
+1. Ajouter des explications alternatives et davantage d’exemples pour chaque erreur récurrente.
+2. Autoriser un horaire personnel de remise à zéro de l’objectif quotidien.
+3. Ajouter des badges sobres pour les étapes réellement utiles : première analyse complète, semaine régulière, module maîtrisé.
+4. Améliorer l’accessibilité : navigation clavier complète, vérification des contrastes, annonces vocales des retours et test avec lecteur d’écran.
 
 ### P2 — Contenu et produit
 
@@ -223,12 +244,12 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - versionnage du format de progression ;
 - test complet de la couche de synchronisation.
 
-### Sprint 2 — Session intelligente
+### Sprint 2 — Session intelligente (livré)
 
-- session rapide de 5 minutes ;
-- catégories d’erreurs ;
+- session rapide de dix exercices ;
+- catégories d’erreurs et révision ciblée par catégorie ;
 - reprise à la question interrompue ;
-- fuseau local pour l’objectif quotidien.
+- fuseau local pour les jours, les séries et l’objectif.
 
 ### Sprint 3 — Qualité du contenu
 

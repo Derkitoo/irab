@@ -28,6 +28,10 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - page Confidentialité, effacement local et suppression définitive du compte
 - messages d’erreur réseau explicites avec bouton de nouvelle tentative
 - format de progression versionné et migré automatiquement
+- session rapide de dix exercices composée par le coach
+- catégories d’erreurs et révision ciblée par nature, fonction, état, marque ou analyse
+- reprise d’une leçon à la question interrompue
+- jours, séries et objectif quotidien dans le fuseau de l’appareil
 
 ## Activer les comptes Supabase
 
