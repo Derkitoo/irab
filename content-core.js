@@ -26,7 +26,7 @@ export const coreModules = [
         q('states-2', 'Quel est l’état du complément الدَّرْسَ ?', 'كَتَبَ الطَّالِبُ الدَّرْسَ', caseChoices(), 'nasb', 'Le complément d’objet est à l’accusatif.', 'الدَّرْسَ مفعول به منصوب وعلامة نصبه الفتحة'),
         q('states-3', 'Quel est l’état du nom après فِي ?', 'فِي الْبَيْتِ', caseChoices(), 'jarr', 'Une préposition place le nom suivant au génitif.', 'الْبَيْتِ اسم مجرور بحرف الجر «فِي» وعلامة جره الكسرة')
       ]),
-      lesson('marks', 'Les marques principales', 'الْعَلَامَاتُ الْأَصْلِيَّةُ', 'Ḍamma, fatḥa, kasra et sukūn rendent l’état visible.', 'La ḍamma marque principalement le rafʿ, la fatḥa le naṣb, la kasra le jarr et le sukūn le jazm.', 'لَمْ يَكْتُبْ', 'Il n’a pas écrit.', 'يَكْتُبْ : فعل مضارع مجزوم بلم وعلامة جزمه السكون', [
+      lesson('marks', 'Les marques principales', 'الْعَلَامَاتُ الْأَصْلِيَّةُ', 'Ḍamma, fatḥa, kasra et sukūn rendent l’état visible.', 'La ḍamma marque principalement le rafʿ, la fatḥa le naṣb, la kasra le jarr et le sukūn le jazm. Sur un nom indéfini, ces voyelles sont doublées par le تَنْوِين : كِتَابٌ, كِتَابًا, كِتَابٍ.', 'لَمْ يَكْتُبْ', 'Il n’a pas écrit.', 'يَكْتُبْ : فعل مضارع مجزوم بلم وعلامة جزمه السكون', [
         q('marks-1', 'Quelle marque indique normalement le nominatif ?', 'ـُ', [['Ḍamma — الضمة','d'],['Fatḥa — الفتحة','f'],['Kasra — الكسرة','k']], 'd', 'La ḍamma est la marque principale du rafʿ.'),
         q('marks-2', 'Quelle marque termine يَكْتُبْ après لَمْ ?', 'لَمْ يَكْتُبْ', [['Sukūn — السكون','s'],['Ḍamma — الضمة','d']], 's', 'لَمْ rend le présent majzūm, ici marqué par le sukūn.', 'فعل مضارع مجزوم وعلامة جزمه السكون')
       ])

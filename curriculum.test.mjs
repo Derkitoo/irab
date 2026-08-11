@@ -6,7 +6,7 @@ const ARABIC = /[؀-ۿ]/
 
 assert.equal(curriculum.length, 12)
 assert.equal(allLessons.length, 25)
-assert.equal(allQuestions.length, 129)
+assert.equal(allQuestions.length, 133)
 
 // Les identifiants sont uniques : la progression et les cartes s'y indexent.
 const lessonIds = allLessons.map(lesson => lesson.id)
@@ -60,8 +60,8 @@ for (const question of allQuestions) {
 const base = allQuestions.filter(question => !question.id.endsWith('-c') && question.type !== 'builder')
 const consolidation = allQuestions.filter(question => question.id.endsWith('-c'))
 const builders = allQuestions.filter(question => question.type === 'builder')
-assert.equal(base.length, 52)
-assert.equal(consolidation.length, 52)
+assert.equal(base.length, 54)
+assert.equal(consolidation.length, 54)
 assert.equal(builders.length, 25)
 for (const question of base) {
   assert.ok(consolidation.some(item => item.id === `${question.id}-c`), `${question.id} : consolidation manquante`)

@@ -17,7 +17,7 @@
 
 L’application est indépendante d’Arabiya. Elle fonctionne en français et en arabe, sur ordinateur et mobile.
 
-- 12 modules, 25 leçons et 129 exercices ;
+- 12 modules, 25 leçons et 133 exercices ;
 - QCM, choix de mots, terminaisons et construction du iʿrāb par blocs ;
 - corrections expliquées et lecture audio arabe par synthèse vocale ;
 - progression locale, révision ciblée et répétition espacée ;
@@ -203,6 +203,7 @@ git push origin main:gh-pages
 - Les jours viennent de `day.js` et suivent le fuseau de l'appareil. Les échéances SRS étaient déjà locales.
 - Le contenu ne vit plus dans `app.js`. Une leçon s'ajoute dans `content-core.js` ou `content-advanced.js`, et `curriculum.js` s'occupe des passes de consolidation et des constructions par blocs.
 - Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
+- Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
 - Le champ `analysis` d'une leçon s'affiche dans un panneau droite-à-gauche : il doit être en arabe, et un test le vérifie.
 - Les anciennes sauvegardes sans `activity` ou `preferences` restent compatibles.
 - Le contenu utilisateur ou distant inséré dans le HTML doit passer par `escapeHtml`.
@@ -217,11 +218,10 @@ git push origin main:gh-pages
 - Le découpage des exercices en cinq catégories est un choix pédagogique, à confirmer lors de la relecture du corpus par un enseignant.
 - Le corpus a reçu une relecture assistée, pas une validation d'arabophone qualifié : sept corrections nettes ont été appliquées, mais l'exactitude d'ensemble n'est pas garantie.
 - Le glossaire emploie la terminologie classique ; ses 59 définitions n'ont pas été relues par un enseignant.
-- Six termes du glossaire ne sont reliés à aucune leçon : ils n'apparaissent qu'en translittération dans les règles françaises.
 - La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur réel.
 - L'objectif quotidien se remet à zéro à minuit local ; un horaire de bascule personnalisé reste à faire.
 - Les compteurs de maîtrise ont baissé pour les comptes existants au passage à la maîtrise révocable : c'est attendu, les données ne sont pas perdues.
-- Les 129 exercices sont 52 questions écrites, 52 consolidations générées automatiquement et 25 constructions par blocs.
+- Les 133 exercices sont 54 questions écrites, 54 consolidations générées automatiquement et 25 constructions par blocs.
 - `app.js` concentre encore beaucoup de responsabilités et deviendra difficile à maintenir si le contenu grandit fortement.
 - `sync.test.mjs` couvre le parcours complet inscription, première synchronisation vide, deux appareils, pannes réseau et isolation entre comptes, mais contre un faux Supabase : il ne remplace pas un test dans un vrai navigateur contre le vrai service.
 - La suppression définitive du compte dépend de la fonction `delete_own_account` ; elle doit être déployée sur le projet Supabase existant avant que le bouton fonctionne complètement.
@@ -235,7 +235,7 @@ git push origin main:gh-pages
 
 1. Déployer `delete_own_account` sur le projet Supabase existant, puis vérifier la suppression avec un compte de test.
 2. Compléter la couverture par un test dans un vrai navigateur, contre un projet Supabase de test : inscription, confirmation e-mail et synchronisation entre deux sessions réelles.
-3. Faire relire par un enseignant d’arabe : les 25 leçons, les analyses, les 52 exercices écrits, les 59 définitions du glossaire et le classement des exercices en cinq catégories.
+3. Faire relire par un enseignant d’arabe : les 25 leçons, les analyses, les 54 exercices écrits, les 59 définitions du glossaire et le classement des exercices en cinq catégories.
 4. Faire relire la page Confidentialité par un regard juridique avant toute diffusion large.
 
 Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentative, page Confidentialité et suppression des données, versionnage du format de progression, test complet de la couche de synchronisation.

@@ -20,13 +20,14 @@ export const advancedModules = [
     id: 'nouns', title: 'Les fonctions du nom', ar: 'مَوَاقِعُ الْأَسْمَاءِ',
     description: 'Distinguer les principaux noms marfūʿ, manṣūb et majrūr.',
     lessons: [
-      L('raised-nouns', 'Les noms au nominatif', 'الْمَرْفُوعَاتُ مِنَ الْأَسْمَاءِ', 'Plusieurs fonctions imposent le nominatif.', 'Le mubtadaʾ, le khabar, le fāʿil et le نائب الفاعل sont normalement marfūʿ.', 'كُسِرَ الْبَابُ', 'La porte a été cassée.', 'الْبَابُ نائب فاعل مرفوع وعلامة رفعه الضمة', [
+      L('raised-nouns', 'Les noms au nominatif', 'الْمَرْفُوعَاتُ مِنَ الْأَسْمَاءِ', 'Plusieurs fonctions imposent le nominatif.', 'Le mubtadaʾ, le khabar, le fāʿil et le نائب الفاعل sont normalement marfūʿ. Quand le verbe est مَبْنِيّ لِلْمَجْهُول, l’auteur de l’action n’est pas nommé et le patient prend la place du sujet.', 'كُسِرَ الْبَابُ', 'La porte a été cassée.', 'كُسِرَ فعل ماضٍ مبني للمجهول — الْبَابُ نائب فاعل مرفوع وعلامة رفعه الضمة', [
         Q('raised-1', 'Pourquoi الْبَابُ est-il marfūʿ ?', 'كُسِرَ الْبَابُ', [['Sujet du passif — نائب فاعل', 'passive'], ['Objet — مفعول به', 'object']], 'passive', 'Avec un verbe au passif, le patient devient نائب الفاعل.', 'نائب فاعل مرفوع وعلامة رفعه الضمة'),
         Q('raised-2', 'Quelle fonction est toujours marfūʿ ?', 'جَاءَ الطَّالِبُ', [['Fāʿil — فاعل', 'f'], ['Mafʿūl bihi — مفعول به', 'o']], 'f', 'Le sujet du verbe est au nominatif.')
       ]),
-      L('accusative-nouns', 'Les noms à l’accusatif', 'الْمَنْصُوبَاتُ مِنَ الْأَسْمَاءِ', 'Le naṣb apparaît dans plusieurs compléments.', 'Le complément d’objet, le complément circonstanciel, le ḥāl et le tamyīz font partie des noms souvent manṣūb.', 'رَجَعَ الطَّالِبُ مُبْتَسِمًا', 'L’étudiant est revenu en souriant.', 'مُبْتَسِمًا حال منصوب وعلامة نصبه الفتحة', [
+      L('accusative-nouns', 'Les noms à l’accusatif', 'الْمَنْصُوبَاتُ مِنَ الْأَسْمَاءِ', 'Le naṣb apparaît dans plusieurs compléments.', 'Le complément d’objet, le ظَرْف, le حَال et le تَمْيِيز font partie des noms souvent manṣūb.', 'رَجَعَ الطَّالِبُ مُبْتَسِمًا', 'L’étudiant est revenu en souriant.', 'مُبْتَسِمًا حال منصوب وعلامة نصبه الفتحة', [
         Q('acc-1', 'Quelle est la fonction de مُبْتَسِمًا ?', 'رَجَعَ الطَّالِبُ مُبْتَسِمًا', [['État/circonstance — حال', 'hal'], ['Sujet — فاعل', 'f']], 'hal', 'Le mot décrit l’état du sujet pendant l’action.', 'حال منصوب وعلامة نصبه الفتحة'),
-        Q('acc-2', 'Quel mot est le complément d’objet ?', 'شَرِبَ الْوَلَدُ الْمَاءَ', [['الْوَلَدُ', 'boy'], ['الْمَاءَ', 'water']], 'water', 'L’eau reçoit l’action de boire.', 'الْمَاءَ مفعول به منصوب وعلامة نصبه الفتحة')
+        Q('acc-2', 'Quel mot est le complément d’objet ?', 'شَرِبَ الْوَلَدُ الْمَاءَ', [['الْوَلَدُ', 'boy'], ['الْمَاءَ', 'water']], 'water', 'L’eau reçoit l’action de boire.', 'الْمَاءَ مفعول به منصوب وعلامة نصبه الفتحة'),
+        Q('acc-3', 'Quelle est la fonction de كِتَابًا ?', 'قَرَأْتُ عِشْرِينَ كِتَابًا', [['Spécificatif — تمييز', 'tamyiz'], ['Complément d’objet — مفعول به', 'object']], 'tamyiz', 'عِشْرِينَ dit une quantité sans dire de quoi. كِتَابًا lève cette ambiguïté : c’est un tamyīz, manṣūb.', 'كِتَابًا تمييز منصوب وعلامة نصبه الفتحة')
       ])
     ]
   },
@@ -38,7 +39,7 @@ export const advancedModules = [
         Q('past-1', 'Le verbe كَتَبَ est…', 'كَتَبَ', [['Invariable — مبني', 'built'], ['Variable — معرب', 'var']], 'built', 'Le passé est normalement invariable.', 'فعل ماضٍ مبني على الفتح'),
         Q('past-2', 'Sur quoi اُكْتُبْ est-il construit ?', 'اُكْتُبْ', [['Le sukūn — السكون', 's'], ['La fatḥa — الفتحة', 'f']], 's', 'L’impératif régulier est ici construit sur le sukūn.', 'فعل أمر مبني على السكون')
       ]),
-      L('present-verb', 'Le présent variable', 'الْفِعْلُ الْمُضَارِعُ الْمُعْرَبُ', 'Le présent est marfūʿ tant qu’aucun régissant ne le modifie.', 'Le présent est normalement marfūʿ. Il devient manṣūb après une particule de naṣb et majzūm après une particule de jazm.', 'يَجْلِسُ — لَنْ يَجْلِسَ — لَمْ يَجْلِسْ', 'Il s’assoit — il ne s’assoira pas — il ne s’est pas assis.', 'مرفوع بالضمة — منصوب بالفتحة — مجزوم بالسكون', [
+      L('present-verb', 'Le présent variable', 'الْفِعْلُ الْمُضَارِعُ الْمُعْرَبُ', 'Le présent est marfūʿ tant qu’aucun régissant ne le modifie.', 'Le présent est normalement marfūʿ tant qu’aucun عَامِل ne le précède. Il devient manṣūb après une particule de naṣb et majzūm après une particule de jazm.', 'يَجْلِسُ — لَنْ يَجْلِسَ — لَمْ يَجْلِسْ', 'Il s’assoit — il ne s’assoira pas — il ne s’est pas assis.', 'مرفوع بالضمة — منصوب بالفتحة — مجزوم بالسكون', [
         Q('present-1', 'Quel est l’état de يَجْلِسُ sans particule ?', 'يَجْلِسُ الطِّفْلُ', cases(), 'raf', 'En l’absence de régissant, le présent est marfūʿ.', 'فعل مضارع مرفوع وعلامة رفعه الضمة'),
         Q('present-2', 'Quelle terminaison convient après لَنْ ?', 'لَنْ يَجْلِس…', [['ـَ : يَجْلِسَ', 'a'], ['ـُ : يَجْلِسُ', 'u'], ['ـْ : يَجْلِسْ', 's']], 'a', 'لَنْ impose le naṣb, marqué ici par la fatḥa.')
       ])
@@ -90,13 +91,14 @@ export const advancedModules = [
     id: 'secondary-signs', title: 'Les marques secondaires', ar: 'الْعَلَامَاتُ الْفَرْعِيَّةُ',
     description: 'Dépasser les terminaisons simples avec le duel et les pluriels réguliers.',
     lessons: [
-      L('dual', 'Le duel', 'الْمُثَنَّى', 'Le duel possède des marques secondaires.', 'Le duel est marfūʿ avec alif : ـانِ. Il est manṣūb et majrūr avec yāʾ : ـيْنِ.', 'جَاءَ الطَّالِبَانِ — رَأَيْتُ الطَّالِبَيْنِ', 'Les deux étudiants sont venus — j’ai vu les deux étudiants.', 'الطَّالِبَانِ فاعل مرفوع بالألف — الطَّالِبَيْنِ مفعول به منصوب بالياء', [
+      L('dual', 'Le duel', 'الْمُثَنَّى', 'Le duel possède des marques secondaires.', 'Le duel n’emploie pas les voyelles brèves mais une عَلَامَة فَرْعِيَّة, une lettre. Il est marfūʿ avec alif : ـانِ, puis manṣūb et majrūr avec yāʾ : ـيْنِ.', 'جَاءَ الطَّالِبَانِ — رَأَيْتُ الطَّالِبَيْنِ', 'Les deux étudiants sont venus — j’ai vu les deux étudiants.', 'الطَّالِبَانِ فاعل مرفوع بالألف — الطَّالِبَيْنِ مفعول به منصوب بالياء', [
         Q('dual-1', 'Quelle marque indique le rafʿ du duel ?', 'الطَّالِبَانِ', [['Alif — الألف', 'alif'], ['Yāʾ — الياء', 'ya']], 'alif', 'Le duel est marfūʿ avec alif.', 'مرفوع وعلامة رفعه الألف لأنه مثنى'),
         Q('dual-2', 'Quelle forme convient après رَأَيْتُ ?', 'رَأَيْتُ …', [['الطَّالِبَيْنِ', 'ayn'], ['الطَّالِبَانِ', 'an']], 'ayn', 'Le complément d’objet duel est manṣūb avec yāʾ.')
       ]),
-      L('sound-plurals', 'Les pluriels réguliers', 'الْجَمْعُ السَّالِمُ', 'Les pluriels réguliers possèdent leurs propres marques.', 'Le pluriel masculin régulier est marfūʿ avec wāw et manṣūb/majrūr avec yāʾ. Le pluriel féminin régulier est marfūʿ avec ḍamma et manṣūb/majrūr avec kasra.', 'جَاءَ الْمُعَلِّمُونَ — رَأَيْتُ الْمُعَلِّمِينَ', 'Les professeurs sont venus — j’ai vu les professeurs.', 'الْمُعَلِّمُونَ مرفوع بالواو — الْمُعَلِّمِينَ منصوب بالياء', [
+      L('sound-plurals', 'Les pluriels réguliers', 'الْجَمْعُ السَّالِمُ', 'Les pluriels réguliers possèdent leurs propres marques.', 'Le جَمْع مُذَكَّر سَالِم est marfūʿ avec wāw et manṣūb ou majrūr avec yāʾ. Le جَمْع مُؤَنَّث سَالِم garde la ḍamma au rafʿ, mais prend la kasra au naṣb comme au jarr : jamais la fatḥa.', 'جَاءَ الْمُعَلِّمُونَ — رَأَيْتُ الْمُعَلِّمَاتِ', 'Les professeurs sont venus — j’ai vu les professeures.', 'الْمُعَلِّمُونَ فاعل مرفوع وعلامة رفعه الواو — الْمُعَلِّمَاتِ مفعول به منصوب وعلامة نصبه الكسرة', [
         Q('plural-1', 'Quelle marque indique le rafʿ du pluriel masculin régulier ?', 'الْمُعَلِّمُونَ', [['Wāw — الواو', 'waw'], ['Yāʾ — الياء', 'ya']], 'waw', 'Ce pluriel est marfūʿ avec wāw.', 'مرفوع وعلامة رفعه الواو لأنه جمع مذكر سالم'),
-        Q('plural-2', 'Quelle forme est majrūr ?', 'سَلَّمْتُ عَلَى …', [['الْمُعَلِّمِينَ', 'in'], ['الْمُعَلِّمُونَ', 'un']], 'in', 'Après عَلَى, le pluriel masculin régulier prend yāʾ.', 'اسم مجرور وعلامة جره الياء')
+        Q('plural-2', 'Quelle forme est majrūr ?', 'سَلَّمْتُ عَلَى …', [['الْمُعَلِّمِينَ', 'in'], ['الْمُعَلِّمُونَ', 'un']], 'in', 'Après عَلَى, le pluriel masculin régulier prend yāʾ.', 'اسم مجرور وعلامة جره الياء'),
+        Q('plural-3', 'Quelle marque porte الْمُعَلِّمَاتِ après رَأَيْتُ ?', 'رَأَيْتُ الْمُعَلِّمَاتِ', [['Kasra — الكسرة', 'kasra'], ['Fatḥa — الفتحة', 'fatha']], 'kasra', 'C’est le piège du pluriel féminin régulier : à l’accusatif il prend la kasra, jamais la fatḥa.', 'الْمُعَلِّمَاتِ مفعول به منصوب وعلامة نصبه الكسرة لأنه جمع مؤنث سالم')
       ])
     ]
   },
@@ -104,7 +106,7 @@ export const advancedModules = [
     id: 'synthesis', title: 'Analyse complète', ar: 'التَّحْلِيلُ الْإِعْرَابِيُّ',
     description: 'Combiner toutes les règles dans des phrases progressivement plus riches.',
     lessons: [
-      L('nominal-synthesis', 'Synthèse nominale', 'مُرَاجَعَةُ الْجُمْلَةِ الِاسْمِيَّةِ', 'Repérer le régissant avant d’attribuer les fonctions.', 'Commence par identifier les particules ou verbes incomplets. Ils déterminent si les deux piliers seront marfūʿ ou manṣūb.', 'إِنَّ بَابَ الْمَدْرَسَةِ كَبِيرٌ', 'La porte de l’école est assurément grande.', 'بَابَ اسم إن منصوب وهو مضاف — الْمَدْرَسَةِ مضاف إليه مجرور — كَبِيرٌ خبر إن مرفوع', [
+      L('nominal-synthesis', 'Synthèse nominale', 'مُرَاجَعَةُ الْجُمْلَةِ الِاسْمِيَّةِ', 'Repérer le régissant avant d’attribuer les fonctions.', 'Commence par identifier le عَامِل, ce qui régit la phrase : particule ou verbe incomplet. C’est lui qui détermine si les deux piliers seront marfūʿ ou manṣūb.', 'إِنَّ بَابَ الْمَدْرَسَةِ كَبِيرٌ', 'La porte de l’école est assurément grande.', 'بَابَ اسم إن منصوب وهو مضاف — الْمَدْرَسَةِ مضاف إليه مجرور — كَبِيرٌ خبر إن مرفوع', [
         Q('syn-n-1', 'Pourquoi بَابَ est-il manṣūb ?', 'إِنَّ بَابَ الْمَدْرَسَةِ كَبِيرٌ', [['C’est le ism de إِنَّ', 'inna'], ['C’est un objet', 'object']], 'inna', 'إِنَّ place son ism à l’accusatif.', 'اسم إن منصوب وعلامة نصبه الفتحة'),
         Q('syn-n-2', 'Pourquoi الْمَدْرَسَةِ est-il majrūr ?', 'بَابَ الْمَدْرَسَةِ', [['C’est un مضاف إليه', 'idafa'], ['Il suit une préposition', 'prep']], 'idafa', 'Il est le second terme de l’annexion.', 'مضاف إليه مجرور وعلامة جره الكسرة')
       ]),

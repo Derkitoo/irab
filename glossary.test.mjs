@@ -35,7 +35,11 @@ for (const entry of linked) {
     assert.ok(lessonIds.has(lesson.id), `${entry.tr} pointe vers une leçon inconnue : ${lesson.id}`)
   }
 }
-assert.ok(linked.filter(entry => entry.lessons.length).length >= 45, 'trop peu de termes reliés à une leçon')
+// Tout terme du glossaire doit être travaillé quelque part : un terme que le
+// parcours n'emploie jamais en arabe est une notion promise et non enseignée.
+// Pour en ajouter un, le nommer en arabe dans la règle de la leçon concernée.
+const unused = linked.filter(entry => !entry.lessons.length).map(entry => entry.tr)
+assert.deepEqual(unused, [], `termes absents du parcours : ${unused.join(', ')}`)
 
 // Reconnaissance d'un terme porté par l'article, une lettre soudée ou un suffixe.
 const fake = [{ ar: '', title: 'Module', lessons: [{ id: 'l1', title: 'Leçon', ar: 'النَّعْتُ وَالْمَنْعُوتُ', rule: '', example: 'وَعَلَامَةُ نَصْبِهِ الْفَتْحَةُ', analysis: 'الْمُبْتَدَأُ مَرْفُوعٌ', questions: [] }] }]

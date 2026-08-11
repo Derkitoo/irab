@@ -8,7 +8,7 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 
 - 12 modules progressifs
 - 25 leçons bilingues français–arabe
-- 129 exercices avec correction expliquée et consolidation
+- 133 exercices avec correction expliquée et consolidation
 - construction du iʿrāb par blocs ordonnables
 - sélection directe de mots et exercices de terminaisons
 - tableau de maîtrise par compétence
@@ -32,7 +32,7 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - catégories d’erreurs et révision ciblée par nature, fonction, état, marque ou analyse
 - reprise d’une leçon à la question interrompue
 - jours, séries et objectif quotidien dans le fuseau de l’appareil
-- glossaire français–arabe de 59 termes, cherchable et relié aux leçons
+- glossaire français–arabe de 59 termes, chacun relié aux leçons qui l’emploient
 - contenu des leçons séparé du moteur d’interface
 
 ## Activer les comptes Supabase

@@ -23,7 +23,7 @@ assert.ok(baseTopicIds().every(id => isKnownTopic(topicOf(id))))
 // Chaque exercice doit porter une catégorie : sans ce contrôle, une question
 // ajoutée plus tard disparaîtrait silencieusement du bilan.
 const declared = allQuestions.filter(question => question.type !== 'builder' && !question.id.endsWith('-c')).map(question => question.id)
-assert.equal(declared.length, 52)
+assert.equal(declared.length, 54)
 const untagged = declared.filter(id => !topicOf(id))
 assert.deepEqual(untagged, [], `exercices sans catégorie : ${untagged.join(', ')}`)
 

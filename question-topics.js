@@ -29,7 +29,7 @@ const BASE_TOPICS = {
   'prep-1': 'etat', 'prep-2': 'marque',
   'part-1': 'etat', 'part-2': 'etat',
   'raised-1': 'fonction', 'raised-2': 'fonction',
-  'acc-1': 'fonction', 'acc-2': 'fonction',
+  'acc-1': 'fonction', 'acc-2': 'fonction', 'acc-3': 'fonction',
   'past-1': 'nature', 'past-2': 'marque',
   'present-1': 'etat', 'present-2': 'marque',
   'idafa-1': 'fonction', 'idafa-2': 'nature',
@@ -39,7 +39,7 @@ const BASE_TOPICS = {
   'kana-1': 'etat', 'kana-2': 'etat',
   'kana-s-1': 'fonction', 'kana-s-2': 'nature',
   'dual-1': 'marque', 'dual-2': 'marque',
-  'plural-1': 'marque', 'plural-2': 'marque',
+  'plural-1': 'marque', 'plural-2': 'marque', 'plural-3': 'marque',
   'syn-n-1': 'fonction', 'syn-n-2': 'fonction',
   'syn-v-1': 'analyse', 'syn-v-2': 'analyse',
 }
