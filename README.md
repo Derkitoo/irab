@@ -25,6 +25,9 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - synchronisation Supabase active
 - bilan pédagogique : réussite, activité sur sept jours, série active, maîtrise par thème et erreurs fréquentes
 - coach pédagogique avec objectif quotidien réglable et recommandation adaptée aux lacunes
+- page Confidentialité, effacement local et suppression définitive du compte
+- messages d’erreur réseau explicites avec bouton de nouvelle tentative
+- format de progression versionné et migré automatiquement
 
 ## Activer les comptes Supabase
 
@@ -34,6 +37,8 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 4. Ajouter `https://derkitoo.github.io/irab/` aux URL de redirection autorisées dans Supabase Auth.
 
 La progression locale est fusionnée avec la progression distante lors de la connexion. La clé `service_role` ne doit jamais être ajoutée au projet web.
+
+Le script SQL crée aussi la fonction `delete_own_account`, seul chemin autorisé pour qu’un utilisateur supprime lui-même son compte depuis le navigateur. Sans elle, la page Confidentialité supprime la progression synchronisée et déconnecte l’utilisateur, puis signale que le compte lui-même n’a pas pu être supprimé.
 
 ## Lancer localement
 

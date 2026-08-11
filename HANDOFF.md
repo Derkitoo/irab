@@ -1,8 +1,8 @@
 # Passation — Iʿrāb FR
 
-Dernière mise à jour : 11 août 2026  
-Dernier jalon livré : coach pédagogique personnalisé  
-Commit de référence : `a2e1edd`
+- Dernière mise à jour : 11 août 2026
+- Dernier jalon livré : sprint 1 — sécurité utilisateur
+- Commit de référence : `a2e1edd` (coach), puis les correctifs de fusion du sprint 1
 
 ## 1. Liens utiles
 
@@ -26,7 +26,10 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - inscription, connexion et synchronisation Supabase ;
 - fusion sans doublons de la progression entre appareils ;
 - bilan pédagogique : maîtrise, réussite, activité sur sept jours, série et erreurs fréquentes ;
-- coach personnalisé : objectif quotidien 5/10/15, priorité aux révisions, détection des thèmes faibles et recommandation de la prochaine leçon.
+- coach personnalisé : objectif quotidien 5/10/15, priorité aux révisions, détection des thèmes faibles et recommandation de la prochaine leçon ;
+- page Confidentialité, effacement des données locales et suppression définitive du compte ;
+- messages d’erreur réseau explicites, avec bouton de nouvelle tentative et reprise automatique au retour du réseau ;
+- format de progression versionné, migré automatiquement et protégé contre l’écrasement par une version plus ancienne.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -42,13 +45,16 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `srs.js` | Planification de la répétition espacée |
 | `analytics.js` | Calcul du bilan pédagogique |
 | `coach.js` | Objectif quotidien et moteur de recommandation |
+| `progress-schema.js` | Version du format de progression et migrations |
+| `sync.js` | Orchestration pull/merge/push, indépendante du DOM |
+| `cloud-errors.js` | Traduction des erreurs Supabase et réseau |
 | `merge.js` | Normalisation et fusion local/cloud |
 | `backup.js` | Export et import de progression |
 | `cloud.js` | Authentification et persistance Supabase |
 | `supabase-config.js` | URL et clé publique Supabase uniquement |
 | `sw.js` | Cache PWA et mise à jour hors ligne |
 | `styles.css` | Design responsive |
-| `supabase/schema.sql` | Table et règles RLS |
+| `supabase/schema.sql` | Table, règles RLS et fonction `delete_own_account` |
 
 La bibliothèque Supabase est chargée à la demande depuis un CDN. Ne jamais ajouter de clé `service_role` ou de clé secrète dans le dépôt.
 
@@ -58,6 +64,7 @@ Une ligne `learning_progress` existe par utilisateur. Le champ JSON `progress` c
 
 ```json
 {
+  "schemaVersion": 1,
   "lessons": [],
   "questions": [],
   "wrongs": {},
@@ -75,13 +82,25 @@ Une ligne `learning_progress` existe par utilisateur. Le champ JSON `progress` c
 - `wrongs` : erreurs encore à revoir ;
 - `cards` : échéances de répétition espacée ;
 - `activity` : tentatives horodatées, limitées aux 1 000 plus récentes ;
-- `preferences` : objectif quotidien et date de dernière modification.
+- `preferences` : objectif quotidien et date de dernière modification ;
+- `schemaVersion` : version du format, gérée par `progress-schema.js`.
 
 Les champs ajoutés dans le JSON ne nécessitent pas de migration SQL. `merge.js` doit néanmoins être mis à jour pour chaque nouvelle donnée synchronisée.
+
+### Faire évoluer le format
+
+1. incrémenter `CURRENT_SCHEMA_VERSION` dans `progress-schema.js` ;
+2. ajouter la migration correspondante dans l’objet `migrations`, indexée par la version de départ ;
+3. compléter `merge.js` si la nouvelle donnée doit être fusionnée entre appareils ;
+4. couvrir l’ancien format dans `progress-schema.test.mjs`.
+
+Les champs inconnus sont conservés à l’identique et une progression distante portant une version supérieure n’est jamais fusionnée ni réécrite : la synchronisation rend l’état `blocked` et invite à actualiser l’application.
 
 ## 5. Supabase et sécurité
 
 La table est protégée par RLS : un utilisateur authentifié ne peut lire et modifier que sa propre ligne. Le rôle anonyme n’a aucun droit sur la table.
+
+La fonction `delete_own_account` est `security definer` mais n’agit que sur `auth.uid()` : elle supprime la ligne de progression puis le compte lui-même. Elle n’est exécutable que par le rôle `authenticated`. C’est le seul moyen de supprimer un compte depuis le navigateur, aucune clé d’administration n’étant présente côté client. Si elle est absente du projet, l’application supprime la progression, déconnecte l’utilisateur et l’indique explicitement.
 
 Configuration attendue dans Supabase Auth :
 
@@ -107,6 +126,9 @@ node --check app.js
 node --check srs.js
 node --check analytics.js
 node --check coach.js
+node --check progress-schema.js
+node --check cloud-errors.js
+node --check sync.js
 node --check merge.js
 node --check backup.js
 node --check cloud.js
@@ -116,6 +138,9 @@ node analytics.test.mjs
 node coach.test.mjs
 node merge.test.mjs
 node backup.test.mjs
+node progress-schema.test.mjs
+node cloud-errors.test.mjs
+node sync.test.mjs
 git diff --check
 ```
 
@@ -133,18 +158,28 @@ git push origin main:gh-pages
 - Le mode invité doit toujours rester utilisable si Supabase est indisponible.
 - Une première connexion peut recevoir une progression distante `null` ; ce cas est testé.
 - La fusion des activités repose sur un identifiant unique par tentative.
+- Chaque carte SRS porte un horodatage `at` : c'est la réponse la plus récente qui gagne la fusion, jamais celle qui a le plus de `reps`. Sans cela, un échec était effacé par une réussite plus ancienne.
+- Une erreur reste dans `wrongs` tant que la carte fusionnée n'indique pas une réussite postérieure (`reps > 0`).
+- La déconnexion efface la progression locale : elle appartient au compte quitté et se retrouverait sinon fusionnée dans le compte suivant.
 - Le choix d’objectif le plus récent gagne grâce à `preferences.updatedAt`.
 - Le coach recommande dans cet ordre : révision due, thème sous 70 % après au moins deux tentatives, prochaine leçon inachevée.
 - Les anciennes sauvegardes sans `activity` ou `preferences` restent compatibles.
 - Le contenu utilisateur ou distant inséré dans le HTML doit passer par `escapeHtml`.
+- La logique de synchronisation vit dans `sync.js`, sans DOM : c’est ce qui la rend testable sous Node.
+- Une erreur cloud n’est jamais affichée brute ; elle passe par `describeCloudError`, qui décide aussi si « Réessayer » a un sens.
+- Une suppression de compte supprime d’abord la progression distante ; si la fonction serveur manque, l’utilisateur est déconnecté et prévenu plutôt que laissé dans le doute.
 
 ## 8. Limites connues
 
 - Les statistiques commencent à la date d’installation du journal d’activité ; les anciennes réponses maîtrisées n’ont pas d’historique rétroactif.
 - Le journal est limité à 1 000 tentatives et ne constitue pas une conservation analytique illimitée.
-- Les jours et séries sont calculés en UTC ; il faudra utiliser le fuseau de l’utilisateur pour une précision parfaite autour de minuit.
+- Les jours et séries sont calculés en UTC : une session entre minuit et 2 h heure de Paris s'affiche sur la barre de la veille et peut casser la série. Correction prévue au sprint 2.
+- « Maîtrise » signifie « réussi au moins une fois » et n'est jamais révoqué : une question peut compter comme maîtrisée et figurer en même temps dans les erreurs fréquentes. Définition à trancher.
+- Les 129 exercices sont 52 questions écrites, 52 consolidations générées automatiquement et 25 constructions par blocs.
 - `app.js` concentre encore beaucoup de responsabilités et deviendra difficile à maintenir si le contenu grandit fortement.
-- Il n’existe pas encore de test automatisé complet dans un vrai navigateur pour l’inscription et la synchronisation entre deux sessions.
+- `sync.test.mjs` couvre le parcours complet inscription, première synchronisation vide, deux appareils, pannes réseau et isolation entre comptes, mais contre un faux Supabase : il ne remplace pas un test dans un vrai navigateur contre le vrai service.
+- La suppression définitive du compte dépend de la fonction `delete_own_account` ; elle doit être déployée sur le projet Supabase existant avant que le bouton fonctionne complètement.
+- La page Confidentialité décrit l’usage réel des données mais n’a pas été relue juridiquement.
 - La voix arabe dépend du système et du navigateur ; la qualité varie selon l’appareil.
 - La qualité grammaticale de tout le corpus doit encore être relue par un arabophone qualifié.
 
@@ -152,11 +187,12 @@ git push origin main:gh-pages
 
 ### P0 — Fiabilité et confiance
 
-1. Ajouter un test de bout en bout : création de compte, première synchronisation vide, modification sur un appareil et récupération sur un second.
-2. Ajouter des messages d’erreur plus explicites et un bouton de nouvelle tentative lorsque Supabase ou le réseau échoue.
-3. Ajouter une page Confidentialité expliquant les données stockées et une action de suppression du compte et de sa progression.
-4. Introduire une version de schéma applicatif dans `progress` et des migrations explicites pour les futures évolutions.
-5. Faire relire les 25 leçons, les analyses et les 129 exercices par un enseignant d’arabe.
+1. Déployer `delete_own_account` sur le projet Supabase existant, puis vérifier la suppression avec un compte de test.
+2. Compléter la couverture par un test dans un vrai navigateur, contre un projet Supabase de test : inscription, confirmation e-mail et synchronisation entre deux sessions réelles.
+3. Faire relire les 25 leçons, les analyses et les 129 exercices par un enseignant d’arabe.
+4. Faire relire la page Confidentialité par un regard juridique avant toute diffusion large.
+
+Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentative, page Confidentialité et suppression des données, versionnage du format de progression, test complet de la couche de synchronisation.
 
 ### P1 — Expérience pédagogique
 
@@ -180,12 +216,12 @@ git push origin main:gh-pages
 
 ## 10. Proposition des trois prochains sprints
 
-### Sprint 1 — Sécurité utilisateur
+### Sprint 1 — Sécurité utilisateur (livré)
 
 - confidentialité et suppression de compte ;
 - erreurs réseau compréhensibles ;
 - versionnage du format de progression ;
-- test complet d’authentification et de synchronisation.
+- test complet de la couche de synchronisation.
 
 ### Sprint 2 — Session intelligente
 
