@@ -1,3 +1,5 @@
+import { advancedModules } from './content-advanced.js'
+
 const curriculum = [
   {
     id: 'words', title: 'Les trois familles de mots', ar: 'أَقْسَامُ الْكَلِمَةِ',
@@ -60,7 +62,8 @@ const curriculum = [
         q('method-2', 'Quelle étape vient après la fonction ?', 'النَّوْعُ ← الْوَظِيفَةُ ← ؟ ← الْعَلَامَةُ', [['L’état — الحالة الإعرابية','state'],['La traduction — الترجمة','tr']], 'state', 'La méthode est : nature, fonction, état, puis marque.')
       ])
     ]
-  }
+  },
+  ...advancedModules
 ]
 
 function lesson(id,title,ar,summary,rule,example,translation,analysis,questions){ return {id,title,ar,summary,rule,example,translation,analysis,questions} }
@@ -69,21 +72,24 @@ function caseChoices(){ return [['Nominatif — مرفوع','raf'],['Accusatif �
 
 const allLessons = curriculum.flatMap(m => m.lessons)
 const allQuestions = allLessons.flatMap(l => l.questions)
-const saved = JSON.parse(localStorage.getItem('irab-fr:progress') || '{"lessons":[],"questions":[]}')
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, checked:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[]} }
+const saved = loadProgress()
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}} }
 const app = document.querySelector('#app')
 
+function loadProgress(){ try { return JSON.parse(localStorage.getItem('irab-fr:progress') || '{}') } catch { return {} } }
 function save(){ localStorage.setItem('irab-fr:progress', JSON.stringify(state.progress)) }
 function completed(id){ return state.progress.lessons.includes(id) }
+function reviewQuestions(){ return allQuestions.filter(question => state.progress.wrongs[question.id] > 0) }
 function render(){ app.innerHTML = state.view === 'home' ? homeView() : lessonView(); bind() }
 function header(back=false){ return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span><span class="ar">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
+  const errors = reviewQuestions().length
   return `<div class="shell">${header()}<main class="container">
-    <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button></div>
+    <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${errors?`<button class="review-button" data-action="review">Réviser mes erreurs <span>${errors}</span></button>`:''}</div></div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${state.progress.questions.length}/${allQuestions.length}</strong><span>réponses maîtrisées</span></div></div></aside></section>
-    <div class="section-title"><div><h2>Le parcours</h2><p>Quatre fondations pour analyser une phrase arabe.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
+    <div class="section-title"><div><h2>Le parcours</h2><p>Douze modules, des fondations jusqu’à l’analyse complète.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
   </main></div>`
 }
 
@@ -97,14 +103,16 @@ function lessonView(){ const l=state.lesson; if(state.stage==='learn') return `<
 function bind(){
   document.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(b.dataset.lesson))
   document.querySelector('[data-action="continue"]')?.addEventListener('click',()=>openLesson(allLessons.find(l=>!completed(l.id))?.id||allLessons[0].id))
-  document.querySelectorAll('[data-action="home"]').forEach(b=>b.onclick=()=>{state.view='home';render()})
+  document.querySelectorAll('[data-action="home"]').forEach(b=>b.onclick=()=>{state.view='home';state.review=false;render()})
+  document.querySelector('[data-action="review"]')?.addEventListener('click',openReview)
   document.querySelector('[data-action="practice"]')?.addEventListener('click',()=>{state.stage='practice';state.qi=0;render();scrollTo(0,0)})
   document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.choice;render()})
-  document.querySelector('[data-action="check"]')?.addEventListener('click',()=>{if(state.selected!==null){state.checked=true;render()}})
+  document.querySelector('[data-action="check"]')?.addEventListener('click',()=>{if(state.selected!==null){const x=state.lesson.questions[state.qi];if(state.selected===x.answer){delete state.progress.wrongs[x.id]}else{state.progress.wrongs[x.id]=(state.progress.wrongs[x.id]||0)+1}state.checked=true;save();render()}})
   document.querySelector('[data-action="next"]')?.addEventListener('click',next)
 }
 
-function openLesson(id){ state={...state,view:'lesson',lesson:allLessons.find(l=>l.id===id),stage:'learn',qi:0,selected:null,checked:false}; render(); scrollTo(0,0) }
-function next(){ const x=state.lesson.questions[state.qi]; if(state.selected===x.answer&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id); if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.checked=false;save();render();scrollTo(0,0);return} if(!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id);save();state.view='home';render();scrollTo(0,0) }
+function openLesson(id){ state={...state,view:'lesson',lesson:allLessons.find(l=>l.id===id),stage:'learn',qi:0,selected:null,checked:false,review:false}; render(); scrollTo(0,0) }
+function openReview(){ const questions=reviewQuestions(); if(!questions.length)return; state={...state,view:'lesson',lesson:{id:'review',title:'Révision ciblée',ar:'مُرَاجَعَةُ الْأَخْطَاءِ',questions},stage:'practice',qi:0,selected:null,checked:false,review:true};render();scrollTo(0,0) }
+function next(){ const x=state.lesson.questions[state.qi]; if(state.selected===x.answer&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id); if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.checked=false;save();render();scrollTo(0,0);return} if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id);save();state.view='home';state.review=false;render();scrollTo(0,0) }
 
 render()
