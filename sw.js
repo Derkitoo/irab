@@ -1,4 +1,4 @@
-const CACHE = 'irab-fr-v1'
+const CACHE = 'irab-fr-v2'
 const SHELL = [
   './',
   './index.html',
