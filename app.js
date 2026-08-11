@@ -2,6 +2,7 @@ import { advancedModules } from './content-advanced.js'
 import { dateKey, isDue, scheduleCard } from './srs.js'
 import { createBackup, parseBackup } from './backup.js'
 import { mergeProgress } from './merge.js'
+import { computeAnalytics } from './analytics.js'
 import { currentSession, initializeCloud, isCloudConfigured, loadCloudProgress, onAuthChange, saveCloudProgress, signIn, signOut, signUp } from './cloud.js'
 
 let installPrompt = null
@@ -109,7 +110,7 @@ for (const module of curriculum) {
 const allLessons = curriculum.flatMap(m => m.lessons)
 const allQuestions = allLessons.flatMap(l => l.questions)
 const saved = loadProgress()
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}}, cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:''} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}, activity:Array.isArray(saved.activity)?saved.activity:[]}, cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:''} }
 const app = document.querySelector('#app')
 let cloudSaveTimer = null
 
@@ -118,13 +119,15 @@ function save(){ localStorage.setItem('irab-fr:progress', JSON.stringify(state.p
 function completed(id){ return state.progress.lessons.includes(id) }
 function reviewQuestions(){ return allQuestions.filter(question => state.progress.wrongs[question.id] > 0 || isDue(state.progress.cards[question.id])) }
 function schedule(questionId, correct){
+  state.progress.activity.push({ id:globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`, at:new Date().toISOString(), questionId, correct })
+  state.progress.activity=state.progress.activity.slice(-1000)
   state.progress.cards[questionId]=scheduleCard(state.progress.cards[questionId],correct)
   if(!correct){ state.progress.wrongs[questionId]=(state.progress.wrongs[questionId]||0)+1; return }
   delete state.progress.wrongs[questionId]
 }
 function speakArabic(text){ if(!('speechSynthesis' in window))return; speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='ar-SA'; utterance.rate=.78; const voice=speechSynthesis.getVoices().find(item=>item.lang.toLowerCase().startsWith('ar')); if(voice)utterance.voice=voice; speechSynthesis.speak(utterance) }
-function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : lessonView(); bind() }
-function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
+function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : state.view === 'stats' ? statsView() : lessonView(); bind() }
+function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="stats">Bilan</button><button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
@@ -139,6 +142,27 @@ function homeView(){
 }
 
 function moduleCard(m,i){ const done=m.lessons.filter(l=>completed(l.id)).length; return `<article class="module"><div class="module-head"><span class="module-number">${i+1}</span><div><h3>${m.title}</h3><p class="module-ar ar">${m.ar}</p></div><span class="badge">${done}/${m.lessons.length}</span></div><p class="module-description">${m.description}</p><div class="lesson-list">${m.lessons.map(l=>`<button class="lesson-row" data-lesson="${l.id}"><span class="lesson-status ${completed(l.id)?'done':''}">${completed(l.id)?'✓':'○'}</span><span><strong>${l.title}</strong><small class="ar">${l.ar}</small></span><span>›</span></button>`).join('')}</div></article>` }
+
+function statsView(){
+  const stats=computeAnalytics(state.progress,curriculum)
+  const reviews=reviewQuestions().length
+  const maxDay=Math.max(1,...stats.days.map(day=>day.attempts))
+  const mastered=state.progress.questions.length
+  const empty=stats.attempts===0
+  return `<div class="shell">${header(true)}<main class="stats-shell">
+    <header class="stats-title"><span class="eyebrow">Bilan pédagogique</span><h1>Ta progression en détail</h1><p>Les nouvelles tentatives sont enregistrées sur cet appareil et synchronisées avec ton compte.</p></header>
+    <section class="metric-grid">
+      <article class="metric"><span>Maîtrise</span><strong>${mastered}/${allQuestions.length}</strong><small>exercices réussis</small></article>
+      <article class="metric"><span>Réussite</span><strong>${empty?'—':`${stats.accuracy}%`}</strong><small>${stats.attempts} tentative${stats.attempts>1?'s':''} suivie${stats.attempts>1?'s':''}</small></article>
+      <article class="metric"><span>Série active</span><strong>${stats.streak}</strong><small>jour${stats.streak>1?'s':''} consécutif${stats.streak>1?'s':''}</small></article>
+      <article class="metric"><span>À revoir</span><strong>${reviews}</strong><small>exercices ciblés</small></article>
+    </section>
+    ${empty?'<p class="stats-notice">L’historique commence aujourd’hui. Réponds à quelques exercices pour voir apparaître ton taux de réussite et tes erreurs fréquentes.</p>':''}
+    <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Régularité</span><h2>Activité sur 7 jours</h2></div><strong>${stats.attempts} au total</strong></div><div class="activity-chart">${stats.days.map(day=>`<div class="activity-day"><span class="activity-value">${day.attempts||''}</span><i style="height:${Math.max(day.attempts?12:3,Math.round(day.attempts/maxDay*100))}%"></i><small>${day.label}</small></div>`).join('')}</div></section>
+    <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Compétences</span><h2>Maîtrise par thème</h2></div></div><div class="topic-list">${stats.modules.map(module=>`<article class="topic-row"><div><strong>${module.title}</strong><span>${module.mastered}/${module.total} maîtrisés${module.attempts?` · ${module.accuracy}% de réussite`:''}</span></div><div class="topic-bar"><i style="width:${module.mastery}%"></i></div><b>${module.mastery}%</b></article>`).join('')}</div></section>
+    <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Révision ciblée</span><h2>Erreurs fréquentes</h2></div>${reviews?'<button class="review-button" data-action="review">Réviser maintenant</button>':''}</div>${stats.trouble.length?`<div class="trouble-list">${stats.trouble.map(item=>`<article><span>${item.moduleTitle}</span><strong>${escapeHtml(item.prompt)}</strong><small>${item.errors} erreur${item.errors>1?'s':''} sur ${item.attempts} tentative${item.attempts>1?'s':''}</small></article>`).join('')}</div>`:'<p class="empty-note">Aucune erreur enregistrée pour le moment.</p>'}</section>
+  </main></div>`
+}
 
 function escapeHtml(value=''){ return String(value).replace(/[&<>"']/g,character=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[character]) }
 function accountView(){
@@ -168,6 +192,7 @@ function bind(){
   document.querySelectorAll('[data-action="home"]').forEach(b=>b.onclick=()=>{state.view='home';state.review=false;render()})
   document.querySelector('[data-action="review"]')?.addEventListener('click',openReview)
   document.querySelectorAll('[data-action="account"]').forEach(button=>button.onclick=()=>{state.view='account';render();scrollTo(0,0)})
+  document.querySelectorAll('[data-action="stats"]').forEach(button=>button.onclick=()=>{state.view='stats';render();scrollTo(0,0)})
   document.querySelectorAll('[data-auth-mode]').forEach(button=>button.onclick=()=>handleAuth(button.dataset.authMode))
   document.querySelector('[data-action="sync"]')?.addEventListener('click',()=>syncCloud())
   document.querySelector('[data-action="signout"]')?.addEventListener('click',handleSignOut)

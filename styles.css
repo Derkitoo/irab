@@ -156,6 +156,37 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 .account-success { color: #124e37; background: #dcefe5; }
 .danger-button { padding: 12px 16px; border: 1px solid var(--bad); border-radius: 13px; color: var(--bad); background: transparent; cursor: pointer; font-weight: 700; }
 
+.stats-shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 100px; }
+.stats-title { max-width: 680px; margin-bottom: 30px; }
+.stats-title h1 { margin: 8px 0 12px; font-size: clamp(38px, 7vw, 64px); line-height: 1.04; }
+.stats-title p { color: var(--muted); font-size: 18px; line-height: 1.6; }
+.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.metric { display: grid; min-height: 150px; padding: 22px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); box-shadow: 0 10px 30px rgba(23,63,56,.05); }
+.metric span, .metric small { color: var(--muted); }
+.metric span { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.metric strong { align-self: end; color: var(--green); font-size: 34px; }
+.metric small { font-size: 12px; }
+.stats-notice { margin: 18px 0 0; padding: 16px 18px; border-radius: 15px; color: var(--green); background: var(--gold-soft); line-height: 1.55; }
+.stats-panel { margin-top: 22px; padding: 26px; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); }
+.stats-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+.stats-panel-head h2 { margin: 5px 0 0; font-size: 24px; }
+.stats-panel-head > strong { color: var(--green); font-size: 14px; }
+.activity-chart { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: 12px; height: 210px; padding-top: 18px; }
+.activity-day { display: grid; grid-template-rows: 22px 1fr 20px; align-items: end; height: 100%; text-align: center; }
+.activity-day i { display: block; width: min(42px, 80%); min-height: 3px; margin: 0 auto; border-radius: 10px 10px 4px 4px; background: linear-gradient(180deg, var(--gold), var(--green-2)); }
+.activity-day small, .activity-value { color: var(--muted); font-size: 11px; }
+.topic-list { display: grid; gap: 16px; }
+.topic-row { display: grid; grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 2fr) 48px; align-items: center; gap: 16px; }
+.topic-row > div:first-child { display: grid; gap: 3px; }
+.topic-row span { color: var(--muted); font-size: 11px; }
+.topic-row b { color: var(--green); text-align: right; }
+.topic-bar { height: 10px; overflow: hidden; border-radius: 999px; background: var(--mint); }
+.topic-bar i { display: block; height: 100%; border-radius: inherit; background: var(--green-2); }
+.trouble-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.trouble-list article { display: grid; gap: 7px; padding: 17px; border-radius: 16px; background: #f8f2e8; }
+.trouble-list span, .trouble-list small { color: var(--muted); font-size: 11px; }
+.trouble-list strong { line-height: 1.35; }
+
 @media (max-width: 760px) {
   .topbar { height: 64px; padding: 0 16px; }
   .container { padding-top: 20px; }
@@ -166,6 +197,9 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
   .hero-card { padding: 24px; }
   .portable { align-items: flex-start; flex-direction: column; }
   .auth-actions { grid-template-columns: 1fr; }
+  .metric-grid { grid-template-columns: 1fr 1fr; }
+  .topic-row { grid-template-columns: 1fr 44px; }
+  .topic-row .topic-bar { grid-column: 1 / -1; grid-row: 2; }
   .modules { gap: 14px; }
   .method { grid-template-columns: 1fr 1fr; }
   .hide-mobile { display: none; }
@@ -173,4 +207,8 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 
 @media (max-width: 430px) {
   .competencies { grid-template-columns: 1fr; }
+  .metric-grid { grid-template-columns: 1fr; }
+  .stats-panel { padding: 20px 16px; }
+  .stats-panel-head { align-items: flex-start; flex-direction: column; }
+  .activity-chart { gap: 5px; }
 }

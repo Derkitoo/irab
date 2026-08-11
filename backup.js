@@ -24,5 +24,6 @@ export function parseBackup(text) {
     questions: progress.questions,
     wrongs: progress.wrongs && typeof progress.wrongs === 'object' ? progress.wrongs : {},
     cards: progress.cards && typeof progress.cards === 'object' ? progress.cards : {},
+    activity: Array.isArray(progress.activity) ? progress.activity : [],
   }
 }

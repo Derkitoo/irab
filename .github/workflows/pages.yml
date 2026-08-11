@@ -27,10 +27,12 @@ jobs:
           node --check sw.js
           node --check backup.js
           node --check merge.js
+          node --check analytics.js
           node --check cloud.js
           node srs.test.mjs
           node backup.test.mjs
           node merge.test.mjs
+          node analytics.test.mjs
 
       - name: Check required static files
         run: |
@@ -44,6 +46,7 @@ jobs:
           test -f icon.svg
           test -f backup.js
           test -f merge.js
+          test -f analytics.js
           test -f cloud.js
           test -f supabase-config.js
           test -f supabase/schema.sql
