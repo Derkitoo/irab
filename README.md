@@ -16,6 +16,9 @@ Application indépendante d’apprentissage de la grammaire arabe et du iʿrāb 
 - lecture audio arabe par synthèse vocale du navigateur
 - progression sauvegardée dans le navigateur
 - interface responsive mobile et ordinateur
+- application PWA installable
+- fonctionnement hors ligne
+- export et restauration de la progression entre appareils
 
 ## Lancer localement
 

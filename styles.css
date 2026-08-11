@@ -25,6 +25,8 @@ button { font: inherit; }
 .top-spacer { flex: 1; }
 .ghost { border: 0; background: transparent; color: inherit; cursor: pointer; }
 .back { display: flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; }
+.install-button { padding: 8px 12px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; color: white; background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; }
+.offline-badge { padding: 6px 10px; border-radius: 999px; color: var(--green); background: #f1d397; font-size: 11px; font-weight: 700; }
 .container { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 44px 0 80px; }
 .hero { display: grid; grid-template-columns: 1.25fr .75fr; gap: 28px; align-items: stretch; }
 .hero-copy, .hero-card { border-radius: 30px; }
@@ -47,6 +49,12 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 .ring-content strong { display: block; font-size: 34px; }
 .ring-content span { color: var(--muted); font-size: 12px; }
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.portable { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 18px; padding: 24px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+.portable h2 { margin: 5px 0; font-size: 21px; }
+.portable p { margin: 0; color: var(--muted); }
+.portable-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.portable-actions button { min-height: 42px; padding: 0 15px; border: 1px solid var(--green-2); border-radius: 12px; color: var(--green); background: white; cursor: pointer; font-weight: 700; }
+.portable-actions button:first-child { color: white; background: var(--green-2); }
 .stat { padding: 18px; border-radius: 18px; background: var(--mint); }
 .stat strong { display: block; color: var(--green); font-size: 24px; }
 .stat span { color: var(--muted); font-size: 12px; }
@@ -133,6 +141,7 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
   .hero-copy, .hero-card { border-radius: 22px; }
   .hero-copy { padding: 28px; }
   .hero-card { padding: 24px; }
+  .portable { align-items: flex-start; flex-direction: column; }
   .modules { gap: 14px; }
   .method { grid-template-columns: 1fr 1fr; }
   .hide-mobile { display: none; }

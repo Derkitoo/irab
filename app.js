@@ -1,5 +1,9 @@
 import { advancedModules } from './content-advanced.js'
 import { dateKey, isDue, scheduleCard } from './srs.js'
+import { createBackup, parseBackup } from './backup.js'
+
+let installPrompt = null
+let online = navigator.onLine
 
 const curriculum = [
   {
@@ -117,7 +121,7 @@ function schedule(questionId, correct){
 }
 function speakArabic(text){ if(!('speechSynthesis' in window))return; speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='ar-SA'; utterance.rate=.78; const voice=speechSynthesis.getVoices().find(item=>item.lang.toLowerCase().startsWith('ar')); if(voice)utterance.voice=voice; speechSynthesis.speak(utterance) }
 function render(){ app.innerHTML = state.view === 'home' ? homeView() : lessonView(); bind() }
-function header(back=false){ return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span><span class="ar">نَحْوٌ وَإِعْرَابٌ</span></header>` }
+function header(back=false){ return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
@@ -125,6 +129,7 @@ function homeView(){
   return `<div class="shell">${header()}<main class="container">
     <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div></div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${state.progress.questions.length}/${allQuestions.length}</strong><span>réponses maîtrisées</span></div></div></aside></section>
+    <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
     <div class="section-title"><div><h2>Maîtrise par compétence</h2><p>Les résultats sont calculés à partir des exercices réussis.</p></div></div><section class="competencies">${curriculum.map(competenceCard).join('')}</section>
     <div class="section-title"><div><h2>Le parcours</h2><p>Douze modules, des fondations jusqu’à l’analyse complète.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
   </main></div>`
@@ -150,6 +155,10 @@ function bind(){
   document.querySelector('[data-action="continue"]')?.addEventListener('click',()=>openLesson(allLessons.find(l=>!completed(l.id))?.id||allLessons[0].id))
   document.querySelectorAll('[data-action="home"]').forEach(b=>b.onclick=()=>{state.view='home';state.review=false;render()})
   document.querySelector('[data-action="review"]')?.addEventListener('click',openReview)
+  document.querySelector('[data-action="install"]')?.addEventListener('click',installApp)
+  document.querySelector('[data-action="export"]')?.addEventListener('click',exportProgress)
+  document.querySelector('[data-action="choose-import"]')?.addEventListener('click',()=>document.querySelector('#progress-import')?.click())
+  document.querySelector('#progress-import')?.addEventListener('change',importProgress)
   document.querySelector('[data-action="practice"]')?.addEventListener('click',()=>{state.stage='practice';state.qi=0;render();scrollTo(0,0)})
   document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.choice;render()})
   document.querySelectorAll('[data-token]').forEach(b=>b.onclick=()=>{state.built=[...state.built,Number(b.dataset.token)];render()})
@@ -162,5 +171,16 @@ function bind(){
 function openLesson(id){ state={...state,view:'lesson',lesson:allLessons.find(l=>l.id===id),stage:'learn',qi:0,selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
 function openReview(){ const questions=reviewQuestions(); if(!questions.length)return; state={...state,view:'lesson',lesson:{id:'review',title:'Révision ciblée',ar:'مُرَاجَعَةُ الْأَخْطَاءِ',questions},stage:'practice',qi:0,selected:null,built:[],checked:false,review:true};render();scrollTo(0,0) }
 function next(){ const x=state.lesson.questions[state.qi]; if(answerIsCorrect(x)&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id); if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;save();render();scrollTo(0,0);return} if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id);save();state.view='home';state.review=false;state.built=[];render();scrollTo(0,0) }
+
+async function installApp(){ if(!installPrompt)return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt=null; render() }
+function exportProgress(){ const payload=createBackup(state.progress); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=`irab-progression-${dateKey()}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000) }
+async function importProgress(event){ const file=event.target.files?.[0]; if(!file)return; try{ const progress=parseBackup(await file.text()); localStorage.setItem('irab-fr:progress',JSON.stringify(progress)); location.reload() }catch{ alert('Cette sauvegarde Iʿrāb est invalide ou endommagée.') } }
+
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;if(state.view==='home')render()})
+window.addEventListener('appinstalled',()=>{installPrompt=null;if(state.view==='home')render()})
+window.addEventListener('online',()=>{online=true;render()})
+window.addEventListener('offline',()=>{online=false;render()})
+
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(error=>console.error('Service worker:',error))) }
 
 render()
