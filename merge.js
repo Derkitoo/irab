@@ -11,11 +11,12 @@ function bestCard(left, right) {
 }
 
 export function normalizeProgress(progress = {}) {
+  const source = progress && typeof progress === 'object' ? progress : {}
   return {
-    lessons: Array.isArray(progress.lessons) ? progress.lessons : [],
-    questions: Array.isArray(progress.questions) ? progress.questions : [],
-    wrongs: progress.wrongs && typeof progress.wrongs === 'object' ? progress.wrongs : {},
-    cards: progress.cards && typeof progress.cards === 'object' ? progress.cards : {},
+    lessons: Array.isArray(source.lessons) ? source.lessons : [],
+    questions: Array.isArray(source.questions) ? source.questions : [],
+    wrongs: source.wrongs && typeof source.wrongs === 'object' ? source.wrongs : {},
+    cards: source.cards && typeof source.cards === 'object' ? source.cards : {},
   }
 }
 

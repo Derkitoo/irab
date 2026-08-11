@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { mergeProgress, normalizeProgress } from './merge.js'
 
 assert.deepEqual(normalizeProgress(), { lessons: [], questions: [], wrongs: {}, cards: {} })
+assert.deepEqual(normalizeProgress(null), { lessons: [], questions: [], wrongs: {}, cards: {} })
+assert.deepEqual(mergeProgress({ lessons: ['types'] }, null).lessons, ['types'])
 
 const merged = mergeProgress(
   {
