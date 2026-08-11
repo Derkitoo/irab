@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { mergeProgress, normalizeProgress } from './merge.js'
 
-assert.deepEqual(normalizeProgress(), { lessons: [], questions: [], wrongs: {}, cards: {}, activity: [] })
-assert.deepEqual(normalizeProgress(null), { lessons: [], questions: [], wrongs: {}, cards: {}, activity: [] })
+assert.deepEqual(normalizeProgress(), { lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {} })
+assert.deepEqual(normalizeProgress(null), { lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {} })
 assert.deepEqual(mergeProgress({ lessons: ['types'] }, null).lessons, ['types'])
 
 const merged = mergeProgress(
@@ -34,5 +34,11 @@ const activityMerged = mergeProgress(
   { activity: [{ id: 'a1', at: '2026-08-10T10:00:00Z', questionId: 'types-1', correct: true }, { id: 'a2', at: '2026-08-11T10:00:00Z', questionId: 'states-1', correct: false }] },
 )
 assert.deepEqual(activityMerged.activity.map(event => event.id), ['a1', 'a2'])
+
+const preferenceMerged = mergeProgress(
+  { preferences: { dailyGoal: 5, updatedAt: '2026-08-10T10:00:00Z' } },
+  { preferences: { dailyGoal: 15, updatedAt: '2026-08-11T10:00:00Z' } },
+)
+assert.equal(preferenceMerged.preferences.dailyGoal, 15)
 
 console.log('Merge tests passed')

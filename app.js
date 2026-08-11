@@ -3,6 +3,7 @@ import { dateKey, isDue, scheduleCard } from './srs.js'
 import { createBackup, parseBackup } from './backup.js'
 import { mergeProgress } from './merge.js'
 import { computeAnalytics } from './analytics.js'
+import { createCoach } from './coach.js'
 import { currentSession, initializeCloud, isCloudConfigured, loadCloudProgress, onAuthChange, saveCloudProgress, signIn, signOut, signUp } from './cloud.js'
 
 let installPrompt = null
@@ -110,7 +111,7 @@ for (const module of curriculum) {
 const allLessons = curriculum.flatMap(m => m.lessons)
 const allQuestions = allLessons.flatMap(l => l.questions)
 const saved = loadProgress()
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}, activity:Array.isArray(saved.activity)?saved.activity:[]}, cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:''} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}, activity:Array.isArray(saved.activity)?saved.activity:[], preferences:saved.preferences&&typeof saved.preferences==='object'?saved.preferences:{}}, cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:''} }
 const app = document.querySelector('#app')
 let cloudSaveTimer = null
 
@@ -132,9 +133,11 @@ function header(back=false){ const accountLabel=state.cloud.session?.user?.email
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
   const reviews = reviewQuestions().length
+  const coach = createCoach(state.progress,curriculum,reviewQuestions().map(question=>question.id))
   return `<div class="shell">${header()}<main class="container">
     <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div></div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${state.progress.questions.length}/${allQuestions.length}</strong><span>réponses maîtrisées</span></div></div></aside></section>
+    <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span>Mon rythme</span>${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}">${goal}</button>`).join('')}</div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}</div></section>
     <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
     <div class="section-title"><div><h2>Maîtrise par compétence</h2><p>Les résultats sont calculés à partir des exercices réussis.</p></div></div><section class="competencies">${curriculum.map(competenceCard).join('')}</section>
     <div class="section-title"><div><h2>Le parcours</h2><p>Douze modules, des fondations jusqu’à l’analyse complète.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
@@ -191,6 +194,8 @@ function bind(){
   document.querySelector('[data-action="continue"]')?.addEventListener('click',()=>openLesson(allLessons.find(l=>!completed(l.id))?.id||allLessons[0].id))
   document.querySelectorAll('[data-action="home"]').forEach(b=>b.onclick=()=>{state.view='home';state.review=false;render()})
   document.querySelector('[data-action="review"]')?.addEventListener('click',openReview)
+  document.querySelector('[data-action="coach"]')?.addEventListener('click',openCoachRecommendation)
+  document.querySelectorAll('[data-goal]').forEach(button=>button.onclick=()=>setDailyGoal(Number(button.dataset.goal)))
   document.querySelectorAll('[data-action="account"]').forEach(button=>button.onclick=()=>{state.view='account';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="stats"]').forEach(button=>button.onclick=()=>{state.view='stats';render();scrollTo(0,0)})
   document.querySelectorAll('[data-auth-mode]').forEach(button=>button.onclick=()=>handleAuth(button.dataset.authMode))
@@ -211,6 +216,8 @@ function bind(){
 
 function openLesson(id){ state={...state,view:'lesson',lesson:allLessons.find(l=>l.id===id),stage:'learn',qi:0,selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
 function openReview(){ const questions=reviewQuestions(); if(!questions.length)return; state={...state,view:'lesson',lesson:{id:'review',title:'Révision ciblée',ar:'مُرَاجَعَةُ الْأَخْطَاءِ',questions},stage:'practice',qi:0,selected:null,built:[],checked:false,review:true};render();scrollTo(0,0) }
+function openCoachRecommendation(){ const reviews=reviewQuestions();const coach=createCoach(state.progress,curriculum,reviews.map(question=>question.id));if(coach.recommendation.type==='review')openReview();else if(coach.recommendation.lessonId)openLesson(coach.recommendation.lessonId) }
+function setDailyGoal(dailyGoal){ if(![5,10,15].includes(dailyGoal))return;state.progress.preferences={...state.progress.preferences,dailyGoal,updatedAt:new Date().toISOString()};save();render() }
 function next(){ const x=state.lesson.questions[state.qi]; if(answerIsCorrect(x)&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id); if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;save();render();scrollTo(0,0);return} if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id);save();state.view='home';state.review=false;state.built=[];render();scrollTo(0,0) }
 
 async function installApp(){ if(!installPrompt)return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt=null; render() }

@@ -22,6 +22,7 @@ Application indépendante d’apprentissage de la grammaire arabe et du iʿrāb 
 - mode invité et interface de compte
 - synchronisation Supabase active
 - bilan pédagogique : réussite, activité sur sept jours, série active, maîtrise par thème et erreurs fréquentes
+- coach pédagogique avec objectif quotidien réglable et recommandation adaptée aux lacunes
 
 ## Activer les comptes Supabase
 

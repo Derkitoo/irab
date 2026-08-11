@@ -18,6 +18,7 @@ export function normalizeProgress(progress = {}) {
     wrongs: source.wrongs && typeof source.wrongs === 'object' ? source.wrongs : {},
     cards: source.cards && typeof source.cards === 'object' ? source.cards : {},
     activity: Array.isArray(source.activity) ? source.activity.filter(event => event && event.id) : [],
+    preferences: source.preferences && typeof source.preferences === 'object' ? source.preferences : {},
   }
 }
 
@@ -41,5 +42,6 @@ export function mergeProgress(localProgress, remoteProgress) {
     activity: [...new Map([...local.activity, ...remote.activity].map(event => [event.id, event])).values()]
       .sort((left, right) => String(left.at).localeCompare(String(right.at)))
       .slice(-1000),
+    preferences: String(remote.preferences.updatedAt ?? '') > String(local.preferences.updatedAt ?? '') ? remote.preferences : local.preferences,
   }
 }

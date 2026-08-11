@@ -156,6 +156,23 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 .account-success { color: #124e37; background: #dcefe5; }
 .danger-button { padding: 12px 16px; border: 1px solid var(--bad); border-radius: 13px; color: var(--bad); background: transparent; cursor: pointer; font-weight: 700; }
 
+.coach-card { display: grid; grid-template-columns: .9fr 1.1fr; gap: 1px; margin: 24px 0; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: var(--line); box-shadow: var(--shadow); }
+.coach-goal, .coach-recommendation { padding: 26px; background: var(--surface); }
+.coach-goal-line { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 14px 0 10px; }
+.coach-goal-line strong { color: var(--green); font-size: 34px; }
+.coach-goal-line span { color: var(--muted); font-size: 12px; }
+.coach-progress { height: 12px; overflow: hidden; border-radius: 999px; background: var(--mint); }
+.coach-progress i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--green-2),var(--gold)); transition: width .25s ease; }
+.goal-options { display: flex; align-items: center; gap: 7px; margin-top: 16px; }
+.goal-options > span { margin-right: auto; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.goal-options button { width: 38px; height: 32px; border: 1px solid var(--line); border-radius: 10px; color: var(--green); background: white; cursor: pointer; font-weight: 700; }
+.goal-options button.active { border-color: var(--green); color: white; background: var(--green); }
+.coach-recommendation { background: var(--green); }
+.coach-recommendation .eyebrow { color: #f1d397; }
+.coach-recommendation h2 { margin: 9px 0; color: white; font-size: 28px; }
+.coach-recommendation p { margin: 0 0 20px; color: #d8e7e2; line-height: 1.55; }
+.coach-recommendation .primary { background: var(--gold); }
+
 .stats-shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 100px; }
 .stats-title { max-width: 680px; margin-bottom: 30px; }
 .stats-title h1 { margin: 8px 0 12px; font-size: clamp(38px, 7vw, 64px); line-height: 1.04; }
@@ -196,6 +213,7 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
   .hero-copy { padding: 28px; }
   .hero-card { padding: 24px; }
   .portable { align-items: flex-start; flex-direction: column; }
+  .coach-card { grid-template-columns: 1fr; }
   .auth-actions { grid-template-columns: 1fr; }
   .metric-grid { grid-template-columns: 1fr 1fr; }
   .topic-row { grid-template-columns: 1fr 44px; }

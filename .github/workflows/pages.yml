@@ -28,11 +28,13 @@ jobs:
           node --check backup.js
           node --check merge.js
           node --check analytics.js
+          node --check coach.js
           node --check cloud.js
           node srs.test.mjs
           node backup.test.mjs
           node merge.test.mjs
           node analytics.test.mjs
+          node coach.test.mjs
 
       - name: Check required static files
         run: |
@@ -47,6 +49,7 @@ jobs:
           test -f backup.js
           test -f merge.js
           test -f analytics.js
+          test -f coach.js
           test -f cloud.js
           test -f supabase-config.js
           test -f supabase/schema.sql
