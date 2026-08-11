@@ -1,6 +1,8 @@
 import { advancedModules } from './content-advanced.js'
 import { dateKey, isDue, scheduleCard } from './srs.js'
 import { createBackup, parseBackup } from './backup.js'
+import { mergeProgress } from './merge.js'
+import { currentSession, initializeCloud, isCloudConfigured, loadCloudProgress, onAuthChange, saveCloudProgress, signIn, signOut, signUp } from './cloud.js'
 
 let installPrompt = null
 let online = navigator.onLine
@@ -107,11 +109,12 @@ for (const module of curriculum) {
 const allLessons = curriculum.flatMap(m => m.lessons)
 const allQuestions = allLessons.flatMap(l => l.questions)
 const saved = loadProgress()
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}}, cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:''} }
 const app = document.querySelector('#app')
+let cloudSaveTimer = null
 
 function loadProgress(){ try { return JSON.parse(localStorage.getItem('irab-fr:progress') || '{}') } catch { return {} } }
-function save(){ localStorage.setItem('irab-fr:progress', JSON.stringify(state.progress)) }
+function save(){ localStorage.setItem('irab-fr:progress', JSON.stringify(state.progress)); queueCloudSave() }
 function completed(id){ return state.progress.lessons.includes(id) }
 function reviewQuestions(){ return allQuestions.filter(question => state.progress.wrongs[question.id] > 0 || isDue(state.progress.cards[question.id])) }
 function schedule(questionId, correct){
@@ -120,8 +123,8 @@ function schedule(questionId, correct){
   delete state.progress.wrongs[questionId]
 }
 function speakArabic(text){ if(!('speechSynthesis' in window))return; speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='ar-SA'; utterance.rate=.78; const voice=speechSynthesis.getVoices().find(item=>item.lang.toLowerCase().startsWith('ar')); if(voice)utterance.voice=voice; speechSynthesis.speak(utterance) }
-function render(){ app.innerHTML = state.view === 'home' ? homeView() : lessonView(); bind() }
-function header(back=false){ return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
+function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : lessonView(); bind() }
+function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
@@ -136,6 +139,15 @@ function homeView(){
 }
 
 function moduleCard(m,i){ const done=m.lessons.filter(l=>completed(l.id)).length; return `<article class="module"><div class="module-head"><span class="module-number">${i+1}</span><div><h3>${m.title}</h3><p class="module-ar ar">${m.ar}</p></div><span class="badge">${done}/${m.lessons.length}</span></div><p class="module-description">${m.description}</p><div class="lesson-list">${m.lessons.map(l=>`<button class="lesson-row" data-lesson="${l.id}"><span class="lesson-status ${completed(l.id)?'done':''}">${completed(l.id)?'✓':'○'}</span><span><strong>${l.title}</strong><small class="ar">${l.ar}</small></span><span>›</span></button>`).join('')}</div></article>` }
+
+function escapeHtml(value=''){ return String(value).replace(/[&<>"']/g,character=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[character]) }
+function accountView(){
+  if(!state.cloud.configured) return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte et synchronisation</span><h1>Mode invité actif</h1><p class="account-lead">Ta progression reste sauvegardée sur cet appareil. L’intégration cloud est prête mais attend la configuration d’un projet Supabase.</p><section class="account-panel"><h2>Activer la synchronisation</h2><ol><li>Créer un projet Supabase.</li><li>Exécuter <code>supabase/schema.sql</code> dans l’éditeur SQL.</li><li>Ajouter l’URL et la clé publique dans <code>supabase-config.js</code>.</li></ol><p class="account-note">Ne jamais utiliser une clé <code>service_role</code> dans le navigateur.</p></section><button class="primary" data-action="home">Continuer en invité</button></main></div>`
+  if(state.cloud.session){ const email=escapeHtml(state.cloud.session.user.email); return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte synchronisé</span><h1>${email}</h1><p class="account-lead">Ta progression locale et distante est fusionnée sans perdre les leçons ou réponses maîtrisées.</p><section class="account-panel account-status"><div><span>État</span><strong>${cloudStatusLabel()}</strong></div><button data-action="sync">Synchroniser maintenant</button></section>${state.cloud.error?`<p class="account-error">${escapeHtml(state.cloud.error)}</p>`:''}<button class="danger-button" data-action="signout">Se déconnecter</button></main></div>` }
+  return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte et synchronisation</span><h1>Retrouve ta progression partout</h1><p class="account-lead">Connecte-toi ou crée un compte. Ta progression invitée sera fusionnée avec le cloud.</p><section class="account-panel auth-form"><label>Adresse e-mail<input id="auth-email" type="email" autocomplete="email" placeholder="toi@exemple.fr"></label><label>Mot de passe<input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="8 caractères minimum"></label><div class="auth-actions"><button class="primary" data-auth-mode="signin">Se connecter</button><button data-auth-mode="signup">Créer mon compte</button></div></section>${state.cloud.status==='confirmation'?'<p class="account-success">Compte créé. Vérifie ton e-mail pour confirmer l’inscription.</p>':''}${state.cloud.error?`<p class="account-error">${escapeHtml(state.cloud.error)}</p>`:''}</main></div>`
+}
+
+function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='error'?'Erreur':'Connecté' }
 
 function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>lesson.questions); const mastered=questions.filter(question=>state.progress.questions.includes(question.id)).length; const pct=Math.round(mastered/questions.length*100); return `<article class="competence"><div><strong>${module.title}</strong><span>${mastered}/${questions.length}</span></div><div class="skill-bar" role="progressbar" aria-label="${module.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></article>` }
 
@@ -155,6 +167,10 @@ function bind(){
   document.querySelector('[data-action="continue"]')?.addEventListener('click',()=>openLesson(allLessons.find(l=>!completed(l.id))?.id||allLessons[0].id))
   document.querySelectorAll('[data-action="home"]').forEach(b=>b.onclick=()=>{state.view='home';state.review=false;render()})
   document.querySelector('[data-action="review"]')?.addEventListener('click',openReview)
+  document.querySelectorAll('[data-action="account"]').forEach(button=>button.onclick=()=>{state.view='account';render();scrollTo(0,0)})
+  document.querySelectorAll('[data-auth-mode]').forEach(button=>button.onclick=()=>handleAuth(button.dataset.authMode))
+  document.querySelector('[data-action="sync"]')?.addEventListener('click',()=>syncCloud())
+  document.querySelector('[data-action="signout"]')?.addEventListener('click',handleSignOut)
   document.querySelector('[data-action="install"]')?.addEventListener('click',installApp)
   document.querySelector('[data-action="export"]')?.addEventListener('click',exportProgress)
   document.querySelector('[data-action="choose-import"]')?.addEventListener('click',()=>document.querySelector('#progress-import')?.click())
@@ -176,6 +192,12 @@ async function installApp(){ if(!installPrompt)return; installPrompt.prompt(); a
 function exportProgress(){ const payload=createBackup(state.progress); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=`irab-progression-${dateKey()}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000) }
 async function importProgress(event){ const file=event.target.files?.[0]; if(!file)return; try{ const progress=parseBackup(await file.text()); localStorage.setItem('irab-fr:progress',JSON.stringify(progress)); location.reload() }catch{ alert('Cette sauvegarde Iʿrāb est invalide ou endommagée.') } }
 
+function queueCloudSave(){ if(!state.cloud.session)return; clearTimeout(cloudSaveTimer); cloudSaveTimer=setTimeout(()=>saveCloudProgress(state.cloud.session.user.id,state.progress).then(()=>{state.cloud.status='synced';if(state.view==='account')render()}).catch(error=>{state.cloud.status='error';state.cloud.error=error.message;if(state.view==='account')render()}),800) }
+async function syncCloud(session=state.cloud.session){ if(!session)return; state.cloud.status='syncing';state.cloud.error='';if(state.view==='account')render();try{const remote=await loadCloudProgress(session.user.id);state.progress=mergeProgress(state.progress,remote);localStorage.setItem('irab-fr:progress',JSON.stringify(state.progress));await saveCloudProgress(session.user.id,state.progress);state.cloud.status='synced'}catch(error){state.cloud.status='error';state.cloud.error=error.message}render() }
+async function handleAuth(mode){ const email=document.querySelector('#auth-email')?.value.trim();const password=document.querySelector('#auth-password')?.value;if(!email||!password){state.cloud.error='Saisis une adresse e-mail et un mot de passe.';render();return}state.cloud.status='syncing';state.cloud.error='';try{const session=mode==='signup'?await signUp(email,password):await signIn(email,password);if(session){state.cloud.session=session;await syncCloud(session)}else{state.cloud.status='confirmation';render()}}catch(error){state.cloud.status='error';state.cloud.error=error.message;render()} }
+async function handleSignOut(){ try{await signOut();state.cloud.session=null;state.cloud.status='idle';state.cloud.error='';render()}catch(error){state.cloud.error=error.message;render()} }
+async function initializeAccount(){ if(!state.cloud.configured)return;try{await initializeCloud();state.cloud.session=await currentSession();onAuthChange(session=>{state.cloud.session=session;if(session)syncCloud(session);else if(state.view==='account')render()});if(state.cloud.session)await syncCloud(state.cloud.session);else render()}catch(error){state.cloud.status='error';state.cloud.error=error.message;render()} }
+
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;if(state.view==='home')render()})
 window.addEventListener('appinstalled',()=>{installPrompt=null;if(state.view==='home')render()})
 window.addEventListener('online',()=>{online=true;render()})
@@ -184,3 +206,4 @@ window.addEventListener('offline',()=>{online=false;render()})
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(error=>console.error('Service worker:',error))) }
 
 render()
+initializeAccount()

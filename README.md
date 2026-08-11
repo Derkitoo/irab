@@ -19,6 +19,17 @@ Application indépendante d’apprentissage de la grammaire arabe et du iʿrāb 
 - application PWA installable
 - fonctionnement hors ligne
 - export et restauration de la progression entre appareils
+- mode invité et interface de compte
+- synchronisation Supabase prête à configurer
+
+## Activer les comptes Supabase
+
+1. Créer un projet Supabase.
+2. Exécuter `supabase/schema.sql` dans l’éditeur SQL du projet.
+3. Copier l’URL du projet et la clé publique dans `supabase-config.js`.
+4. Ajouter `https://derkitoo.github.io/irab/` aux URL de redirection autorisées dans Supabase Auth.
+
+La progression locale est fusionnée avec la progression distante lors de la connexion. La clé `service_role` ne doit jamais être ajoutée au projet web.
 
 ## Lancer localement
 

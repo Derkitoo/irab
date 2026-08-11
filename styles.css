@@ -26,6 +26,7 @@ button { font: inherit; }
 .ghost { border: 0; background: transparent; color: inherit; cursor: pointer; }
 .back { display: flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; }
 .install-button { padding: 8px 12px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; color: white; background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; }
+.account-button { padding: 8px 12px; border: 0; border-radius: 999px; color: var(--green); background: #f1d397; cursor: pointer; font-size: 12px; font-weight: 700; }
 .offline-badge { padding: 6px 10px; border-radius: 999px; color: var(--green); background: #f1d397; font-size: 11px; font-weight: 700; }
 .container { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 44px 0 80px; }
 .hero { display: grid; grid-template-columns: 1.25fr .75fr; gap: 28px; align-items: stretch; }
@@ -132,6 +133,28 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 .feedback p { line-height: 1.55; }
 .feedback .ar { font-size: 21px; }
 .empty-note { color: var(--muted); text-align: center; }
+.account-shell { width: min(680px, calc(100% - 32px)); margin: 0 auto; padding: 52px 0 100px; }
+.account-shell > h1 { margin: 8px 0 18px; font-size: clamp(36px, 7vw, 56px); overflow-wrap: anywhere; }
+.account-lead { color: var(--muted); font-size: 18px; line-height: 1.65; }
+.account-panel { margin: 28px 0; padding: 24px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+.account-panel h2 { font-size: 20px; }
+.account-panel ol { display: grid; gap: 10px; padding-left: 22px; line-height: 1.5; }
+.account-panel code { padding: 2px 6px; border-radius: 6px; background: var(--gold-soft); }
+.account-note { margin: 18px 0 0; color: var(--bad); font-size: 13px; }
+.auth-form { display: grid; gap: 16px; }
+.auth-form label { display: grid; gap: 7px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.auth-form input { min-height: 50px; padding: 0 14px; border: 2px solid var(--line); border-radius: 13px; color: var(--ink); background: white; font: inherit; }
+.auth-form input:focus { border-color: var(--green-2); outline: none; }
+.auth-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.auth-actions button:not(.primary), .account-status button { border: 1px solid var(--green-2); border-radius: 14px; color: var(--green); background: white; cursor: pointer; font-weight: 700; }
+.account-status { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.account-status div { display: grid; }
+.account-status span { color: var(--muted); font-size: 12px; }
+.account-status button { min-height: 44px; padding: 0 15px; }
+.account-error, .account-success { padding: 14px 16px; border-radius: 14px; }
+.account-error { color: #762a25; background: #f3ddda; }
+.account-success { color: #124e37; background: #dcefe5; }
+.danger-button { padding: 12px 16px; border: 1px solid var(--bad); border-radius: 13px; color: var(--bad); background: transparent; cursor: pointer; font-weight: 700; }
 
 @media (max-width: 760px) {
   .topbar { height: 64px; padding: 0 16px; }
@@ -142,6 +165,7 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
   .hero-copy { padding: 28px; }
   .hero-card { padding: 24px; }
   .portable { align-items: flex-start; flex-direction: column; }
+  .auth-actions { grid-template-columns: 1fr; }
   .modules { gap: 14px; }
   .method { grid-template-columns: 1fr 1fr; }
   .hide-mobile { display: none; }

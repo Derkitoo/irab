@@ -7,6 +7,9 @@ const SHELL = [
   './content-advanced.js',
   './srs.js',
   './backup.js',
+  './merge.js',
+  './cloud.js',
+  './supabase-config.js',
   './manifest.webmanifest',
   './icon.svg',
 ]
