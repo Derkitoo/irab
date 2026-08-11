@@ -26,6 +26,9 @@ for (const lesson of allLessons) {
   }
   for (const field of ['ar', 'example', 'analysis']) {
     assert.match(lesson[field], ARABIC, `${lesson.id} : ${field} sans arabe`)
+    // Ces champs sont rendus dans un panneau droite-à-gauche : du texte latin
+    // s'y afficherait à l'envers.
+    assert.doesNotMatch(lesson[field], /[A-Za-zÀ-ÿ]/, `${lesson.id} : ${field} contient du texte latin`)
   }
   assert.ok(lesson.questions.length >= 4, `${lesson.id} : trop peu d’exercices`)
 }

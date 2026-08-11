@@ -7,7 +7,7 @@ export const advancedModules = [
     description: 'Comprendre comment les prépositions et les particules modifient le mot suivant.',
     lessons: [
       L('prepositions', 'Les prépositions', 'حُرُوفُ الْجَرِّ', 'Une préposition place le nom qui la suit au génitif.', 'Parmi les prépositions fréquentes : مِنْ, إِلَى, عَنْ, عَلَى, فِي, بِـ, لِـ. Le groupe formé est appelé جار ومجرور.', 'ذَهَبْتُ إِلَى الْمَدْرَسَةِ', 'Je suis allé à l’école.', 'إِلَى حرف جر — الْمَدْرَسَةِ اسم مجرور وعلامة جره الكسرة', [
-        Q('prep-1', 'Quel mot est au génitif ?', 'جَلَسْتُ فِي الْبَيْتِ', [['جَلَسْتُ', 'v'], ['فِي', 'p'], ['الْبَيْتِ', 'n']], 'n', 'الْبَيْتِ suit la préposition فِي.', 'الْبَيْتِ اسم مجرور بفي وعلامة جره الكسرة'),
+        Q('prep-1', 'Quel mot est au génitif ?', 'جَلَسْتُ فِي الْبَيْتِ', [['جَلَسْتُ', 'v'], ['فِي', 'p'], ['الْبَيْتِ', 'n']], 'n', 'الْبَيْتِ suit la préposition فِي.', 'الْبَيْتِ اسم مجرور بحرف الجر «فِي» وعلامة جره الكسرة'),
         Q('prep-2', 'Quelle marque principale indique le jarr ?', 'مِنَ الْمَسْجِدِ', [['Kasra — الكسرة', 'k'], ['Fatḥa — الفتحة', 'f'], ['Ḍamma — الضمة', 'd']], 'k', 'La kasra est la marque principale du génitif.', 'الْمَسْجِدِ اسم مجرور وعلامة جره الكسرة')
       ]),
       L('nasb-jazm-particles', 'Particules du présent', 'نَوَاصِبُ وَجَوَازِمُ الْمُضَارِعِ', 'Certaines particules rendent le présent manṣūb ou majzūm.', 'أَنْ, لَنْ et كَيْ font partie des particules de naṣb. لَمْ, لَمَّا et لَا الناهية font partie des particules de jazm.', 'لَنْ يَذْهَبَ — لَمْ يَذْهَبْ', 'Il ne partira pas — il n’est pas parti.', 'يَذْهَبَ مضارع منصوب بلن — يَذْهَبْ مضارع مجزوم بلم', [
@@ -34,8 +34,8 @@ export const advancedModules = [
     id: 'verbs', title: 'Le iʿrāb des verbes', ar: 'إِعْرَابُ الْأَفْعَالِ',
     description: 'Séparer les verbes invariables du présent normalement variable.',
     lessons: [
-      L('past-imperative', 'Passé et impératif', 'الْمَاضِي وَالْأَمْرُ', 'Le passé et l’impératif sont normalement mabnī.', 'Le passé est souvent construit sur la fatḥa. L’impératif peut être construit sur le sukūn, la suppression d’une lettre faible ou la suppression du nūn.', 'كَتَبَ — اُكْتُبْ', 'Il a écrit — écris !', 'كَتَبَ فعل ماض مبني على الفتح — اُكْتُبْ فعل أمر مبني على السكون', [
-        Q('past-1', 'Le verbe كَتَبَ est…', 'كَتَبَ', [['Invariable — مبني', 'built'], ['Variable — معرب', 'var']], 'built', 'Le passé est normalement invariable.', 'فعل ماض مبني على الفتح'),
+      L('past-imperative', 'Passé et impératif', 'الْمَاضِي وَالْأَمْرُ', 'Le passé et l’impératif sont normalement mabnī.', 'Le passé est souvent construit sur la fatḥa. L’impératif peut être construit sur le sukūn, la suppression d’une lettre faible ou la suppression du nūn.', 'كَتَبَ — اُكْتُبْ', 'Il a écrit — écris !', 'كَتَبَ فعل ماضٍ مبني على الفتح — اُكْتُبْ فعل أمر مبني على السكون', [
+        Q('past-1', 'Le verbe كَتَبَ est…', 'كَتَبَ', [['Invariable — مبني', 'built'], ['Variable — معرب', 'var']], 'built', 'Le passé est normalement invariable.', 'فعل ماضٍ مبني على الفتح'),
         Q('past-2', 'Sur quoi اُكْتُبْ est-il construit ?', 'اُكْتُبْ', [['Le sukūn — السكون', 's'], ['La fatḥa — الفتحة', 'f']], 's', 'L’impératif régulier est ici construit sur le sukūn.', 'فعل أمر مبني على السكون')
       ]),
       L('present-verb', 'Le présent variable', 'الْفِعْلُ الْمُضَارِعُ الْمُعْرَبُ', 'Le présent est marfūʿ tant qu’aucun régissant ne le modifie.', 'Le présent est normalement marfūʿ. Il devient manṣūb après une particule de naṣb et majzūm après une particule de jazm.', 'يَجْلِسُ — لَنْ يَجْلِسَ — لَمْ يَجْلِسْ', 'Il s’assoit — il ne s’assoira pas — il ne s’est pas assis.', 'مرفوع بالضمة — منصوب بالفتحة — مجزوم بالسكون', [
@@ -94,7 +94,7 @@ export const advancedModules = [
         Q('dual-1', 'Quelle marque indique le rafʿ du duel ?', 'الطَّالِبَانِ', [['Alif — الألف', 'alif'], ['Yāʾ — الياء', 'ya']], 'alif', 'Le duel est marfūʿ avec alif.', 'مرفوع وعلامة رفعه الألف لأنه مثنى'),
         Q('dual-2', 'Quelle forme convient après رَأَيْتُ ?', 'رَأَيْتُ …', [['الطَّالِبَيْنِ', 'ayn'], ['الطَّالِبَانِ', 'an']], 'ayn', 'Le complément d’objet duel est manṣūb avec yāʾ.')
       ]),
-      L('sound-plurals', 'Les pluriels réguliers', 'جَمْعُ الْمُذَكَّرِ وَالْمُؤَنَّثِ السَّالِمُ', 'Les pluriels réguliers possèdent leurs propres marques.', 'Le pluriel masculin régulier est marfūʿ avec wāw et manṣūb/majrūr avec yāʾ. Le pluriel féminin régulier est marfūʿ avec ḍamma et manṣūb/majrūr avec kasra.', 'جَاءَ الْمُعَلِّمُونَ — رَأَيْتُ الْمُعَلِّمِينَ', 'Les professeurs sont venus — j’ai vu les professeurs.', 'الْمُعَلِّمُونَ مرفوع بالواو — الْمُعَلِّمِينَ منصوب بالياء', [
+      L('sound-plurals', 'Les pluriels réguliers', 'الْجَمْعُ السَّالِمُ', 'Les pluriels réguliers possèdent leurs propres marques.', 'Le pluriel masculin régulier est marfūʿ avec wāw et manṣūb/majrūr avec yāʾ. Le pluriel féminin régulier est marfūʿ avec ḍamma et manṣūb/majrūr avec kasra.', 'جَاءَ الْمُعَلِّمُونَ — رَأَيْتُ الْمُعَلِّمِينَ', 'Les professeurs sont venus — j’ai vu les professeurs.', 'الْمُعَلِّمُونَ مرفوع بالواو — الْمُعَلِّمِينَ منصوب بالياء', [
         Q('plural-1', 'Quelle marque indique le rafʿ du pluriel masculin régulier ?', 'الْمُعَلِّمُونَ', [['Wāw — الواو', 'waw'], ['Yāʾ — الياء', 'ya']], 'waw', 'Ce pluriel est marfūʿ avec wāw.', 'مرفوع وعلامة رفعه الواو لأنه جمع مذكر سالم'),
         Q('plural-2', 'Quelle forme est majrūr ?', 'سَلَّمْتُ عَلَى …', [['الْمُعَلِّمِينَ', 'in'], ['الْمُعَلِّمُونَ', 'un']], 'in', 'Après عَلَى, le pluriel masculin régulier prend yāʾ.', 'اسم مجرور وعلامة جره الياء')
       ])
