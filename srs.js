@@ -11,6 +11,8 @@ export function addDays(date, days) {
   return dateKey(next)
 }
 
+// `at` horodate la dernière réponse. C'est ce qui permet à la fusion entre
+// appareils de départager deux versions d'une même carte sans perdre un échec.
 export function scheduleCard(previous, correct, now = new Date()) {
   const card = previous ?? { reps: 0, interval: 0, ease: 2.5, due: dateKey(now) }
   if (!correct) {
@@ -19,6 +21,7 @@ export function scheduleCard(previous, correct, now = new Date()) {
       interval: 0,
       ease: Math.max(1.3, card.ease - 0.2),
       due: dateKey(now),
+      at: now.toISOString(),
     }
   }
 
@@ -29,6 +32,7 @@ export function scheduleCard(previous, correct, now = new Date()) {
     interval,
     ease: Math.min(3, card.ease + 0.05),
     due: addDays(now, interval),
+    at: now.toISOString(),
   }
 }
 

@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { mergeProgress, normalizeProgress } from './merge.js'
+import { CURRENT_SCHEMA_VERSION } from './progress-schema.js'
 
-assert.deepEqual(normalizeProgress(), { lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {} })
-assert.deepEqual(normalizeProgress(null), { lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {} })
+const empty = { schemaVersion: CURRENT_SCHEMA_VERSION, lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {} }
+assert.deepEqual(normalizeProgress(), empty)
+assert.deepEqual(normalizeProgress(null), empty)
 assert.deepEqual(mergeProgress({ lessons: ['types'] }, null).lessons, ['types'])
 
 const merged = mergeProgress(
@@ -40,5 +42,37 @@ const preferenceMerged = mergeProgress(
   { preferences: { dailyGoal: 15, updatedAt: '2026-08-11T10:00:00Z' } },
 )
 assert.equal(preferenceMerged.preferences.dailyGoal, 15)
+
+// Un échec récent ne perd pas contre une réussite plus ancienne mieux dotée en reps,
+// et l'erreur correspondante reste à revoir.
+const relapse = mergeProgress(
+  { questions: ['types-1'], wrongs: { 'types-1': 1 }, cards: { 'types-1': { reps: 0, interval: 0, ease: 2.5, due: '2026-08-11', at: '2026-08-11T09:00:00.000Z' } } },
+  { questions: ['types-1'], wrongs: {}, cards: { 'types-1': { reps: 4, interval: 21, ease: 2.7, due: '2026-09-01', at: '2026-07-20T09:00:00.000Z' } } },
+)
+assert.equal(relapse.cards['types-1'].reps, 0)
+assert.equal(relapse.cards['types-1'].due, '2026-08-11')
+assert.equal(relapse.wrongs['types-1'], 1)
+
+// À l'inverse, une réussite plus récente que l'erreur solde bien l'erreur.
+const recovered = mergeProgress(
+  { questions: ['types-1'], wrongs: { 'types-1': 1 }, cards: { 'types-1': { reps: 0, interval: 0, ease: 2.5, due: '2026-08-11', at: '2026-08-11T09:00:00.000Z' } } },
+  { questions: ['types-1'], wrongs: {}, cards: { 'types-1': { reps: 1, interval: 1, ease: 2.55, due: '2026-08-13', at: '2026-08-12T09:00:00.000Z' } } },
+)
+assert.equal(recovered.cards['types-1'].reps, 1)
+assert.equal(recovered.wrongs['types-1'], undefined)
+
+// Une carte horodatée est plus fiable qu'une carte ancienne sans horodatage.
+const mixed = mergeProgress(
+  { cards: { 'types-1': { reps: 0, due: '2026-08-11', at: '2026-08-11T09:00:00.000Z' } } },
+  { cards: { 'types-1': { reps: 3, due: '2026-08-30' } } },
+)
+assert.equal(mixed.cards['types-1'].reps, 0)
+
+// Une erreur sans carte associée reste à revoir.
+assert.equal(mergeProgress({ wrongs: { 'types-9': 2 } }, {}).wrongs['types-9'], 2)
+
+// La fusion conserve la version de format la plus élevée des deux côtés.
+assert.equal(mergeProgress({}, {}).schemaVersion, CURRENT_SCHEMA_VERSION)
+assert.equal(mergeProgress({}, { schemaVersion: CURRENT_SCHEMA_VERSION + 1 }).schemaVersion, CURRENT_SCHEMA_VERSION + 1)
 
 console.log('Merge tests passed')
