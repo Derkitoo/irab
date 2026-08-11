@@ -1,10 +1,12 @@
 import { advancedModules } from './content-advanced.js'
 import { dateKey, isDue, scheduleCard } from './srs.js'
 import { createBackup, parseBackup } from './backup.js'
-import { mergeProgress } from './merge.js'
 import { computeAnalytics } from './analytics.js'
 import { createCoach } from './coach.js'
-import { currentSession, initializeCloud, isCloudConfigured, loadCloudProgress, onAuthChange, saveCloudProgress, signIn, signOut, signUp } from './cloud.js'
+import { migrateProgress } from './progress-schema.js'
+import { describeCloudError } from './cloud-errors.js'
+import { publish, synchronize } from './sync.js'
+import { currentSession, deleteAccount, deleteCloudProgress, initializeCloud, isCloudConfigured, loadCloudProgress, onAuthChange, saveCloudProgress, signIn, signOut, signUp } from './cloud.js'
 
 let installPrompt = null
 let online = navigator.onLine
@@ -110,13 +112,15 @@ for (const module of curriculum) {
 
 const allLessons = curriculum.flatMap(m => m.lessons)
 const allQuestions = allLessons.flatMap(l => l.questions)
-const saved = loadProgress()
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:{lessons:saved.lessons||[], questions:saved.questions||[], wrongs:saved.wrongs||{}, cards:saved.cards||{}, activity:Array.isArray(saved.activity)?saved.activity:[], preferences:saved.preferences&&typeof saved.preferences==='object'?saved.preferences:{}}, cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:''} }
+const STORAGE_KEY = 'irab-fr:progress'
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
 const app = document.querySelector('#app')
 let cloudSaveTimer = null
 
-function loadProgress(){ try { return JSON.parse(localStorage.getItem('irab-fr:progress') || '{}') } catch { return {} } }
-function save(){ localStorage.setItem('irab-fr:progress', JSON.stringify(state.progress)); queueCloudSave() }
+// La progression lue sur l'appareil passe toujours par les migrations de format.
+function loadProgress(){ try { return migrateProgress(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')) } catch { return migrateProgress({}) } }
+function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress)) }
+function save(){ persist(); queueCloudSave() }
 function completed(id){ return state.progress.lessons.includes(id) }
 function reviewQuestions(){ return allQuestions.filter(question => state.progress.wrongs[question.id] > 0 || isDue(state.progress.cards[question.id])) }
 function schedule(questionId, correct){
@@ -127,18 +131,18 @@ function schedule(questionId, correct){
   delete state.progress.wrongs[questionId]
 }
 function speakArabic(text){ if(!('speechSynthesis' in window))return; speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='ar-SA'; utterance.rate=.78; const voice=speechSynthesis.getVoices().find(item=>item.lang.toLowerCase().startsWith('ar')); if(voice)utterance.voice=voice; speechSynthesis.speak(utterance) }
-function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : state.view === 'stats' ? statsView() : lessonView(); bind() }
+function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : state.view === 'privacy' ? privacyView() : state.view === 'stats' ? statsView() : lessonView(); bind() }
 function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="stats">Bilan</button><button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
   const reviews = reviewQuestions().length
   const coach = createCoach(state.progress,curriculum,reviewQuestions().map(question=>question.id))
-  return `<div class="shell">${header()}<main class="container">
+  return `<div class="shell">${header()}<main class="container">${cloudBanner()}
     <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div></div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${state.progress.questions.length}/${allQuestions.length}</strong><span>réponses maîtrisées</span></div></div></aside></section>
     <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span>Mon rythme</span>${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}">${goal}</button>`).join('')}</div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}</div></section>
-    <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
+    <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><button data-action="privacy">Confidentialité</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
     <div class="section-title"><div><h2>Maîtrise par compétence</h2><p>Les résultats sont calculés à partir des exercices réussis.</p></div></div><section class="competencies">${curriculum.map(competenceCard).join('')}</section>
     <div class="section-title"><div><h2>Le parcours</h2><p>Douze modules, des fondations jusqu’à l’analyse complète.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
   </main></div>`
@@ -168,13 +172,37 @@ function statsView(){
 }
 
 function escapeHtml(value=''){ return String(value).replace(/[&<>"']/g,character=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[character]) }
-function accountView(){
-  if(!state.cloud.configured) return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte et synchronisation</span><h1>Mode invité actif</h1><p class="account-lead">Ta progression reste sauvegardée sur cet appareil. L’intégration cloud est prête mais attend la configuration d’un projet Supabase.</p><section class="account-panel"><h2>Activer la synchronisation</h2><ol><li>Créer un projet Supabase.</li><li>Exécuter <code>supabase/schema.sql</code> dans l’éditeur SQL.</li><li>Ajouter l’URL et la clé publique dans <code>supabase-config.js</code>.</li></ol><p class="account-note">Ne jamais utiliser une clé <code>service_role</code> dans le navigateur.</p></section><button class="primary" data-action="home">Continuer en invité</button></main></div>`
-  if(state.cloud.session){ const email=escapeHtml(state.cloud.session.user.email); return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte synchronisé</span><h1>${email}</h1><p class="account-lead">Ta progression locale et distante est fusionnée sans perdre les leçons ou réponses maîtrisées.</p><section class="account-panel account-status"><div><span>État</span><strong>${cloudStatusLabel()}</strong></div><button data-action="sync">Synchroniser maintenant</button></section>${state.cloud.error?`<p class="account-error">${escapeHtml(state.cloud.error)}</p>`:''}<button class="danger-button" data-action="signout">Se déconnecter</button></main></div>` }
-  return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte et synchronisation</span><h1>Retrouve ta progression partout</h1><p class="account-lead">Connecte-toi ou crée un compte. Ta progression invitée sera fusionnée avec le cloud.</p><section class="account-panel auth-form"><label>Adresse e-mail<input id="auth-email" type="email" autocomplete="email" placeholder="toi@exemple.fr"></label><label>Mot de passe<input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="8 caractères minimum"></label><div class="auth-actions"><button class="primary" data-auth-mode="signin">Se connecter</button><button data-auth-mode="signup">Créer mon compte</button></div></section>${state.cloud.status==='confirmation'?'<p class="account-success">Compte créé. Vérifie ton e-mail pour confirmer l’inscription.</p>':''}${state.cloud.error?`<p class="account-error">${escapeHtml(state.cloud.error)}</p>`:''}</main></div>`
+
+// Un seul rendu d'erreur pour toute l'application : message clair et, quand la
+// nouvelle tentative a du sens, un bouton qui rejoue exactement l'action échouée.
+function cloudFeedback(){ if(!state.cloud.error)return ''; return `<div class="account-error" role="alert"><p>${escapeHtml(state.cloud.error)}</p>${state.cloud.retry?'<button class="retry-button" data-action="retry">Réessayer</button>':''}</div>` }
+function cloudBanner(){ if(!state.cloud.error||state.view==='account'||state.view==='privacy')return ''; return `<div class="cloud-banner" role="alert"><span>${escapeHtml(state.cloud.error)}</span>${state.cloud.retry?'<button data-action="retry">Réessayer</button>':''}<button class="ghost-close" data-action="dismiss-error" aria-label="Masquer le message">✕</button></div>` }
+function clearCloudError(){ state.cloud.error=''; state.cloud.retryable=false; state.cloud.retry=null }
+
+function privacyView(){
+  const email=state.cloud.session?escapeHtml(state.cloud.session.user.email):''
+  return `<div class="shell">${header(true)}<main class="account-shell">
+    <span class="eyebrow">Confidentialité</span><h1>Tes données</h1>
+    <p class="account-lead">Iʿrāb est une application d’apprentissage. Elle n’enregistre que ce qui sert à suivre ta progression, et tu peux tout exporter ou tout supprimer à n’importe quel moment.</p>
+    ${cloudFeedback()}
+    <section class="account-panel"><h2>Ce qui est enregistré sur cet appareil</h2><p class="privacy-note">Dans le stockage local du navigateur, sous la clé <code>irab-fr:progress</code> :</p><ul class="privacy-list"><li>les leçons terminées et les exercices maîtrisés ;</li><li>les erreurs encore à revoir et les échéances de révision ;</li><li>le journal des 1 000 dernières tentatives, avec leur date et leur résultat ;</li><li>ton objectif quotidien.</li></ul><p class="privacy-note">Aucun de ces éléments ne quitte l’appareil tant que tu n’as pas créé de compte.</p></section>
+    <section class="account-panel"><h2>Ce qui est synchronisé avec un compte</h2>${email?`<p class="privacy-note">Compte actuellement connecté : <strong>${email}</strong>.</p>`:''}<ul class="privacy-list"><li>ton adresse e-mail et un mot de passe chiffré, gérés par Supabase ;</li><li>la même progression que ci-dessus, dans une ligne qui t’appartient.</li></ul><p class="privacy-note">Une règle de sécurité au niveau de la base (RLS) empêche tout autre compte de lire ou de modifier ta ligne.</p></section>
+    <section class="account-panel"><h2>Ce que l’application ne fait pas</h2><ul class="privacy-list"><li>aucune publicité, aucun traceur, aucune mesure d’audience ;</li><li>aucune revente ni partage de données à des fins commerciales ;</li><li>aucun profilage au-delà des recommandations pédagogiques calculées sur ton appareil.</li></ul></section>
+    <section class="account-panel"><h2>Services tiers contactés par ton navigateur</h2><ul class="privacy-list"><li><strong>GitHub Pages</strong> : hébergement du site ;</li><li><strong>Google Fonts</strong> : polices latine et arabe ;</li><li><strong>unpkg</strong> : téléchargement du client Supabase, uniquement si un compte est utilisé ;</li><li><strong>Supabase</strong> : compte et synchronisation.</li></ul><p class="privacy-note">Ces services reçoivent techniquement ton adresse IP. La lecture audio des phrases arabes est confiée au moteur de synthèse vocale de ton système ou de ton navigateur : selon l’appareil, ce moteur peut traiter le texte en ligne.</p></section>
+    <section class="account-panel"><h2>Conservation</h2><p class="privacy-note">La progression est conservée tant que tu utilises l’application ou que ton compte existe. Une suppression demandée ici est immédiate et définitive : elle n’est pas récupérable, sauf si tu as exporté une sauvegarde auparavant.</p><div class="privacy-actions"><button data-action="export">Exporter ma progression</button></div></section>
+    <section class="account-panel danger-zone"><h2>Effacer mes données</h2><p class="privacy-note">Efface la progression enregistrée dans ce navigateur. Si tu as un compte, la copie synchronisée n’est pas touchée : elle reviendra à la prochaine connexion.</p><button class="danger-button" data-action="wipe-local">Effacer les données de cet appareil</button></section>
+    ${state.cloud.session?`<section class="account-panel danger-zone"><h2>Supprimer mon compte</h2><p class="privacy-note">Supprime définitivement le compte <strong>${email}</strong>, sa progression synchronisée et les données de cet appareil. Cette action est irréversible.</p><label class="delete-confirm">Écris <code>SUPPRIMER</code> pour confirmer<input id="delete-confirm" type="text" autocomplete="off" spellcheck="false" placeholder="SUPPRIMER"></label><button class="danger-button danger-button--solid" data-action="delete-account">Supprimer mon compte et toutes mes données</button></section>`:''}
+  </main></div>`
 }
 
-function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='error'?'Erreur':'Connecté' }
+function accountView(){
+  const privacyLink='<p class="privacy-link"><button class="link-button" data-action="privacy">Confidentialité et suppression des données</button></p>'
+  if(!state.cloud.configured) return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte et synchronisation</span><h1>Mode invité actif</h1><p class="account-lead">Ta progression reste sauvegardée sur cet appareil. L’intégration cloud est prête mais attend la configuration d’un projet Supabase.</p><section class="account-panel"><h2>Activer la synchronisation</h2><ol><li>Créer un projet Supabase.</li><li>Exécuter <code>supabase/schema.sql</code> dans l’éditeur SQL.</li><li>Ajouter l’URL et la clé publique dans <code>supabase-config.js</code>.</li></ol><p class="account-note">Ne jamais utiliser une clé <code>service_role</code> dans le navigateur.</p></section><button class="primary" data-action="home">Continuer en invité</button>${privacyLink}</main></div>`
+  if(state.cloud.session){ const email=escapeHtml(state.cloud.session.user.email); return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte synchronisé</span><h1>${email}</h1><p class="account-lead">Ta progression locale et distante est fusionnée sans perdre les leçons ou réponses maîtrisées.</p><section class="account-panel account-status"><div><span>État</span><strong>${cloudStatusLabel()}</strong></div><button data-action="sync" ${state.cloud.status==='syncing'?'disabled':''}>Synchroniser maintenant</button></section>${cloudFeedback()}<button class="danger-button" data-action="signout">Se déconnecter</button>${privacyLink}</main></div>` }
+  return `<div class="shell">${header(true)}<main class="account-shell"><span class="eyebrow">Compte et synchronisation</span><h1>Retrouve ta progression partout</h1><p class="account-lead">Connecte-toi ou crée un compte. Ta progression invitée sera fusionnée avec le cloud.</p><section class="account-panel auth-form"><label>Adresse e-mail<input id="auth-email" type="email" autocomplete="email" placeholder="toi@exemple.fr"></label><label>Mot de passe<input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="8 caractères minimum"></label><div class="auth-actions"><button class="primary" data-auth-mode="signin" ${state.cloud.status==='syncing'?'disabled':''}>Se connecter</button><button data-auth-mode="signup" ${state.cloud.status==='syncing'?'disabled':''}>Créer mon compte</button></div></section>${state.cloud.status==='confirmation'?'<p class="account-success">Compte créé. Vérifie ton e-mail pour confirmer l’inscription.</p>':''}${state.cloud.status==='signed-out'?'<p class="account-success">Déconnexion effectuée. La progression de ce compte a été retirée de cet appareil ; elle revient dès la prochaine connexion.</p>':''}${cloudFeedback()}${privacyLink}</main></div>`
+}
+
+function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='blocked'?'Mise à jour requise':state.cloud.status==='error'?'Erreur':'Connecté' }
 
 function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>lesson.questions); const mastered=questions.filter(question=>state.progress.questions.includes(question.id)).length; const pct=Math.round(mastered/questions.length*100); return `<article class="competence"><div><strong>${module.title}</strong><span>${mastered}/${questions.length}</span></div><div class="skill-bar" role="progressbar" aria-label="${module.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></article>` }
 
@@ -198,6 +226,11 @@ function bind(){
   document.querySelectorAll('[data-goal]').forEach(button=>button.onclick=()=>setDailyGoal(Number(button.dataset.goal)))
   document.querySelectorAll('[data-action="account"]').forEach(button=>button.onclick=()=>{state.view='account';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="stats"]').forEach(button=>button.onclick=()=>{state.view='stats';render();scrollTo(0,0)})
+  document.querySelectorAll('[data-action="privacy"]').forEach(button=>button.onclick=()=>{state.view='privacy';render();scrollTo(0,0)})
+  document.querySelector('[data-action="retry"]')?.addEventListener('click',()=>{const retry=state.cloud.retry;if(!retry)return;clearCloudError();render();retry()})
+  document.querySelector('[data-action="dismiss-error"]')?.addEventListener('click',()=>{clearCloudError();render()})
+  document.querySelector('[data-action="wipe-local"]')?.addEventListener('click',wipeLocalData)
+  document.querySelector('[data-action="delete-account"]')?.addEventListener('click',deleteEverything)
   document.querySelectorAll('[data-auth-mode]').forEach(button=>button.onclick=()=>handleAuth(button.dataset.authMode))
   document.querySelector('[data-action="sync"]')?.addEventListener('click',()=>syncCloud())
   document.querySelector('[data-action="signout"]')?.addEventListener('click',handleSignOut)
@@ -222,17 +255,107 @@ function next(){ const x=state.lesson.questions[state.qi]; if(answerIsCorrect(x)
 
 async function installApp(){ if(!installPrompt)return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt=null; render() }
 function exportProgress(){ const payload=createBackup(state.progress); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=`irab-progression-${dateKey()}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000) }
-async function importProgress(event){ const file=event.target.files?.[0]; if(!file)return; try{ const progress=parseBackup(await file.text()); localStorage.setItem('irab-fr:progress',JSON.stringify(progress)); location.reload() }catch{ alert('Cette sauvegarde Iʿrāb est invalide ou endommagée.') } }
+async function importProgress(event){ const file=event.target.files?.[0]; if(!file)return; try{ const progress=parseBackup(await file.text()); localStorage.setItem(STORAGE_KEY,JSON.stringify(progress)); location.reload() }catch{ alert('Cette sauvegarde Iʿrāb est invalide ou endommagée.') } }
 
-function queueCloudSave(){ if(!state.cloud.session)return; clearTimeout(cloudSaveTimer); cloudSaveTimer=setTimeout(()=>saveCloudProgress(state.cloud.session.user.id,state.progress).then(()=>{state.cloud.status='synced';if(state.view==='account')render()}).catch(error=>{state.cloud.status='error';state.cloud.error=error.message;if(state.view==='account')render()}),800) }
-async function syncCloud(session=state.cloud.session){ if(!session)return; state.cloud.status='syncing';state.cloud.error='';if(state.view==='account')render();try{const remote=await loadCloudProgress(session.user.id);state.progress=mergeProgress(state.progress,remote);localStorage.setItem('irab-fr:progress',JSON.stringify(state.progress));await saveCloudProgress(session.user.id,state.progress);state.cloud.status='synced'}catch(error){state.cloud.status='error';state.cloud.error=error.message}render() }
-async function handleAuth(mode){ const email=document.querySelector('#auth-email')?.value.trim();const password=document.querySelector('#auth-password')?.value;if(!email||!password){state.cloud.error='Saisis une adresse e-mail et un mot de passe.';render();return}state.cloud.status='syncing';state.cloud.error='';try{const session=mode==='signup'?await signUp(email,password):await signIn(email,password);if(session){state.cloud.session=session;await syncCloud(session)}else{state.cloud.status='confirmation';render()}}catch(error){state.cloud.status='error';state.cloud.error=error.message;render()} }
-async function handleSignOut(){ try{await signOut();state.cloud.session=null;state.cloud.status='idle';state.cloud.error='';render()}catch(error){state.cloud.error=error.message;render()} }
-async function initializeAccount(){ if(!state.cloud.configured)return;try{await initializeCloud();state.cloud.session=await currentSession();onAuthChange(session=>{state.cloud.session=session;if(session)syncCloud(session);else if(state.view==='account')render()});if(state.cloud.session)await syncCloud(state.cloud.session);else render()}catch(error){state.cloud.status='error';state.cloud.error=error.message;render()} }
+// Toute erreur cloud passe par ici : message traduit, et nouvelle tentative
+// mémorisée quand elle a une chance d'aboutir.
+function reportCloudError(error,retry){ const described=describeCloudError(error,{online}); state.cloud.status='error'; state.cloud.error=described.message; state.cloud.retryable=described.retryable; state.cloud.retry=described.retryable?retry:null }
+function applyCloudResult(result,retry){
+  if(result.status==='synced'){ state.progress=result.progress; persist(); state.cloud.status='synced'; clearCloudError(); return }
+  state.cloud.status=result.status==='blocked'?'blocked':'error'
+  state.cloud.error=result.error.message
+  state.cloud.retryable=result.error.retryable
+  state.cloud.retry=result.error.retryable?retry:null
+}
+
+function queueCloudSave(){ if(!state.cloud.session)return; clearTimeout(cloudSaveTimer); cloudSaveTimer=setTimeout(async()=>{ const session=state.cloud.session; if(!session)return; const result=await publish({userId:session.user.id,progress:state.progress,saveRemote:saveCloudProgress,online}); applyCloudResult(result,()=>syncCloud(session)); if(state.view!=='lesson')render() },800) }
+
+async function syncCloud(session=state.cloud.session){
+  if(!session)return
+  state.cloud.status='syncing'; clearCloudError(); render()
+  const result=await synchronize({userId:session.user.id,local:state.progress,loadRemote:loadCloudProgress,saveRemote:saveCloudProgress,online})
+  applyCloudResult(result,()=>syncCloud(session))
+  render()
+}
+
+async function handleAuth(mode){
+  const email=document.querySelector('#auth-email')?.value.trim()
+  const password=document.querySelector('#auth-password')?.value
+  if(!email||!password){ state.cloud.error='Saisis une adresse e-mail et un mot de passe.'; state.cloud.retryable=false; state.cloud.retry=null; render(); return }
+  if(mode==='signup'&&password.length<8){ state.cloud.error='Choisis un mot de passe d’au moins 8 caractères.'; state.cloud.retryable=false; state.cloud.retry=null; render(); return }
+  state.cloud.status='syncing'; clearCloudError(); render()
+  try{
+    const session=mode==='signup'?await signUp(email,password):await signIn(email,password)
+    if(session){ state.cloud.session=session; await syncCloud(session) }
+    else { state.cloud.status='confirmation'; render() }
+  }catch(error){ reportCloudError(error,()=>handleAuth(mode)); render() }
+}
+
+// La progression affichée appartient au compte qui vient de se déconnecter :
+// la laisser sur l'appareil la ferait fusionner dans le compte suivant.
+// Elle est déjà dans le cloud et revient à la prochaine connexion.
+async function handleSignOut(){
+  try{
+    clearTimeout(cloudSaveTimer)
+    await signOut()
+    state.cloud.session=null
+    state.progress=migrateProgress({})
+    localStorage.removeItem(STORAGE_KEY)
+    state.cloud.status='signed-out'
+    clearCloudError()
+    render()
+  }catch(error){ reportCloudError(error,handleSignOut); render() }
+}
+
+function wipeLocalData(){
+  if(!confirm('Effacer toute la progression enregistrée dans ce navigateur ? Cette action est irréversible.'))return
+  localStorage.removeItem(STORAGE_KEY)
+  location.reload()
+}
+
+// Suppression définitive : la progression distante part d'abord, puis le compte.
+// Si la fonction serveur est absente, on le dit clairement au lieu de laisser
+// croire que le compte a disparu.
+async function deleteEverything(){
+  const confirmation=(document.querySelector('#delete-confirm')?.value||'').trim().toUpperCase()
+  if(confirmation!=='SUPPRIMER'){ state.cloud.error='Écris SUPPRIMER en majuscules pour confirmer la suppression.'; state.cloud.retryable=false; state.cloud.retry=null; render(); return }
+  const session=state.cloud.session
+  if(!session){ wipeLocalData(); return }
+  state.cloud.status='syncing'; clearCloudError(); render()
+  clearTimeout(cloudSaveTimer)
+  try{ await deleteCloudProgress(session.user.id) }
+  catch(error){ reportCloudError(error,deleteEverything); render(); return }
+  try{ await deleteAccount() }
+  catch(error){
+    localStorage.removeItem(STORAGE_KEY)
+    await signOut().catch(()=>{})
+    state.cloud.session=null
+    state.cloud.status='error'
+    state.cloud.error=`${describeCloudError(error,{online}).message} Ta progression synchronisée a bien été supprimée et tu as été déconnecté.`
+    state.cloud.retryable=false
+    state.cloud.retry=null
+    render()
+    return
+  }
+  localStorage.removeItem(STORAGE_KEY)
+  await signOut().catch(()=>{})
+  location.reload()
+}
+
+async function initializeAccount(){
+  if(!state.cloud.configured)return
+  try{
+    await initializeCloud()
+    state.cloud.session=await currentSession()
+    onAuthChange(session=>{ state.cloud.session=session; if(session)syncCloud(session); else if(state.view==='account'||state.view==='privacy')render() })
+    if(state.cloud.session)await syncCloud(state.cloud.session)
+    else render()
+  }catch(error){ reportCloudError(error,initializeAccount); render() }
+}
 
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;if(state.view==='home')render()})
 window.addEventListener('appinstalled',()=>{installPrompt=null;if(state.view==='home')render()})
-window.addEventListener('online',()=>{online=true;render()})
+window.addEventListener('online',()=>{online=true;if(state.cloud.session&&state.cloud.status!=='synced')syncCloud();else render()})
 window.addEventListener('offline',()=>{online=false;render()})
 
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(error=>console.error('Service worker:',error))) }

@@ -72,3 +72,16 @@ export async function saveCloudProgress(userId, progress) {
   const { error } = await requireClient().from('learning_progress').upsert({ user_id: userId, progress, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
   if (error) throw error
 }
+
+export async function deleteCloudProgress(userId) {
+  const { error } = await requireClient().from('learning_progress').delete().eq('user_id', userId)
+  if (error) throw error
+}
+
+// Supprime définitivement le compte via la fonction SQL `delete_own_account`.
+// Le navigateur ne possède aucune clé d'administration : cette fonction est le
+// seul chemin autorisé, et elle n'agit que sur l'utilisateur authentifié.
+export async function deleteAccount() {
+  const { error } = await requireClient().rpc('delete_own_account')
+  if (error) throw error
+}

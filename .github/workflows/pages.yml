@@ -30,11 +30,17 @@ jobs:
           node --check analytics.js
           node --check coach.js
           node --check cloud.js
+          node --check progress-schema.js
+          node --check cloud-errors.js
+          node --check sync.js
           node srs.test.mjs
           node backup.test.mjs
           node merge.test.mjs
           node analytics.test.mjs
           node coach.test.mjs
+          node progress-schema.test.mjs
+          node cloud-errors.test.mjs
+          node sync.test.mjs
 
       - name: Check required static files
         run: |
@@ -51,6 +57,9 @@ jobs:
           test -f analytics.js
           test -f coach.js
           test -f cloud.js
+          test -f progress-schema.js
+          test -f cloud-errors.js
+          test -f sync.js
           test -f supabase-config.js
           test -f supabase/schema.sql
           grep -q 'content-advanced.js' app.js
