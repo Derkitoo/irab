@@ -32,6 +32,8 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - catégories d’erreurs et révision ciblée par nature, fonction, état, marque ou analyse
 - reprise d’une leçon à la question interrompue
 - jours, séries et objectif quotidien dans le fuseau de l’appareil
+- glossaire français–arabe de 59 termes, cherchable et relié aux leçons
+- contenu des leçons séparé du moteur d’interface
 
 ## Activer les comptes Supabase
 

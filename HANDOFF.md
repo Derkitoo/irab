@@ -1,7 +1,7 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 11 août 2026
-- Dernier jalon livré : sprint 2 — session intelligente
+- Dernier jalon livré : sprint 3 — qualité du contenu
 - Commit de référence : `a2e1edd` (coach), puis les correctifs de fusion du sprint 1
 
 ## 1. Liens utiles
@@ -34,7 +34,10 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - catégories d’erreurs — nature, fonction, état, marque, analyse — avec révision ciblée par catégorie ;
 - reprise d’une leçon à la question interrompue, synchronisée entre appareils ;
 - jours, séries et objectif quotidien calculés dans le fuseau de l’appareil ;
-- maîtrise révocable : un exercice raté ne compte plus comme maîtrisé.
+- maîtrise révocable : un exercice raté ne compte plus comme maîtrisé ;
+- contenu séparé du moteur : `app.js` ne connaît plus la forme d’une leçon ;
+- corpus testé automatiquement : identifiants, réponses, arabe présent, blocs mélangés ;
+- glossaire de 59 termes, cherchable en français, en translittération et en arabe, relié aux leçons.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -45,8 +48,13 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | Fichier | Responsabilité |
 | --- | --- |
 | `index.html` | Coquille HTML et chargement de l’application |
-| `app.js` | Curriculum principal, vues, navigation et orchestration |
-| `content-advanced.js` | Modules avancés du curriculum |
+| `app.js` | Vues, navigation et orchestration |
+| `curriculum.js` | Assemblage du programme et exercices dérivés |
+| `content-core.js` | Modules 1 à 4 |
+| `content-advanced.js` | Modules 5 à 12 |
+| `content-helpers.js` | Constructeurs de leçon et d’exercice |
+| `glossary.js` | Termes du glossaire |
+| `glossary-index.js` | Rattachement d’un terme aux leçons |
 | `srs.js` | Planification de la répétition espacée |
 | `analytics.js` | Calcul du bilan pédagogique |
 | `coach.js` | Objectif quotidien et moteur de recommandation |
@@ -149,6 +157,12 @@ node --check merge.js
 node --check backup.js
 node --check cloud.js
 node --check sw.js
+node --check curriculum.js
+node --check content-core.js
+node --check content-advanced.js
+node --check content-helpers.js
+node --check glossary.js
+node --check glossary-index.js
 node srs.test.mjs
 node analytics.test.mjs
 node coach.test.mjs
@@ -159,6 +173,8 @@ node cloud-errors.test.mjs
 node sync.test.mjs
 node question-topics.test.mjs
 node session.test.mjs
+node curriculum.test.mjs
+node glossary.test.mjs
 git diff --check
 ```
 
@@ -185,6 +201,9 @@ git push origin main:gh-pages
 - La session rapide se remplit dans cet ordre : révisions dues, thèmes fragiles, suite du parcours.
 - Les catégories d'exercices vivent dans `question-topics.js`, hors des fichiers de contenu ; un test échoue si un exercice est ajouté sans catégorie.
 - Les jours viennent de `day.js` et suivent le fuseau de l'appareil. Les échéances SRS étaient déjà locales.
+- Le contenu ne vit plus dans `app.js`. Une leçon s'ajoute dans `content-core.js` ou `content-advanced.js`, et `curriculum.js` s'occupe des passes de consolidation et des constructions par blocs.
+- Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
+- Le champ `analysis` d'une leçon s'affiche dans un panneau droite-à-gauche : il doit être en arabe, et un test le vérifie.
 - Les anciennes sauvegardes sans `activity` ou `preferences` restent compatibles.
 - Le contenu utilisateur ou distant inséré dans le HTML doit passer par `escapeHtml`.
 - La logique de synchronisation vit dans `sync.js`, sans DOM : c’est ce qui la rend testable sous Node.
@@ -196,6 +215,9 @@ git push origin main:gh-pages
 - Les statistiques commencent à la date d’installation du journal d’activité ; les anciennes réponses maîtrisées n’ont pas d’historique rétroactif.
 - Le journal est limité à 1 000 tentatives et ne constitue pas une conservation analytique illimitée.
 - Le découpage des exercices en cinq catégories est un choix pédagogique, à confirmer lors de la relecture du corpus par un enseignant.
+- Le corpus a reçu une relecture assistée, pas une validation d'arabophone qualifié : sept corrections nettes ont été appliquées, mais l'exactitude d'ensemble n'est pas garantie.
+- Le glossaire emploie la terminologie classique ; ses 59 définitions n'ont pas été relues par un enseignant.
+- Six termes du glossaire ne sont reliés à aucune leçon : ils n'apparaissent qu'en translittération dans les règles françaises.
 - La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur réel.
 - L'objectif quotidien se remet à zéro à minuit local ; un horaire de bascule personnalisé reste à faire.
 - Les compteurs de maîtrise ont baissé pour les comptes existants au passage à la maîtrise révocable : c'est attendu, les données ne sont pas perdues.
@@ -213,7 +235,7 @@ git push origin main:gh-pages
 
 1. Déployer `delete_own_account` sur le projet Supabase existant, puis vérifier la suppression avec un compte de test.
 2. Compléter la couverture par un test dans un vrai navigateur, contre un projet Supabase de test : inscription, confirmation e-mail et synchronisation entre deux sessions réelles.
-3. Faire relire les 25 leçons, les analyses et les 129 exercices par un enseignant d’arabe.
+3. Faire relire par un enseignant d’arabe : les 25 leçons, les analyses, les 52 exercices écrits, les 59 définitions du glossaire et le classement des exercices en cinq catégories.
 4. Faire relire la page Confidentialité par un regard juridique avant toute diffusion large.
 
 Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentative, page Confidentialité et suppression des données, versionnage du format de progression, test complet de la couche de synchronisation.
@@ -251,12 +273,12 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - reprise à la question interrompue ;
 - fuseau local pour les jours, les séries et l’objectif.
 
-### Sprint 3 — Qualité du contenu
+### Sprint 3 — Qualité du contenu (partiellement livré)
 
-- relecture grammaticale experte ;
-- correction du corpus ;
-- glossaire ;
-- séparation du contenu et du moteur d’interface.
+- correction du corpus : sept corrections appliquées ;
+- glossaire de 59 termes relié aux leçons ;
+- séparation du contenu et du moteur d’interface ;
+- relecture grammaticale experte : **reste à faire**, elle demande un enseignant d’arabe.
 
 ## 11. Définition de « terminé » pour un futur jalon
 
