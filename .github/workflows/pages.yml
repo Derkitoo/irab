@@ -23,6 +23,8 @@ jobs:
         run: |
           node --check app.js
           node --check content-advanced.js
+          node --check srs.js
+          node srs.test.mjs
 
       - name: Check required static files
         run: |
@@ -30,4 +32,5 @@ jobs:
           test -f styles.css
           test -f app.js
           test -f content-advanced.js
+          test -f srs.js
           grep -q 'content-advanced.js' app.js
