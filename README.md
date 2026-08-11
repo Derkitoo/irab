@@ -2,6 +2,8 @@
 
 Application indépendante d’apprentissage de la grammaire arabe et du iʿrāb pour francophones.
 
+La passation complète, les décisions techniques et la roadmap restante sont disponibles dans [`HANDOFF.md`](./HANDOFF.md).
+
 ## Contenu actuel
 
 - 12 modules progressifs
