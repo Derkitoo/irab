@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+name: Validate static site
 
 on:
   push:
@@ -7,33 +7,27 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: validate-static-site
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check content-advanced.js
 
-      - name: Upload static site
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: .
-
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Check required static files
+        run: |
+          test -f index.html
+          test -f styles.css
+          test -f app.js
+          test -f content-advanced.js
+          grep -q 'content-advanced.js' app.js
