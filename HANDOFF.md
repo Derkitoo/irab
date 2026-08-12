@@ -1,7 +1,7 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 12 août 2026
-- Dernier jalon livré : sprint 9 — dossier de relecture
+- Dernier jalon livré : consolidation du code après neuf sprints
 - Sprints 1 à 9 livrés et publiés ; `git log` donne le détail commit par commit
 
 ## 1. Liens utiles
@@ -73,6 +73,7 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `revue.html` | Dossier de relecture, fichier généré |
 | `glossary.js` | Termes du glossaire |
 | `glossary-index.js` | Rattachement d’un terme aux leçons |
+| `normalize.js` | Normalisation unique du texte français et arabe |
 | `srs.js` | Planification de la répétition espacée |
 | `analytics.js` | Calcul du bilan pédagogique |
 | `coach.js` | Objectif quotidien et moteur de recommandation |
@@ -189,6 +190,7 @@ node --check diagnostic.js
 node --check badges.js
 node --check glossary.js
 node --check glossary-index.js
+node --check normalize.js
 node srs.test.mjs
 node analytics.test.mjs
 node coach.test.mjs
@@ -206,6 +208,7 @@ node search.test.mjs
 node diagnostic.test.mjs
 node badges.test.mjs
 node review.test.mjs
+node project.test.mjs
 node tools/build-review.mjs --check
 git diff --check
 ```
@@ -241,6 +244,10 @@ git push origin main:gh-pages
 - Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
 - Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
 - La seconde explication n'apparaît qu'au deuxième échec sur un même exercice : au premier, l'apprenant n'a pas encore eu l'occasion de relire la première.
+- `normalize.js` est l'unique normaliseur de texte, et `day.js` l'unique calcul de jour local. Les deux existaient en double avec des comportements divergents ; `project.test.mjs` refuse maintenant qu'un second apparaisse.
+- L'ordre des opérations dans `normalize.js` n'est pas indifférent : décomposer, retirer les seules marques latines, recomposer, puis traiter l'arabe. Retirer toutes les marques combinantes d'un coup casse ئ et ؤ, et « نائب » devient « نايب ».
+- `choiceGroup` rend tous les groupes de propositions, exercices comme sondes du positionnement. Sans cela une correction d'accessibilité risquait de n'en toucher qu'un des deux.
+- Le cache de `sw.js`, les contrôles de syntaxe et les suites du workflow étaient tenus à jour à la main. `project.test.mjs` vérifie ces trois listes : un module absent du cache casse le mode hors ligne, une suite absente du workflow cesse d'être exécutée, et les deux échecs sont silencieux.
 - `revue.html` est **généré**, jamais édité à la main : le modifier directement serait écrasé au prochain `node tools/build-review.mjs`, et la CI refuse un fichier périmé. Corriger le contenu se fait dans `content-core.js`, `content-advanced.js`, `explanations.js` ou `glossary.js`, puis on régénère.
 - Les jalons sont calculés à la demande, jamais stockés : rien de neuf à synchroniser, et deux appareils ne peuvent pas afficher des acquis différents.
 - Chaque jalon ne porte que sur l'historique — `questions` et le journal d'activité — jamais sur la maîtrise courante, qui est révocable. Un jalon obtenu ne se reprend donc jamais. C'est le seul consommateur restant de `questions`.
@@ -316,6 +323,14 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - catégories d’erreurs et révision ciblée par catégorie ;
 - reprise à la question interrompue ;
 - fuseau local pour les jours, les séries et l’objectif.
+
+### Consolidation (livrée, hors sprint)
+
+- un seul normaliseur de texte, qui cesse d’abîmer les lettres porteuses de hamza ;
+- un seul calcul du jour local, l’alias `dateKey` supprimé ;
+- un seul rendu pour les groupes de propositions ;
+- un balayage des exercices par rendu au lieu de trois ;
+- `project.test.mjs` garde le cache, le workflow et l’unicité de ces implémentations.
 
 ### Sprint 9 — Dossier de relecture (livré)
 
