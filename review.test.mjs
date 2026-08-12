@@ -6,7 +6,8 @@ import { secondExplanation } from './explanations.js'
 import { topicOf } from './question-topics.js'
 import { FLAGS, LESSON_FLAGS } from './tools/review-flags.js'
 
-const dossier = readFileSync(new URL('./revue.html', import.meta.url), 'utf8')
+// Fins de ligne normalisées : Git restitue le fichier en CRLF sous Windows.
+const dossier = readFileSync(new URL('./revue.html', import.meta.url), 'utf8').replace(/\r\n/g, '\n')
 const lessons = curriculum.flatMap(module => module.lessons)
 const written = lessons.flatMap(lesson => lesson.questions.filter(question => question.type !== 'builder' && !question.id.endsWith('-c')))
 const glossary = buildGlossary(curriculum)

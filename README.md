@@ -41,6 +41,15 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - test de positionnement initial pour démarrer au bon module
 - six jalons sobres, dérivés de l’historique et jamais révoqués
 
+## Faire relire le contenu
+
+Le dossier de relecture réunit tout ce qui attend la validation d’un enseignant d’arabe : leçons, exercices, secondes explications, glossaire et classement en catégories.
+
+- version en ligne : https://derkitoo.github.io/irab/revue.html
+- régénérer après une modification du contenu : `node tools/build-review.mjs`
+
+`revue.html` est un fichier généré. Les corrections se reportent dans les fichiers de contenu, puis on régénère.
+
 ## Activer les comptes Supabase
 
 1. Créer un projet Supabase.

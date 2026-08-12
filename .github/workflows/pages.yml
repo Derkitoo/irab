@@ -63,6 +63,8 @@ jobs:
           node search.test.mjs
           node diagnostic.test.mjs
           node badges.test.mjs
+          node review.test.mjs
+          node tools/build-review.mjs --check
 
       - name: Check required static files
         run: |
@@ -79,6 +81,8 @@ jobs:
           test -f search.js
           test -f diagnostic.js
           test -f badges.js
+          test -f revue.html
+          test -f tools/build-review.mjs
           test -f glossary.js
           test -f glossary-index.js
           test -f srs.js

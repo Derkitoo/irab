@@ -1,8 +1,8 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 12 août 2026
-- Dernier jalon livré : sprint 8 — jalons du parcours
-- Sprints 1 à 8 livrés et publiés ; `git log` donne le détail commit par commit
+- Dernier jalon livré : sprint 9 — dossier de relecture
+- Sprints 1 à 9 livrés et publiés ; `git log` donne le détail commit par commit
 
 ## 1. Liens utiles
 
@@ -12,6 +12,7 @@
 - Branche publiée par GitHub Pages : `gh-pages`
 - Projet Supabase : `pxywcrnvhejdmmlqpipq`
 - Workflow de validation : `.github/workflows/pages.yml`
+- Dossier de relecture pour un enseignant : https://derkitoo.github.io/irab/revue.html
 
 ## 2. État livré
 
@@ -46,7 +47,8 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - seconde explication et exemple supplémentaire au deuxième échec sur un même exercice ;
 - recherche unique sur les leçons, les exercices et le glossaire, en français, en translittération et en arabe ;
 - test de positionnement initial qui désigne le point de départ et oriente le coach ;
-- six jalons calculés à partir de la progression, jamais enregistrés.
+- six jalons calculés à partir de la progression, jamais enregistrés ;
+- dossier de relecture généré depuis les sources, à remettre à un enseignant d’arabe.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -66,6 +68,9 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `search.js` | Index et recherche sur tout le contenu |
 | `diagnostic.js` | Sondes de positionnement et placement |
 | `badges.js` | Jalons du parcours, dérivés de l’historique |
+| `tools/build-review.mjs` | Génère `revue.html` depuis les sources |
+| `tools/review-flags.js` | Points signalés à l’enseignant |
+| `revue.html` | Dossier de relecture, fichier généré |
 | `glossary.js` | Termes du glossaire |
 | `glossary-index.js` | Rattachement d’un terme aux leçons |
 | `srs.js` | Planification de la répétition espacée |
@@ -200,6 +205,8 @@ node explanations.test.mjs
 node search.test.mjs
 node diagnostic.test.mjs
 node badges.test.mjs
+node review.test.mjs
+node tools/build-review.mjs --check
 git diff --check
 ```
 
@@ -234,6 +241,7 @@ git push origin main:gh-pages
 - Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
 - Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
 - La seconde explication n'apparaît qu'au deuxième échec sur un même exercice : au premier, l'apprenant n'a pas encore eu l'occasion de relire la première.
+- `revue.html` est **généré**, jamais édité à la main : le modifier directement serait écrasé au prochain `node tools/build-review.mjs`, et la CI refuse un fichier périmé. Corriger le contenu se fait dans `content-core.js`, `content-advanced.js`, `explanations.js` ou `glossary.js`, puis on régénère.
 - Les jalons sont calculés à la demande, jamais stockés : rien de neuf à synchroniser, et deux appareils ne peuvent pas afficher des acquis différents.
 - Chaque jalon ne porte que sur l'historique — `questions` et le journal d'activité — jamais sur la maîtrise courante, qui est révocable. Un jalon obtenu ne se reprend donc jamais. C'est le seul consommateur restant de `questions`.
 - La zone d'annonce met les messages en file : deux annonces peuvent tomber dans la même action, et la seconde effaçait la première avant qu'elle soit lue.
@@ -277,7 +285,7 @@ git push origin main:gh-pages
 
 1. Déployer `delete_own_account` sur le projet Supabase existant, puis vérifier la suppression avec un compte de test.
 2. Compléter la couverture par un test dans un vrai navigateur, contre un projet Supabase de test : inscription, confirmation e-mail et synchronisation entre deux sessions réelles.
-3. Faire relire par un enseignant d’arabe : les 25 leçons, les analyses, les 54 exercices écrits, les 54 secondes explications et leurs exemples, les 59 définitions du glossaire et le classement des exercices en cinq catégories.
+3. Faire relire par un enseignant d’arabe. Le dossier est prêt : envoyer https://derkitoo.github.io/irab/revue.html, ou la version imprimée. Il couvre les 25 leçons, les 54 exercices écrits, les 54 secondes explications et leurs exemples, les 59 définitions du glossaire et le classement en cinq catégories, avec 23 points déjà signalés comme incertains. Reporter ensuite les corrections dans les fichiers de contenu, jamais dans `revue.html`.
 4. Faire relire la page Confidentialité par un regard juridique avant toute diffusion large.
 
 Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentative, page Confidentialité et suppression des données, versionnage du format de progression, test complet de la couche de synchronisation.
@@ -308,6 +316,13 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - catégories d’erreurs et révision ciblée par catégorie ;
 - reprise à la question interrompue ;
 - fuseau local pour les jours, les séries et l’objectif.
+
+### Sprint 9 — Dossier de relecture (livré)
+
+- `revue.html` réunit les 25 leçons, les 54 exercices avec leur double explication, les 59 définitions et le classement en catégories ;
+- repères stables `L-01`, `E-01`, `G-01` pour répondre point par point, zone d’annotation par élément, mise en page imprimable ;
+- 23 points signalés par ⚑ : ce que j’ai écrit ou ce que je sais discutable ;
+- généré depuis les sources, la CI échoue s’il est périmé.
 
 ### Sprint 8 — Jalons du parcours (livré)
 

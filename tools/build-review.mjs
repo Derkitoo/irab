@@ -179,9 +179,14 @@ ${glossaryGroups}
 
 const html = build()
 
+// Le fichier est écrit en LF mais Git le restitue en CRLF sous Windows : la
+// comparaison ignore donc les fins de ligne, sinon le contrôle échouerait selon
+// la machine plutôt que selon le contenu.
+const sameContent = (left, right) => left.replace(/\r\n/g, '\n') === right.replace(/\r\n/g, '\n')
+
 if (process.argv.includes('--check')) {
   const current = readFileSync(OUTPUT, 'utf8')
-  if (current !== html) {
+  if (!sameContent(current, html)) {
     console.error('revue.html est périmé. Régénère-le : node tools/build-review.mjs')
     process.exit(1)
   }
