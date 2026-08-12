@@ -10,6 +10,7 @@ import { secondExplanation } from './explanations.js'
 import { GLOSSARY_GROUPS, buildGlossary } from './glossary.js'
 import { normalizeArabic } from './glossary-index.js'
 import { buildSearchIndex, searchContent } from './search.js'
+import { buildDiagnostic, diagnosticRecord, isComplete, nextProbeIndex, placeLearner } from './diagnostic.js'
 import { migrateProgress } from './progress-schema.js'
 import { describeCloudError } from './cloud-errors.js'
 import { publish, synchronize } from './sync.js'
@@ -19,7 +20,7 @@ let installPrompt = null
 let online = navigator.onLine
 
 const STORAGE_KEY = 'irab-fr:progress'
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, glossaryQuery:'', searchQuery:'', progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, glossaryQuery:'', searchQuery:'', probe:{ answers:[], selected:null, placement:null }, progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
 const app = document.querySelector('#app')
 let cloudSaveTimer = null
 
@@ -58,7 +59,7 @@ function speakArabic(text){ if(!('speechSynthesis' in window))return; speechSynt
 // le focus retombe sur le corps de page, ce qui rend la navigation au clavier
 // impraticable : chaque clic renverrait l'utilisateur au début du document.
 // On retient donc ce qui était focalisé, et on le retrouve après le rendu.
-const FOCUS_KEYS = ['choice', 'lesson', 'action', 'topic', 'goal', 'token', 'remove', 'authMode', 'speak']
+const FOCUS_KEYS = ['choice', 'probeChoice', 'lesson', 'action', 'topic', 'goal', 'token', 'remove', 'authMode', 'speak', 'searchTerm', 'searchLesson', 'searchExercise']
 function focusKey(element = document.activeElement){
   if(!element||element===document.body||!app.contains(element))return null
   if(element.id)return `#${CSS.escape(element.id)}`
@@ -90,6 +91,7 @@ function viewMarkup(){
     case 'privacy': return privacyView()
     case 'glossary': return glossaryView()
     case 'search': return searchView()
+    case 'diagnostic': return diagnosticView()
     case 'stats': return statsView()
     default: return lessonView()
   }
@@ -114,7 +116,7 @@ function homeView(){
   const resume = resumeTarget()
   const quick = buildQuickSession(state.progress,curriculum,reviewQuestions().map(question=>question.id))
   return `<div class="shell">${header()}<main class="container">${cloudBanner()}
-    <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div>${resume?`<button class="resume-line" data-action="resume"><span class="resume-mark">↩</span><span><strong>Reprendre où tu t’es arrêté</strong><small>${escapeHtml(resume.lesson.title)} · question ${resume.index+1} sur ${resume.lesson.questions.length}</small></span></button>`:''}</div>
+    <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}${!state.progress.lessons.length&&!state.progress.diagnostic?'<button class="review-button" data-action="diagnostic">Situer mon niveau</button>':''}</div>${resume?`<button class="resume-line" data-action="resume"><span class="resume-mark">↩</span><span><strong>Reprendre où tu t’es arrêté</strong><small>${escapeHtml(resume.lesson.title)} · question ${resume.index+1} sur ${resume.lesson.questions.length}</small></span></button>`:''}</div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${masteredTotal()}/${allQuestions.length}</strong><span>exercices maîtrisés</span></div></div></aside></section>
     <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span id="goal-rhythm-label">Mon rythme</span><div class="goal-buttons" role="group" aria-labelledby="goal-rhythm-label">${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}" aria-pressed="${coach.daily.goal===goal}">${goal}</button>`).join('')}</div></div><div class="goal-reset"><label for="goal-reset-hour">Ma journée commence à</label><select id="goal-reset-hour">${Array.from({length:24},(_,hour)=>`<option value="${hour}" ${coach.daily.resetHour===hour?'selected':''}>${String(hour).padStart(2,'0')} h</option>`).join('')}</select></div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}${quick.questionIds.length?`<button class="quick-button" data-action="quick">Session rapide · ${quick.questionIds.length} exercice${quick.questionIds.length>1?'s':''}<small>${quickComposition(quick)}</small></button>`:''}</div></section>
     <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><button data-action="glossary">Glossaire</button><button data-action="privacy">Confidentialité</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
@@ -188,6 +190,49 @@ function accountView(){
 }
 
 function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='blocked'?'Mise à jour requise':state.cloud.status==='error'?'Erreur':'Connecté' }
+
+// Positionnement : une sonde par module, jusqu'à deux échecs consécutifs.
+// Les réponses restent hors du journal et de la répétition espacée, sinon un
+// débutant en sortirait avec des cartes en retard sur des leçons jamais ouvertes.
+const diagnostic = buildDiagnostic(curriculum)
+function diagnosticView(){
+  const placement=state.probe.placement
+  if(placement){
+    return `<div class="shell">${header(true)}<main class="account-shell">
+      <span class="eyebrow">Positionnement</span><h1>${placement.allCorrect?'Tout est juste':'Ton point de départ'}</h1>
+      <p class="account-lead">${escapeHtml(placement.reason)}</p>
+      <section class="account-panel probe-result"><div><span>Sondes réussies</span><strong>${placement.correct} sur ${placement.answered}</strong></div><div><span>Départ conseillé</span><strong>${escapeHtml(placement.moduleTitle)}</strong></div></section>
+      <div class="probe-actions"><button class="primary" data-action="probe-start">Ouvrir cette leçon</button><button data-action="home">Voir tout le parcours</button></div>
+    </main></div>`
+  }
+  const index=nextProbeIndex(state.probe.answers,diagnostic)
+  const probe=diagnostic[index]
+  const question=probe.question
+  return `<div class="shell">${header(true)}<main class="lesson-shell">
+    <div class="quiz-head"><span class="counter">Sonde ${index+1}${index?` · ${state.probe.answers.filter(Boolean).length} juste${state.probe.answers.filter(Boolean).length>1?'s':''} sur ${index}`:''}</span><h1>${question.prompt}</h1><p class="probe-module">${escapeHtml(probe.moduleTitle)}</p></div>
+    <div class="question-wrap"><div class="question-ar ar">${question.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(question.arabic)}" aria-label="Écouter la phrase">◖))</button></div>
+    <div class="choices" role="radiogroup" aria-label="Propositions">${question.choices.map(choice=>`<button class="choice ${state.probe.selected===choice[1]?'selected':''}" data-probe-choice="${choice[1]}" role="radio" aria-checked="${state.probe.selected===choice[1]}">${choice[0]}</button>`).join('')}</div>
+    <div class="quiz-actions"><button class="primary" data-action="probe-next" ${state.probe.selected===null?'disabled':''}>${index===diagnostic.length-1?'Terminer':'Valider'}</button><button class="ghost-link" data-action="probe-skip">Je ne sais pas</button></div>
+    <p class="probe-note">Ces réponses ne comptent ni dans ton bilan ni dans tes révisions. Elles servent seulement à te situer.</p>
+  </main></div>`
+}
+function openDiagnostic(){ state={...state,view:'diagnostic',probe:{ answers:[], selected:null, placement:null }};render();scrollTo(0,0) }
+function answerProbe(correct){
+  const answers=[...state.probe.answers,correct]
+  if(isComplete(answers,diagnostic)){
+    const placement=placeLearner(answers,diagnostic)
+    state.progress.diagnostic=diagnosticRecord(placement)
+    save()
+    state.probe={ answers, selected:null, placement }
+    render()
+    scrollTo(0,0)
+    announce(`Positionnement terminé. ${placement.reason}`)
+    return
+  }
+  state.probe={ answers, selected:null, placement:null }
+  render()
+  scrollTo(0,0)
+}
 
 // Recherche : l'index est bâti une fois, et seule la liste des résultats est
 // redessinée à la frappe pour ne pas déplacer le curseur du champ.
@@ -294,6 +339,14 @@ function bind(){
   document.querySelectorAll('[data-action="privacy"]').forEach(button=>button.onclick=()=>{state.view='privacy';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="glossary"]').forEach(button=>button.onclick=()=>{state.view='glossary';state.glossaryQuery='';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="search"]').forEach(button=>button.onclick=()=>openSearch())
+  document.querySelectorAll('[data-action="diagnostic"]').forEach(button=>button.onclick=openDiagnostic)
+  document.querySelectorAll('[data-probe-choice]').forEach(button=>button.onclick=()=>{state.probe={...state.probe,selected:button.dataset.probeChoice};render()})
+  document.querySelector('[data-action="probe-next"]')?.addEventListener('click',()=>{
+    const probe=diagnostic[nextProbeIndex(state.probe.answers,diagnostic)]
+    answerProbe(state.probe.selected===probe.question.answer)
+  })
+  document.querySelector('[data-action="probe-skip"]')?.addEventListener('click',()=>answerProbe(false))
+  document.querySelector('[data-action="probe-start"]')?.addEventListener('click',()=>openLesson(state.probe.placement.lessonId))
   const searchInput=document.querySelector('#search-query')
   if(searchInput)searchInput.oninput=()=>{state.searchQuery=searchInput.value;document.querySelector('#search-results').innerHTML=searchResults(state.searchQuery);bindSearchResults()}
   bindSearchResults()
@@ -339,7 +392,7 @@ function checkAnswer(){
 function bindChoiceKeys(){
   const group=app.querySelector('.choices')
   if(!group)return
-  const choices=[...group.querySelectorAll('[data-choice]:not([disabled])')]
+  const choices=[...group.querySelectorAll('[data-choice]:not([disabled]), [data-probe-choice]:not([disabled])')]
   group.onkeydown=event=>{
     const step={ ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1 }[event.key]
     if(!step)return

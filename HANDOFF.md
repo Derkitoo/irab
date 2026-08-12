@@ -1,8 +1,8 @@
 # Passation — Iʿrāb FR
 
-- Dernière mise à jour : 11 août 2026
-- Dernier jalon livré : sprint 6 — recherche dans le contenu
-- Commit de référence : `a2e1edd` (coach), puis les correctifs de fusion du sprint 1
+- Dernière mise à jour : 12 août 2026
+- Dernier jalon livré : sprint 7 — positionnement initial
+- Sprints 1 à 7 livrés et publiés ; `git log` donne le détail commit par commit
 
 ## 1. Liens utiles
 
@@ -44,7 +44,8 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - `prefers-reduced-motion` respecté ;
 - heure personnelle de remise à zéro de l’objectif quotidien ;
 - seconde explication et exemple supplémentaire au deuxième échec sur un même exercice ;
-- recherche unique sur les leçons, les exercices et le glossaire, en français, en translittération et en arabe.
+- recherche unique sur les leçons, les exercices et le glossaire, en français, en translittération et en arabe ;
+- test de positionnement initial qui désigne le point de départ et oriente le coach.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -62,6 +63,7 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `content-helpers.js` | Constructeurs de leçon et d’exercice |
 | `explanations.js` | Seconde explication de chaque exercice |
 | `search.js` | Index et recherche sur tout le contenu |
+| `diagnostic.js` | Sondes de positionnement et placement |
 | `glossary.js` | Termes du glossaire |
 | `glossary-index.js` | Rattachement d’un terme aux leçons |
 | `srs.js` | Planification de la répétition espacée |
@@ -98,8 +100,11 @@ Une ligne `learning_progress` existe par utilisateur. Le champ JSON `progress` c
   "activity": [],
   "preferences": {
     "dailyGoal": 5,
+    "resetHour": 0,
     "updatedAt": "2026-08-11T12:00:00.000Z"
-  }
+  },
+  "resume": null,
+  "diagnostic": null
 }
 ```
 
@@ -110,6 +115,7 @@ Une ligne `learning_progress` existe par utilisateur. Le champ JSON `progress` c
 - `activity` : tentatives horodatées, limitées aux 1 000 plus récentes ;
 - `preferences` : objectif quotidien, heure de bascule de la journée et date de dernière modification ;
 - `resume` : leçon et question quittées en cours de route, ou `null` ;
+- `diagnostic` : trace du positionnement initial, ou `null` ;
 - `schemaVersion` : version du format, gérée par `progress-schema.js`.
 
 Les champs ajoutés dans le JSON ne nécessitent pas de migration SQL. `merge.js` doit néanmoins être mis à jour pour chaque nouvelle donnée synchronisée.
@@ -172,6 +178,7 @@ node --check content-advanced.js
 node --check content-helpers.js
 node --check explanations.js
 node --check search.js
+node --check diagnostic.js
 node --check glossary.js
 node --check glossary-index.js
 node srs.test.mjs
@@ -188,6 +195,7 @@ node curriculum.test.mjs
 node glossary.test.mjs
 node explanations.test.mjs
 node search.test.mjs
+node diagnostic.test.mjs
 git diff --check
 ```
 
@@ -222,6 +230,9 @@ git push origin main:gh-pages
 - Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
 - Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
 - La seconde explication n'apparaît qu'au deuxième échec sur un même exercice : au premier, l'apprenant n'a pas encore eu l'occasion de relire la première.
+- Les sondes du positionnement sont des exercices existants, jamais des questions écrites pour l'occasion : rien de neuf à faire relire, et l'apprenant est jugé sur ce qu'il va réellement travailler.
+- Les réponses au positionnement n'alimentent ni le journal d'activité ni la répétition espacée. Sinon un débutant en sortirait avec une dizaine de cartes en retard sur des leçons jamais ouvertes.
+- Le positionnement ne commande le point de départ que tant qu'aucune leçon n'est terminée : ensuite la progression réelle reprend la main.
 - La recherche normalise d'un coup accents français, voyelles brèves arabes et signes de translittération, en s'appuyant sur la décomposition Unicode. Un mot arabe est cherché avec et sans son article, puisqu'il se copie depuis une leçon mais se range sans dans le glossaire.
 - Les passes de consolidation ne sont pas indexées : elles reprennent mot pour mot leur exercice d'origine et doubleraient chaque résultat.
 - Tout le contenu rédigé après la relecture assistée est réuni dans `explanations.js`, pour qu'un enseignant sache où regarder en priorité.
@@ -240,6 +251,7 @@ git push origin main:gh-pages
 - Le corpus a reçu une relecture assistée, pas une validation d'arabophone qualifié : sept corrections nettes ont été appliquées, mais l'exactitude d'ensemble n'est pas garantie.
 - Les 54 secondes explications et leurs exemples n'ont pas été relus par un enseignant. C'est la plus grande surface de contenu non validée du projet.
 - Le glossaire emploie la terminologie classique ; ses 59 définitions n'ont pas été relues par un enseignant.
+- Le placement au premier module raté est une heuristique simple, pas un modèle psychométrique : il suppose que le parcours est strictement progressif.
 - La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur réel.
 - L'accessibilité a été vérifiée au clavier et par contrôle programmatique des contrastes et des noms accessibles, mais pas avec un vrai lecteur d'écran ni par une personne concernée.
 - Les compteurs de maîtrise ont baissé pour les comptes existants au passage à la maîtrise révocable : c'est attendu, les données ne sont pas perdues.
@@ -271,9 +283,8 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 
 1. Créer une interface d’administration ou un format de contenu externe afin de ne plus modifier `app.js` pour chaque leçon.
 2. Ajouter des enregistrements audio humains, avec licences documentées, en complément de la synthèse vocale.
-3. Ajouter un parcours de diagnostic initial pour recommander un point de départ.
-4. Préparer les traductions de l’interface sans dupliquer le contenu.
-5. Définir une stratégie produit avant toute monétisation : public cible, métriques pédagogiques, support et politique de conservation des données.
+3. Préparer les traductions de l’interface sans dupliquer le contenu.
+4. Définir une stratégie produit avant toute monétisation : public cible, métriques pédagogiques, support et politique de conservation des données.
 
 ## 10. Proposition des trois prochains sprints
 
@@ -290,6 +301,12 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - catégories d’erreurs et révision ciblée par catégorie ;
 - reprise à la question interrompue ;
 - fuseau local pour les jours, les séries et l’objectif.
+
+### Sprint 7 — Positionnement initial (livré)
+
+- une sonde par module, arrêt après deux échecs consécutifs ;
+- placement au premier module raté ;
+- le coach part de là tant que rien n’est terminé.
 
 ### Sprint 6 — Recherche dans le contenu (livré)
 

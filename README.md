@@ -38,6 +38,7 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - heure personnelle de remise à zéro de l’objectif quotidien
 - seconde explication et exemple supplémentaire quand la même erreur revient
 - recherche sur les leçons, les exercices et le glossaire, en français comme en arabe
+- test de positionnement initial pour démarrer au bon module
 
 ## Activer les comptes Supabase
 
