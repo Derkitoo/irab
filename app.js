@@ -52,7 +52,56 @@ function schedule(questionId, correct){
   delete state.progress.wrongs[questionId]
 }
 function speakArabic(text){ if(!('speechSynthesis' in window))return; speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='ar-SA'; utterance.rate=.78; const voice=speechSynthesis.getVoices().find(item=>item.lang.toLowerCase().startsWith('ar')); if(voice)utterance.voice=voice; speechSynthesis.speak(utterance) }
-function render(){ app.innerHTML = state.view === 'home' ? homeView() : state.view === 'account' ? accountView() : state.view === 'privacy' ? privacyView() : state.view === 'glossary' ? glossaryView() : state.view === 'stats' ? statsView() : lessonView(); bind() }
+// L'application se redessine entièrement à chaque interaction. Sans précaution
+// le focus retombe sur le corps de page, ce qui rend la navigation au clavier
+// impraticable : chaque clic renverrait l'utilisateur au début du document.
+// On retient donc ce qui était focalisé, et on le retrouve après le rendu.
+const FOCUS_KEYS = ['choice', 'lesson', 'action', 'topic', 'goal', 'token', 'remove', 'authMode', 'speak']
+function focusKey(element = document.activeElement){
+  if(!element||element===document.body||!app.contains(element))return null
+  if(element.id)return `#${CSS.escape(element.id)}`
+  for(const key of FOCUS_KEYS){
+    const value=element.dataset[key]
+    if(value!==undefined)return `[data-${key.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)}="${CSS.escape(value)}"]`
+  }
+  return null
+}
+function restoreFocus(key){
+  if(!key)return
+  const target=app.querySelector(key)
+  if(target)target.focus({ preventScroll:true })
+}
+
+// Zone d'annonce pour les lecteurs d'écran : elle vit hors de #app, donc elle
+// survit aux rendus et son contenu est bien lu.
+function announce(message){
+  const region=document.querySelector('#live-region')
+  if(!region)return
+  region.textContent=''
+  setTimeout(()=>{ region.textContent=message },50)
+}
+
+function viewMarkup(){
+  switch(state.view){
+    case 'home': return homeView()
+    case 'account': return accountView()
+    case 'privacy': return privacyView()
+    case 'glossary': return glossaryView()
+    case 'stats': return statsView()
+    default: return lessonView()
+  }
+}
+function render(){
+  const previous=focusKey()
+  app.innerHTML=viewMarkup()
+  // Les lecteurs d'écran doivent changer de langue sur l'arabe, sinon la
+  // translittération est lue avec la prononciation française.
+  app.querySelectorAll('.ar').forEach(element=>{ element.setAttribute('lang','ar'); element.setAttribute('dir','rtl') })
+  const main=app.querySelector('main')
+  if(main){ main.id='main-content'; main.tabIndex=-1 }
+  bind()
+  restoreFocus(previous)
+}
 function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="stats">Bilan</button><button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
@@ -64,7 +113,7 @@ function homeView(){
   return `<div class="shell">${header()}<main class="container">${cloudBanner()}
     <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}</div>${resume?`<button class="resume-line" data-action="resume"><span class="resume-mark">↩</span><span><strong>Reprendre où tu t’es arrêté</strong><small>${escapeHtml(resume.lesson.title)} · question ${resume.index+1} sur ${resume.lesson.questions.length}</small></span></button>`:''}</div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${masteredTotal()}/${allQuestions.length}</strong><span>exercices maîtrisés</span></div></div></aside></section>
-    <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span>Mon rythme</span>${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}">${goal}</button>`).join('')}</div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}${quick.questionIds.length?`<button class="quick-button" data-action="quick">Session rapide · ${quick.questionIds.length} exercice${quick.questionIds.length>1?'s':''}<small>${quickComposition(quick)}</small></button>`:''}</div></section>
+    <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span id="goal-rhythm-label">Mon rythme</span><div class="goal-buttons" role="group" aria-labelledby="goal-rhythm-label">${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}" aria-pressed="${coach.daily.goal===goal}">${goal}</button>`).join('')}</div></div><div class="goal-reset"><label for="goal-reset-hour">Ma journée commence à</label><select id="goal-reset-hour">${Array.from({length:24},(_,hour)=>`<option value="${hour}" ${coach.daily.resetHour===hour?'selected':''}>${String(hour).padStart(2,'0')} h</option>`).join('')}</select></div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}${quick.questionIds.length?`<button class="quick-button" data-action="quick">Session rapide · ${quick.questionIds.length} exercice${quick.questionIds.length>1?'s':''}<small>${quickComposition(quick)}</small></button>`:''}</div></section>
     <section class="portable"><div><span class="eyebrow">Progression portable</span><h2>Emporte tes résultats</h2><p>Exporte une sauvegarde puis restaure-la sur un autre appareil.</p></div><div class="portable-actions"><button data-action="export">Exporter</button><button data-action="choose-import">Restaurer</button><button data-action="glossary">Glossaire</button><button data-action="privacy">Confidentialité</button><input id="progress-import" type="file" accept="application/json,.json" hidden></div></section>
     <div class="section-title"><div><h2>Maîtrise par compétence</h2><p>Les résultats sont calculés à partir des exercices réussis.</p></div></div><section class="competencies">${curriculum.map(competenceCard).join('')}</section>
     <div class="section-title"><div><h2>Le parcours</h2><p>Douze modules, des fondations jusqu’à l’analyse complète.</p></div></div><section class="modules">${curriculum.map(moduleCard).join('')}</section>
@@ -178,13 +227,13 @@ function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>
 
 function answerIsCorrect(question){ return question.type==='builder' ? state.built.map(index=>question.tokens[index]).join(' ')===question.answer : state.selected===question.answer }
 function exerciseReady(question){ return question.type==='builder' ? state.built.length===question.tokens.length : state.selected!==null }
-function choiceExercise(question){ const wordMode=question.choices.every(choice=>!/\p{L}/u.test(choice[0].replace(/[\u0600-\u06ff]/g,''))); const endingMode=/terminaison|marque|forme convient/i.test(question.prompt); return `<div class="choices ${wordMode?'choices--words':''} ${endingMode?'choices--endings':''}">${question.choices.map(choice=>`<button class="choice ${state.selected===choice[1]?'selected':''}" data-choice="${choice[1]}" ${state.checked?'disabled':''}>${choice[0]}</button>`).join('')}</div>` }
+function choiceExercise(question){ const wordMode=question.choices.every(choice=>!/\p{L}/u.test(choice[0].replace(/[\u0600-\u06ff]/g,''))); const endingMode=/terminaison|marque|forme convient/i.test(question.prompt); return `<div class="choices ${wordMode?'choices--words':''} ${endingMode?'choices--endings':''}" role="radiogroup" aria-label="Propositions">${question.choices.map(choice=>`<button class="choice ${state.selected===choice[1]?'selected':''}" data-choice="${choice[1]}" role="radio" aria-checked="${state.selected===choice[1]}" ${state.checked?'disabled':''}>${choice[0]}</button>`).join('')}</div>` }
 function builderExercise(question){ const remaining=question.order.filter(index=>!state.built.includes(index)); return `<section class="builder"><span class="builder-label">Ton analyse</span><div class="builder-answer ar">${state.built.length?state.built.map((index,position)=>`<button data-remove="${position}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join(' '):'<span>Choisis les blocs ci-dessous…</span>'}</div><span class="builder-label">Blocs disponibles</span><div class="builder-pool ar">${remaining.map(index=>`<button data-token="${index}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join('')}</div></section>` }
 function exerciseBody(question){ return question.type==='builder' ? builderExercise(question) : choiceExercise(question) }
 
 function lessonView(){ const l=state.lesson; if(state.stage==='learn') return `<div class="shell">${header(true)}<main class="lesson-shell"><header class="lesson-title"><span class="eyebrow">Règle essentielle</span><h1>${l.title}</h1><p class="ar">${l.ar}</p></header><p class="lead">${l.summary}</p><div class="lesson-grid"><section class="panel"><span class="panel-label">La règle</span><p>${l.rule}</p></section><section class="panel example"><span class="panel-label">Exemple</span><button class="speak" data-speak="${encodeURIComponent(l.example)}" aria-label="Écouter l’exemple">◖))</button><p class="example-ar ar">${l.example}</p><p>${l.translation}</p></section><section class="panel analysis"><span class="panel-label">Analyse</span><p class="ar">${l.analysis}</p></section></div><div class="method"><span>1 · Nature</span><span>2 · Fonction</span><span>3 · État</span><span>4 · Marque</span></div><div class="lesson-actions"><button class="primary" data-action="practice">Passer aux exercices</button><button class="ghost-link" data-action="glossary">Un terme t’échappe ? Ouvre le glossaire</button></div></main></div>`
   const x=l.questions[state.qi]; const correct=answerIsCorrect(x)
-  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(l.id==='quick'?'Terminer la session':state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
+  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}" tabindex="-1" role="group" aria-label="Correction"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(l.id==='quick'?'Terminer la session':state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
 }
 
 function bind(){
@@ -197,6 +246,8 @@ function bind(){
   document.querySelector('[data-action="resume"]')?.addEventListener('click',resumeLesson)
   document.querySelectorAll('[data-topic]').forEach(button=>button.onclick=()=>openReview(button.dataset.topic))
   document.querySelectorAll('[data-goal]').forEach(button=>button.onclick=()=>setDailyGoal(Number(button.dataset.goal)))
+  const resetHour=document.querySelector('#goal-reset-hour')
+  if(resetHour)resetHour.onchange=()=>setResetHour(Number(resetHour.value))
   document.querySelectorAll('[data-action="account"]').forEach(button=>button.onclick=()=>{state.view='account';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="stats"]').forEach(button=>button.onclick=()=>{state.view='stats';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="privacy"]').forEach(button=>button.onclick=()=>{state.view='privacy';render();scrollTo(0,0)})
@@ -219,8 +270,39 @@ function bind(){
   document.querySelectorAll('[data-token]').forEach(b=>b.onclick=()=>{state.built=[...state.built,Number(b.dataset.token)];render()})
   document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{state.built=state.built.filter((_,index)=>index!==Number(b.dataset.remove));render()})
   document.querySelectorAll('[data-speak]').forEach(b=>b.onclick=()=>speakArabic(decodeURIComponent(b.dataset.speak)))
-  document.querySelector('[data-action="check"]')?.addEventListener('click',()=>{const x=state.lesson.questions[state.qi];if(exerciseReady(x)){schedule(x.id,answerIsCorrect(x));state.checked=true;save();render()}})
+  document.querySelector('[data-action="check"]')?.addEventListener('click',checkAnswer)
+  bindChoiceKeys()
   document.querySelector('[data-action="next"]')?.addEventListener('click',next)
+}
+
+// Après vérification, le focus rejoint la correction : un lecteur d'écran la lit
+// immédiatement et le bouton suivant est à portée de tabulation.
+function checkAnswer(){
+  const question=state.lesson.questions[state.qi]
+  if(!exerciseReady(question))return
+  const correct=answerIsCorrect(question)
+  schedule(question.id,correct)
+  state.checked=true
+  save()
+  render()
+  const feedback=app.querySelector('.feedback')
+  if(feedback)feedback.focus({ preventScroll:true })
+  announce(correct?'Bonne réponse.':'Réponse incorrecte.')
+}
+
+// Un groupe de boutons radio se parcourt aux flèches, pas à la tabulation.
+function bindChoiceKeys(){
+  const group=app.querySelector('.choices')
+  if(!group)return
+  const choices=[...group.querySelectorAll('[data-choice]:not([disabled])')]
+  group.onkeydown=event=>{
+    const step={ ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1 }[event.key]
+    if(!step)return
+    event.preventDefault()
+    const current=choices.indexOf(document.activeElement)
+    const next=choices[(current+step+choices.length)%choices.length] ?? choices[0]
+    next?.focus()
+  }
 }
 
 function openLesson(id,index=0){ const lesson=allLessons.find(l=>l.id===id); if(!lesson)return; state={...state,view:'lesson',lesson,stage:index>0?'practice':'learn',qi:Math.min(index,lesson.questions.length-1),selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
@@ -242,13 +324,15 @@ function openQuickSession(){
   state={...state,view:'lesson',lesson:{id:'quick',title:'Session rapide',ar:'جَلْسَةٌ سَرِيعَةٌ',questions},stage:'practice',qi:0,selected:null,built:[],checked:false,review:true};render();scrollTo(0,0)
 }
 function openCoachRecommendation(){ const reviews=reviewQuestions();const coach=createCoach(state.progress,curriculum,reviews.map(question=>question.id));if(coach.recommendation.type==='review')openReview();else if(coach.recommendation.lessonId)openLesson(coach.recommendation.lessonId) }
-function setDailyGoal(dailyGoal){ if(![5,10,15].includes(dailyGoal))return;state.progress.preferences={...state.progress.preferences,dailyGoal,updatedAt:new Date().toISOString()};save();render() }
+function setDailyGoal(dailyGoal){ if(![5,10,15].includes(dailyGoal))return;state.progress.preferences={...state.progress.preferences,dailyGoal,updatedAt:new Date().toISOString()};save();render();announce(`Objectif quotidien : ${dailyGoal} exercices.`) }
+function setResetHour(resetHour){ if(!Number.isInteger(resetHour)||resetHour<0||resetHour>23)return;state.progress.preferences={...state.progress.preferences,resetHour,updatedAt:new Date().toISOString()};save();render();announce(`Ta journée commence à ${String(resetHour).padStart(2,'0')} heures.`) }
 function next(){
   const x=state.lesson.questions[state.qi]
   if(answerIsCorrect(x)&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id)
   if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;rememberPosition();save();render();scrollTo(0,0);return}
   if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id)
   if(!state.review)forgetPosition()
+  announce(state.review?'Session terminée. Retour au parcours.':'Leçon terminée. Retour au parcours.')
   save();state.view='home';state.review=false;state.built=[];render();scrollTo(0,0)
 }
 
@@ -260,11 +344,12 @@ async function importProgress(event){ const file=event.target.files?.[0]; if(!fi
 // mémorisée quand elle a une chance d'aboutir.
 function reportCloudError(error,retry){ const described=describeCloudError(error,{online}); state.cloud.status='error'; state.cloud.error=described.message; state.cloud.retryable=described.retryable; state.cloud.retry=described.retryable?retry:null }
 function applyCloudResult(result,retry){
-  if(result.status==='synced'){ state.progress=result.progress; persist(); state.cloud.status='synced'; clearCloudError(); return }
+  if(result.status==='synced'){ state.progress=result.progress; persist(); state.cloud.status='synced'; clearCloudError(); announce('Progression synchronisée.'); return }
   state.cloud.status=result.status==='blocked'?'blocked':'error'
   state.cloud.error=result.error.message
   state.cloud.retryable=result.error.retryable
   state.cloud.retry=result.error.retryable?retry:null
+  announce(result.error.message)
 }
 
 function queueCloudSave(){ if(!state.cloud.session)return; clearTimeout(cloudSaveTimer); cloudSaveTimer=setTimeout(async()=>{ const session=state.cloud.session; if(!session)return; const result=await publish({userId:session.user.id,progress:state.progress,saveRemote:saveCloudProgress,online}); applyCloudResult(result,()=>syncCloud(session)); if(state.view!=='lesson')render() },800) }
@@ -354,8 +439,23 @@ async function initializeAccount(){
 
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;if(state.view==='home')render()})
 window.addEventListener('appinstalled',()=>{installPrompt=null;if(state.view==='home')render()})
-window.addEventListener('online',()=>{online=true;if(state.cloud.session&&state.cloud.status!=='synced')syncCloud();else render()})
-window.addEventListener('offline',()=>{online=false;render()})
+// Échap ramène au parcours depuis n'importe quelle vue secondaire, et le lien
+// d'évitement conduit le focus au contenu plutôt que de simplement s'y ancrer.
+window.addEventListener('keydown',event=>{
+  if(event.key!=='Escape'||state.view==='home')return
+  if(document.activeElement?.tagName==='INPUT')return
+  state.view='home'
+  state.review=false
+  render()
+  announce('Retour au parcours.')
+})
+document.querySelector('.skip-link')?.addEventListener('click',event=>{
+  event.preventDefault()
+  app.querySelector('main')?.focus()
+})
+
+window.addEventListener('online',()=>{online=true;announce('Connexion rétablie.');if(state.cloud.session&&state.cloud.status!=='synced')syncCloud();else render()})
+window.addEventListener('offline',()=>{online=false;announce('Tu es hors ligne. Ta progression reste enregistrée sur cet appareil.');render()})
 
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(error=>console.error('Service worker:',error))) }
 

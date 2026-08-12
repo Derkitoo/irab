@@ -52,12 +52,15 @@ jobs:
           node sync.test.mjs
           node question-topics.test.mjs
           node session.test.mjs
+          node day.test.mjs
           node curriculum.test.mjs
           node glossary.test.mjs
 
       - name: Check required static files
         run: |
           test -f index.html
+          grep -q 'live-region' index.html
+          grep -q 'skip-link' index.html
           test -f styles.css
           test -f app.js
           test -f curriculum.js

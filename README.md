@@ -34,6 +34,8 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - jours, séries et objectif quotidien dans le fuseau de l’appareil
 - glossaire français–arabe de 59 termes, chacun relié aux leçons qui l’emploient
 - contenu des leçons séparé du moteur d’interface
+- navigation clavier, annonces pour lecteur d’écran et contrastes AA
+- heure personnelle de remise à zéro de l’objectif quotidien
 
 ## Activer les comptes Supabase
 
