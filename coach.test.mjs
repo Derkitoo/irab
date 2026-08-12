@@ -62,4 +62,20 @@ assert.equal(shifted.daily.resetHour, 4)
 assert.equal(createCoach({ preferences: { resetHour: 30 } }, curriculum, [], nightNow).daily.resetHour, 0)
 assert.equal(createCoach({ preferences: { resetHour: 'tard' } }, curriculum, [], nightNow).daily.resetHour, 0)
 
+// Le positionnement initial commande le point de départ, tant que rien n'est
+// terminé.
+const placedCoach = createCoach({ diagnostic: { lessonId: 'l2', moduleId: 'states', at: '2026-08-12T09:00:00Z' } }, curriculum, [], now)
+assert.equal(placedCoach.recommendation.lessonId, 'l2')
+assert.match(placedCoach.recommendation.reason, /positionnement/)
+
+// Dès qu'une leçon est terminée, la progression réelle reprend la main.
+const movedOn = createCoach({ lessons: ['l1'], diagnostic: { lessonId: 'l2', at: '2026-08-12T09:00:00Z' } }, curriculum, [], now)
+assert.equal(movedOn.recommendation.lessonId, 'l2')
+const movedPast = createCoach({ lessons: ['l2'], diagnostic: { lessonId: 'l2', at: '2026-08-12T09:00:00Z' } }, curriculum, [], now)
+assert.equal(movedPast.recommendation.lessonId, 'l1')
+
+// Un positionnement qui désigne une leçon disparue ne bloque pas le coach.
+const stale = createCoach({ diagnostic: { lessonId: 'supprimee', at: '2026-08-12T09:00:00Z' } }, curriculum, [], now)
+assert.equal(stale.recommendation.lessonId, 'l1')
+
 console.log('Coach tests passed')

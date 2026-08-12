@@ -29,11 +29,19 @@ export function createCoach(progress = {}, curriculum = [], reviewIds = [], now 
     .filter(item => item.events >= 2 && item.accuracy < 0.7 && item.mastery < 1)
     .sort((left, right) => left.accuracy - right.accuracy || left.index - right.index)[0]
   const targetModule = weak?.module
-  const lesson = (targetModule?.lessons ?? []).find(item => !completedLessons.has(item.id))
-    ?? curriculum.flatMap(module => module.lessons ?? []).find(item => !completedLessons.has(item.id))
+  const everyLesson = curriculum.flatMap(module => module.lessons ?? [])
+  // Tant qu'aucune leçon n'est terminée, le positionnement décide du départ :
+  // imposer la leçon 1 à quelqu'un qui a démontré connaître les bases est le
+  // meilleur moyen de le perdre.
+  const placed = completedLessons.size === 0 && progress.diagnostic?.lessonId
+    ? everyLesson.find(item => item.id === progress.diagnostic.lessonId)
+    : null
+  const lesson = placed
+    ?? (targetModule?.lessons ?? []).find(item => !completedLessons.has(item.id))
+    ?? everyLesson.find(item => !completedLessons.has(item.id))
 
   const recommendation = lesson
-    ? { type: 'lesson', lessonId: lesson.id, title: lesson.title, reason: weak ? `Ce thème mérite un renforcement : ${weak.module.title}.` : 'La prochaine étape logique de ton parcours.' }
+    ? { type: 'lesson', lessonId: lesson.id, title: lesson.title, reason: weak ? `Ce thème mérite un renforcement : ${weak.module.title}.` : placed ? 'Le point de départ que ton positionnement a désigné.' : 'La prochaine étape logique de ton parcours.' }
     : { type: 'complete', title: 'Parcours terminé', reason: 'Continue avec les révisions espacées pour consolider tes acquis.' }
 
   return {

@@ -52,5 +52,8 @@ export function mergeProgress(localProgress, remoteProgress) {
     // Le point de reprise le plus récent gagne : c'est le dernier appareil
     // utilisé qui sait où l'apprenant s'est arrêté.
     resume: String(remote.resume?.at ?? '') > String(local.resume?.at ?? '') ? remote.resume : local.resume,
+    // Le positionnement le plus récent gagne : c'est le dernier passé qui décrit
+    // le niveau actuel de l'apprenant.
+    diagnostic: String(remote.diagnostic?.at ?? '') > String(local.diagnostic?.at ?? '') ? remote.diagnostic : local.diagnostic,
   }
 }

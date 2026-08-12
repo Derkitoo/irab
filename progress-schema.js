@@ -13,6 +13,19 @@ function stringList(value) {
   return Array.isArray(value) ? value.filter(item => typeof item === 'string') : []
 }
 
+// Trace du positionnement initial : de quoi orienter le coach, rien de plus.
+function diagnosticPoint(value) {
+  const source = plainObject(value)
+  if (typeof source.lessonId !== 'string' || !source.lessonId) return null
+  return {
+    at: typeof source.at === 'string' ? source.at : '',
+    moduleId: typeof source.moduleId === 'string' ? source.moduleId : '',
+    lessonId: source.lessonId,
+    correct: Number.isInteger(source.correct) && source.correct >= 0 ? source.correct : 0,
+    answered: Number.isInteger(source.answered) && source.answered >= 0 ? source.answered : 0,
+  }
+}
+
 // Point de reprise : la leçon et la question quittées en cours de route.
 function resumePoint(value) {
   const source = plainObject(value)
@@ -55,6 +68,7 @@ function shape(source) {
     activity: (Array.isArray(source.activity) ? source.activity : []).filter(event => plainObject(event).id),
     preferences: plainObject(source.preferences),
     resume: resumePoint(source.resume),
+    diagnostic: diagnosticPoint(source.diagnostic),
   }
 }
 

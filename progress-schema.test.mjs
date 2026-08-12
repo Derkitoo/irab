@@ -10,6 +10,7 @@ assert.deepEqual(emptyProgress(), {
   activity: [],
   preferences: {},
   resume: null,
+  diagnostic: null,
 })
 
 assert.equal(detectSchemaVersion(undefined), 0)
@@ -47,5 +48,10 @@ assert.deepEqual(migrateProgress({ resume: { lessonId: 'types', index: 3, at: '2
 assert.equal(migrateProgress({ resume: { index: 3 } }).resume, null)
 assert.equal(migrateProgress({ resume: 'types' }).resume, null)
 assert.equal(migrateProgress({ resume: { lessonId: 'types', index: -2 } }).resume.index, 0)
+
+// Trace de positionnement : normalisée, ou null sans leçon d'arrivée.
+assert.deepEqual(migrateProgress({ diagnostic: { at: '2026-08-12T09:00:00Z', moduleId: 'cases', lessonId: 'states', correct: 3, answered: 5 } }).diagnostic, { at: '2026-08-12T09:00:00Z', moduleId: 'cases', lessonId: 'states', correct: 3, answered: 5 })
+assert.equal(migrateProgress({ diagnostic: { correct: 3 } }).diagnostic, null)
+assert.equal(migrateProgress({ diagnostic: { lessonId: 'states' } }).diagnostic.correct, 0)
 
 console.log('Progress schema tests passed')

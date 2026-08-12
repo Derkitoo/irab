@@ -11,6 +11,7 @@ const progress = {
   activity: [{ id: 'a1', at: '2026-08-11T11:00:00Z', questionId: 'types-1', correct: true }],
   preferences: { dailyGoal: 10, updatedAt: '2026-08-11T11:00:00Z' },
   resume: null,
+  diagnostic: null,
 }
 
 const payload = createBackup(progress, new Date('2026-08-11T12:00:00Z'))

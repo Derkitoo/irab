@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { mergeProgress, normalizeProgress } from './merge.js'
 import { CURRENT_SCHEMA_VERSION } from './progress-schema.js'
 
-const empty = { schemaVersion: CURRENT_SCHEMA_VERSION, lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {}, resume: null }
+const empty = { schemaVersion: CURRENT_SCHEMA_VERSION, lessons: [], questions: [], wrongs: {}, cards: {}, activity: [], preferences: {}, resume: null, diagnostic: null }
 assert.deepEqual(normalizeProgress(), empty)
 assert.deepEqual(normalizeProgress(null), empty)
 assert.deepEqual(mergeProgress({ lessons: ['types'] }, null).lessons, ['types'])
@@ -83,5 +83,13 @@ const resumeMerged = mergeProgress(
 assert.equal(resumeMerged.resume.lessonId, 'states')
 assert.equal(mergeProgress({ resume: { lessonId: 'types', index: 2, at: '2026-08-10T10:00:00Z' } }, {}).resume.lessonId, 'types')
 assert.equal(mergeProgress({}, {}).resume, null)
+
+// Le positionnement le plus récent gagne.
+const diagnosticMerged = mergeProgress(
+  { diagnostic: { at: '2026-08-10T10:00:00Z', lessonId: 'types', moduleId: 'words', correct: 1, answered: 3 } },
+  { diagnostic: { at: '2026-08-12T10:00:00Z', lessonId: 'states', moduleId: 'cases', correct: 3, answered: 5 } },
+)
+assert.equal(diagnosticMerged.diagnostic.lessonId, 'states')
+assert.equal(mergeProgress({}, {}).diagnostic, null)
 
 console.log('Merge tests passed')
