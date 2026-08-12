@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict'
-import { dateKey, isDue, scheduleCard } from './srs.js'
+import { addDays, isDue, scheduleCard } from './srs.js'
+import { localDayKey } from './day.js'
 
 const now = new Date(2026, 7, 11, 12, 0, 0)
 
-assert.equal(dateKey(now), '2026-08-11')
+assert.equal(localDayKey(now), '2026-08-11')
+assert.equal(addDays(now, 1), '2026-08-12')
 
 const first = scheduleCard(undefined, true, now)
 assert.deepEqual(first, { reps: 1, interval: 1, ease: 2.55, due: '2026-08-12', at: now.toISOString() })
