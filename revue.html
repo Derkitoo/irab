@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Iʿrāb FR — dossier de relecture</title>
+<style>
+  :root { --ink:#1a1a18; --muted:#5b6864; --line:#d8d3c8; --paper:#fffdf8; --flag:#8d6620; --right:#1c704e; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:0 0 80px; color:var(--ink); background:var(--paper); font-family:"DM Sans",-apple-system,Segoe UI,system-ui,sans-serif; font-size:16px; line-height:1.6; }
+  .sheet { width:min(880px,calc(100% - 32px)); margin:0 auto; }
+  header.top { padding:48px 0 28px; border-bottom:3px solid var(--ink); }
+  h1 { margin:0 0 10px; font-size:34px; line-height:1.15; }
+  h2 { margin:52px 0 6px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:24px; }
+  h3 { margin:0; font-size:18px; line-height:1.4; }
+  h3.group { margin:34px 0 12px; font-size:15px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); border:0; }
+  .lead { color:var(--muted); }
+  .ar { font-family:"Noto Naskh Arabic","Traditional Arabic",serif; font-size:1.22em; line-height:2; unicode-bidi:isolate; }
+  .item { margin:20px 0; padding:20px 22px; border:1px solid var(--line); border-radius:10px; background:#fff; break-inside:avoid; }
+  .item.compact { padding:16px 18px; }
+  .item header { margin-bottom:12px; }
+  .ref { display:inline-block; margin-bottom:6px; padding:2px 8px; border-radius:4px; background:#efeadf; font-size:12px; font-weight:700; letter-spacing:.06em; }
+  .where { margin:6px 0 0; color:var(--muted); font-size:13px; }
+  code { padding:1px 5px; border-radius:3px; background:#f0ece2; font-size:.9em; }
+  dl { margin:0; }
+  dt { margin-top:12px; color:var(--muted); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; }
+  dd { margin:4px 0 0; }
+  .mine { color:var(--flag); font-weight:700; text-transform:none; letter-spacing:0; }
+  .phrase { margin:10px 0; padding:12px 16px; border-radius:8px; background:#f7f3ea; text-align:right; }
+  ul.choices { margin:10px 0 0; padding-left:22px; }
+  ul.choices li { margin:3px 0; }
+  ul.choices li.right { color:var(--right); }
+  .flag { margin:14px 0 0; padding:11px 14px; border-left:4px solid var(--flag); border-radius:0 8px 8px 0; background:#fbf4e6; color:#5f4a17; font-size:14px; }
+  .annotate { margin-top:14px; padding-top:10px; border-top:1px dashed var(--line); min-height:52px; }
+  .annotate span { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+  table { width:100%; margin-top:16px; border-collapse:collapse; font-size:14px; }
+  th, td { padding:9px 10px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+  th[scope=row] { width:34%; }
+  ol.notes li { margin:8px 0; }
+  .count { color:var(--muted); font-size:14px; }
+  @media print {
+    body { background:#fff; font-size:11.5pt; }
+    .item { border-color:#bbb; break-inside:avoid; }
+    h2 { break-before:page; }
+    header.top h2 { break-before:auto; }
+    .annotate { min-height:60px; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<header class="top">
+  <h1>Iʿrāb FR — dossier de relecture</h1>
+  <p class="lead">Tout ce que l’application enseigne en arabe, réuni pour être validé par un enseignant. Document généré depuis le code source : il décrit exactement le contenu servi aux apprenants.</p>
+  <p class="lead"><strong>Ce qui est demandé :</strong> confirmer ou corriger. Chaque élément porte un repère stable — <code>L-01</code> pour une leçon, <code>E-01</code> pour un exercice, <code>G-01</code> pour un terme du glossaire — qu’il suffit de citer pour répondre. Le document s’imprime, et chaque bloc laisse une zone « Remarques ».</p>
+  <p class="lead">Le repère <strong>⚑</strong> marque les points que je sais discutables ou que j’ai rédigés moi-même. Ce ne sont pas les seuls à vérifier, mais ce sont ceux où je doute.</p>
+  <p class="count">25 leçons · 54 exercices écrits · 59 termes de glossaire · 5 catégories</p>
+</header>
+
+<h2>1. Ce qui n’est pas garanti</h2>
+<ol class="notes"><li>Les 54 secondes explications de la section 3 ont toutes été rédigées par moi, après la relecture assistée du corpus. C’est la plus grande surface de contenu non validée du projet.</li><li>Les 59 définitions du glossaire emploient la terminologie classique mais n’ont pas été relues.</li><li>Le découpage des exercices en cinq catégories — nature, fonction, état, marque, analyse complète — est un choix pédagogique de ma part. La section 5 le présente en entier.</li><li>Sept corrections ont été appliquées au corpus d’origine : elles sont signalées une par une par le repère ⚑.</li><li>Les vocalisations complètes n’ont pas été vérifiées caractère par caractère.</li></ol>
+
+<h2>2. Les 25 leçons</h2>
+<p class="lead">Pour chaque leçon : la règle telle qu’elle est lue par l’apprenant, l’exemple, sa traduction et l’analyse affichée en arabe.</p>
+<article class="item" id="L-01">
+    <header><span class="ref">L-01</span><h3>Nom, verbe ou particule ? — <span class="ar" lang="ar" dir="rtl">اِسْمٌ، فِعْلٌ أَمْ حَرْفٌ؟</span></h3><p class="where">Module 1 · Les trois familles de mots · identifiant <code>types</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Toute analyse commence par la nature du mot.</dd>
+      <dt>Règle</dt><dd>Le nom désigne une personne, une chose ou une qualité. Le verbe porte une action et un temps. La particule relie les mots ou modifie leur analyse.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">فِي الْبَيْتِ كِتَابٌ</span><br><em>Dans la maison, il y a un livre.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فِي : حرف جر — الْبَيْتِ : اسم — كِتَابٌ : اسم</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-02">
+    <header><span class="ref">L-02</span><h3>Variable ou invariable — <span class="ar" lang="ar" dir="rtl">الْمُعْرَبُ وَالْمَبْنِيُّ</span></h3><p class="where">Module 1 · Les trois familles de mots · identifiant <code>built</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Certains mots changent de terminaison, d’autres gardent toujours la même forme.</dd>
+      <dt>Règle</dt><dd>Un mot مُعْرَب change de terminaison selon sa fonction. Un mot مَبْنِيّ est invariable. Les particules, le passé et l’impératif sont normalement invariables.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبَ الطَّالِبُ</span><br><em>L’étudiant a écrit.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبَ فعل ماضٍ مبني على الفتح — الطَّالِبُ فاعل مرفوع وعلامة رفعه الضمة</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> L’analyse de cette leçon était rédigée en français, ce qui s’affichait à l’envers dans un panneau droite-à-gauche. Je l’ai remplacée par une analyse arabe : à valider entièrement.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-03">
+    <header><span class="ref">L-03</span><h3>Les états grammaticaux — <span class="ar" lang="ar" dir="rtl">الرَّفْعُ وَالنَّصْبُ وَالْجَرُّ وَالْجَزْمُ</span></h3><p class="where">Module 2 · Les quatre états · identifiant <code>states</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>La fonction du mot détermine son état grammatical.</dd>
+      <dt>Règle</dt><dd>Le nom accepte rafʿ, naṣb et jarr. Le présent accepte rafʿ, naṣb et jazm. Un nom n’est jamais majzūm et un verbe n’est jamais majrūr.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">يَكْتُبُ الطَّالِبُ الدَّرْسَ فِي الدَّفْتَرِ</span><br><em>L’étudiant écrit la leçon dans le cahier.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الطَّالِبُ مرفوع — الدَّرْسَ منصوب — الدَّفْتَرِ مجرور</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-04">
+    <header><span class="ref">L-04</span><h3>Les marques principales — <span class="ar" lang="ar" dir="rtl">الْعَلَامَاتُ الْأَصْلِيَّةُ</span></h3><p class="where">Module 2 · Les quatre états · identifiant <code>marks</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Ḍamma, fatḥa, kasra et sukūn rendent l’état visible.</dd>
+      <dt>Règle</dt><dd>La ḍamma marque principalement le rafʿ, la fatḥa le naṣb, la kasra le jarr et le sukūn le jazm. Sur un nom indéfini, ces voyelles sont doublées par le تَنْوِين : كِتَابٌ, كِتَابًا, كِتَابٍ.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">لَمْ يَكْتُبْ</span><br><em>Il n’a pas écrit.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">يَكْتُبْ : فعل مضارع مجزوم بلم وعلامة جزمه السكون</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Règle complétée par moi d’une phrase sur le تَنْوِين.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-05">
+    <header><span class="ref">L-05</span><h3>Mubtadaʾ et khabar — <span class="ar" lang="ar" dir="rtl">الْمُبْتَدَأُ وَالْخَبَرُ</span></h3><p class="where">Module 3 · La phrase nominale · identifiant <code>mubtada</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>La phrase nominale commence normalement par un nom.</dd>
+      <dt>Règle</dt><dd>Le mubtadaʾ est le thème dont on parle. Le khabar apporte l’information. Tous deux sont normalement marfūʿ.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">الْبَيْتُ كَبِيرٌ</span><br><em>La maison est grande.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْبَيْتُ مبتدأ مرفوع — كَبِيرٌ خبر مرفوع</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-06">
+    <header><span class="ref">L-06</span><h3>Les formes du khabar — <span class="ar" lang="ar" dir="rtl">أَنْوَاعُ الْخَبَرِ</span></h3><p class="where">Module 3 · La phrase nominale · identifiant <code>khabar</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Le khabar peut être un mot, une phrase ou un groupe.</dd>
+      <dt>Règle</dt><dd>Les cinq formes à reconnaître sont : mot simple, phrase nominale, phrase verbale, groupe جار ومجرور et ظرف.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">الْكِتَابُ عَلَى الْمَكْتَبِ</span><br><em>Le livre est sur le bureau.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">عَلَى الْمَكْتَبِ : جار ومجرور في محل رفع خبر</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-07">
+    <header><span class="ref">L-07</span><h3>Les piliers de la phrase verbale — <span class="ar" lang="ar" dir="rtl">الْفِعْلُ وَالْفَاعِلُ وَالْمَفْعُولُ بِهِ</span></h3><p class="where">Module 4 · La phrase verbale · identifiant <code>pillars</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Le sujet est marfūʿ ; le complément d’objet est manṣūb.</dd>
+      <dt>Règle</dt><dd>La structure fréquente est verbe + fāʿil + mafʿūl bihi. Le fāʿil accomplit l’action et le mafʿūl bihi la reçoit.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبَ الطَّالِبُ الدَّرْسَ</span><br><em>L’étudiant a écrit la leçon.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبَ فعل — الطَّالِبُ فاعل مرفوع — الدَّرْسَ مفعول به منصوب</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> L’analyse se contente de « كَتَبَ فعل » là où les autres leçons détaillent l’état et la marque. Volontaire ou à compléter ?</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-08">
+    <header><span class="ref">L-08</span><h3>Les trois formes du fāʿil — <span class="ar" lang="ar" dir="rtl">أَنْوَاعُ الْفَاعِلِ</span></h3><p class="where">Module 4 · La phrase verbale · identifiant <code>subject</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Le sujet peut être visible, attaché au verbe ou sous-entendu.</dd>
+      <dt>Règle</dt><dd>Le fāʿil est soit un nom apparent, soit un pronom attaché, soit un pronom caché dont on indique l’estimation.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبْتُ — يَكْتُبُ — كَتَبَ الطَّالِبُ</span><br><em>J’ai écrit — il écrit — l’étudiant a écrit.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">تُ ضمير متصل — هو ضمير مستتر — الطَّالِبُ اسم ظاهر</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-09">
+    <header><span class="ref">L-09</span><h3>La méthode complète — <span class="ar" lang="ar" dir="rtl">خُطُوَاتُ الْإِعْرَابِ</span></h3><p class="where">Module 4 · La phrase verbale · identifiant <code>method</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Nature, fonction, état, marque : toujours dans cet ordre.</dd>
+      <dt>Règle</dt><dd>Pour chaque mot, identifie sa nature, sa fonction, l’état imposé par cette fonction, puis la marque visible ou estimée.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">يَقْرَأُ الطَّالِبُ الْكِتَابَ فِي الْبَيْتِ</span><br><em>L’étudiant lit le livre dans la maison.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">يَقْرَأُ فعل مضارع مرفوع — الطَّالِبُ فاعل مرفوع — الْكِتَابَ مفعول به منصوب — فِي حرف جر — الْبَيْتِ اسم مجرور</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-10">
+    <header><span class="ref">L-10</span><h3>Les prépositions — <span class="ar" lang="ar" dir="rtl">حُرُوفُ الْجَرِّ</span></h3><p class="where">Module 5 · Les particules régissantes · identifiant <code>prepositions</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Une préposition place le nom qui la suit au génitif.</dd>
+      <dt>Règle</dt><dd>Parmi les prépositions fréquentes : مِنْ, إِلَى, عَنْ, عَلَى, فِي, بِـ, لِـ. Le groupe formé est appelé جار ومجرور.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">ذَهَبْتُ إِلَى الْمَدْرَسَةِ</span><br><em>Je suis allé à l’école.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">إِلَى حرف جر — الْمَدْرَسَةِ اسم مجرور وعلامة جره الكسرة</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-11">
+    <header><span class="ref">L-11</span><h3>Particules du présent — <span class="ar" lang="ar" dir="rtl">نَوَاصِبُ وَجَوَازِمُ الْمُضَارِعِ</span></h3><p class="where">Module 5 · Les particules régissantes · identifiant <code>nasb-jazm-particles</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Certaines particules rendent le présent manṣūb ou majzūm.</dd>
+      <dt>Règle</dt><dd>أَنْ, لَنْ et كَيْ font partie des particules de naṣb. لَمْ, لَمَّا et لَا الناهية font partie des particules de jazm.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">لَنْ يَذْهَبَ — لَمْ يَذْهَبْ</span><br><em>Il ne partira pas — il n’est pas parti.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">يَذْهَبَ مضارع منصوب بلن — يَذْهَبْ مضارع مجزوم بلم</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-12">
+    <header><span class="ref">L-12</span><h3>Les noms au nominatif — <span class="ar" lang="ar" dir="rtl">الْمَرْفُوعَاتُ مِنَ الْأَسْمَاءِ</span></h3><p class="where">Module 6 · Les fonctions du nom · identifiant <code>raised-nouns</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Plusieurs fonctions imposent le nominatif.</dd>
+      <dt>Règle</dt><dd>Le mubtadaʾ, le khabar, le fāʿil et le نائب الفاعل sont normalement marfūʿ. Quand le verbe est مَبْنِيّ لِلْمَجْهُول, l’auteur de l’action n’est pas nommé et le patient prend la place du sujet.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">كُسِرَ الْبَابُ</span><br><em>La porte a été cassée.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كُسِرَ فعل ماضٍ مبني للمجهول — الْبَابُ نائب فاعل مرفوع وعلامة رفعه الضمة</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Règle et analyse complétées par moi pour nommer le مَبْنِيّ لِلْمَجْهُول.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-13">
+    <header><span class="ref">L-13</span><h3>Les noms à l’accusatif — <span class="ar" lang="ar" dir="rtl">الْمَنْصُوبَاتُ مِنَ الْأَسْمَاءِ</span></h3><p class="where">Module 6 · Les fonctions du nom · identifiant <code>accusative-nouns</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Le naṣb apparaît dans plusieurs compléments.</dd>
+      <dt>Règle</dt><dd>Le complément d’objet, le ظَرْف, le حَال et le تَمْيِيز font partie des noms souvent manṣūb.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">رَجَعَ الطَّالِبُ مُبْتَسِمًا</span><br><em>L’étudiant est revenu en souriant.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">مُبْتَسِمًا حال منصوب وعلامة نصبه الفتحة</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Règle réécrite par moi pour nommer en arabe le ظَرْف, le حَال et le تَمْيِيز.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-14">
+    <header><span class="ref">L-14</span><h3>Passé et impératif — <span class="ar" lang="ar" dir="rtl">الْمَاضِي وَالْأَمْرُ</span></h3><p class="where">Module 7 · Le iʿrāb des verbes · identifiant <code>past-imperative</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Le passé et l’impératif sont normalement mabnī.</dd>
+      <dt>Règle</dt><dd>Le passé est souvent construit sur la fatḥa. L’impératif peut être construit sur le sukūn, la suppression d’une lettre faible ou la suppression du nūn.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبَ — اُكْتُبْ</span><br><em>Il a écrit — écris !</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبَ فعل ماضٍ مبني على الفتح — اُكْتُبْ فعل أمر مبني على السكون</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Analyse corrigée : « ماضٍ » avec tanwīn. Vérifier aussi la vocalisation de اُكْتُبْ.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-15">
+    <header><span class="ref">L-15</span><h3>Le présent variable — <span class="ar" lang="ar" dir="rtl">الْفِعْلُ الْمُضَارِعُ الْمُعْرَبُ</span></h3><p class="where">Module 7 · Le iʿrāb des verbes · identifiant <code>present-verb</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Le présent est marfūʿ tant qu’aucun régissant ne le modifie.</dd>
+      <dt>Règle</dt><dd>Le présent est normalement marfūʿ tant qu’aucun عَامِل ne le précède. Il devient manṣūb après une particule de naṣb et majzūm après une particule de jazm.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">يَجْلِسُ — لَنْ يَجْلِسَ — لَمْ يَجْلِسْ</span><br><em>Il s’assoit — il ne s’assoira pas — il ne s’est pas assis.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">مرفوع بالضمة — منصوب بالفتحة — مجزوم بالسكون</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Règle complétée par moi pour nommer le عَامِل.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-16">
+    <header><span class="ref">L-16</span><h3>L’annexion — <span class="ar" lang="ar" dir="rtl">الْمُضَافُ وَالْمُضَافُ إِلَيْهِ</span></h3><p class="where">Module 8 · Les groupes nominaux · identifiant <code>idafa</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>L’iḍāfa relie deux noms pour exprimer l’appartenance ou la précision.</dd>
+      <dt>Règle</dt><dd>Le premier nom est مُضَاف et ne prend ni article ni tanwīn. Le second est مُضَاف إِلَيْهِ et devient toujours majrūr.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">كِتَابُ الطَّالِبِ</span><br><em>Le livre de l’étudiant.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كِتَابُ مضاف — الطَّالِبِ مضاف إليه مجرور</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-17">
+    <header><span class="ref">L-17</span><h3>Le nom et son adjectif — <span class="ar" lang="ar" dir="rtl">النَّعْتُ وَالْمَنْعُوتُ</span></h3><p class="where">Module 8 · Les groupes nominaux · identifiant <code>adjective</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>L’adjectif suit le nom qu’il qualifie.</dd>
+      <dt>Règle</dt><dd>Le naʿt s’accorde avec son manʿūt en état grammatical, définition, genre et nombre.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">رَأَيْتُ الْبَيْتَ الْكَبِيرَ</span><br><em>J’ai vu la grande maison.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْبَيْتَ مفعول به منصوب — الْكَبِيرَ نعت منصوب</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-18">
+    <header><span class="ref">L-18</span><h3>L’action de إِنَّ — <span class="ar" lang="ar" dir="rtl">عَمَلُ إِنَّ</span></h3><p class="where">Module 9 · Inna et ses sœurs · identifiant <code>inna-rule</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>إِنَّ place son ism au naṣb et maintient son khabar au rafʿ.</dd>
+      <dt>Règle</dt><dd>Après إِنَّ, le mubtadaʾ devient اسم إن منصوب et le khabar devient خبر إن مرفوع.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">إِنَّ الْعِلْمَ نُورٌ</span><br><em>Certes, la science est une lumière.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْعِلْمَ اسم إن منصوب — نُورٌ خبر إن مرفوع</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-19">
+    <header><span class="ref">L-19</span><h3>Les sœurs de إِنَّ — <span class="ar" lang="ar" dir="rtl">أَخَوَاتُ إِنَّ</span></h3><p class="where">Module 9 · Inna et ses sœurs · identifiant <code>inna-sisters</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Plusieurs particules suivent la même règle.</dd>
+      <dt>Règle</dt><dd>أَنَّ, كَأَنَّ, لَكِنَّ, لَيْتَ et لَعَلَّ placent également leur ism au naṣb et leur khabar au rafʿ.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">لَيْتَ الْجَوَّ جَمِيلٌ</span><br><em>Si seulement le temps était beau.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْجَوَّ اسم ليت منصوب — جَمِيلٌ خبر ليت مرفوع</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-20">
+    <header><span class="ref">L-20</span><h3>L’action de كَانَ — <span class="ar" lang="ar" dir="rtl">عَمَلُ كَانَ</span></h3><p class="where">Module 10 · Kāna et ses sœurs · identifiant <code>kana-rule</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>كَانَ maintient son ism au rafʿ et place son khabar au naṣb.</dd>
+      <dt>Règle</dt><dd>Le mubtadaʾ devient اسم كان مرفوع. Le khabar devient خبر كان منصوب.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">كَانَ الْجَوُّ جَمِيلًا</span><br><em>Le temps était beau.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْجَوُّ اسم كان مرفوع — جَمِيلًا خبر كان منصوب</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-21">
+    <header><span class="ref">L-21</span><h3>Les sœurs de كَانَ — <span class="ar" lang="ar" dir="rtl">أَخَوَاتُ كَانَ</span></h3><p class="where">Module 10 · Kāna et ses sœurs · identifiant <code>kana-sisters</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>D’autres verbes incomplets suivent la même structure.</dd>
+      <dt>Règle</dt><dd>أَصْبَحَ, أَمْسَى, صَارَ, لَيْسَ et ظَلَّ font partie de cette famille.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">أَصْبَحَ الطَّرِيقُ مُزْدَحِمًا</span><br><em>La route est devenue encombrée le matin.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الطَّرِيقُ اسم أصبح مرفوع — مُزْدَحِمًا خبر أصبح منصوب</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> La traduction « La route est devenue encombrée le matin » rend le sens matinal de أَصْبَحَ mais tombe mal en français. À trancher.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-22">
+    <header><span class="ref">L-22</span><h3>Le duel — <span class="ar" lang="ar" dir="rtl">الْمُثَنَّى</span></h3><p class="where">Module 11 · Les marques secondaires · identifiant <code>dual</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Le duel possède des marques secondaires.</dd>
+      <dt>Règle</dt><dd>Le duel n’emploie pas les voyelles brèves mais une عَلَامَة فَرْعِيَّة, une lettre. Il est marfūʿ avec alif : ـانِ, puis manṣūb et majrūr avec yāʾ : ـيْنِ.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">جَاءَ الطَّالِبَانِ — رَأَيْتُ الطَّالِبَيْنِ</span><br><em>Les deux étudiants sont venus — j’ai vu les deux étudiants.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الطَّالِبَانِ فاعل مرفوع بالألف — الطَّالِبَيْنِ مفعول به منصوب بالياء</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Règle complétée par moi pour nommer la عَلَامَة فَرْعِيَّة.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-23">
+    <header><span class="ref">L-23</span><h3>Les pluriels réguliers — <span class="ar" lang="ar" dir="rtl">الْجَمْعُ السَّالِمُ</span></h3><p class="where">Module 11 · Les marques secondaires · identifiant <code>sound-plurals</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Les pluriels réguliers possèdent leurs propres marques.</dd>
+      <dt>Règle</dt><dd>Le جَمْع مُذَكَّر سَالِم est marfūʿ avec wāw et manṣūb ou majrūr avec yāʾ. Le جَمْع مُؤَنَّث سَالِم garde la ḍamma au rafʿ, mais prend la kasra au naṣb comme au jarr : jamais la fatḥa.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">جَاءَ الْمُعَلِّمُونَ — رَأَيْتُ الْمُعَلِّمَاتِ</span><br><em>Les professeurs sont venus — j’ai vu les professeures.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْمُعَلِّمُونَ فاعل مرفوع وعلامة رفعه الواو — الْمُعَلِّمَاتِ مفعول به منصوب وعلامة نصبه الكسرة</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Titre arabe remplacé par moi : « جَمْعُ الْمُذَكَّرِ وَالْمُؤَنَّثِ السَّالِمُ » laissait السالم ne qualifier que le second terme. Devenu « الْجَمْعُ السَّالِمُ ». L’exemple montre désormais le féminin.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-24">
+    <header><span class="ref">L-24</span><h3>Synthèse nominale — <span class="ar" lang="ar" dir="rtl">مُرَاجَعَةُ الْجُمْلَةِ الِاسْمِيَّةِ</span></h3><p class="where">Module 12 · Analyse complète · identifiant <code>nominal-synthesis</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Repérer le régissant avant d’attribuer les fonctions.</dd>
+      <dt>Règle</dt><dd>Commence par identifier le عَامِل, ce qui régit la phrase : particule ou verbe incomplet. C’est lui qui détermine si les deux piliers seront marfūʿ ou manṣūb.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">إِنَّ بَابَ الْمَدْرَسَةِ كَبِيرٌ</span><br><em>La porte de l’école est assurément grande.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">بَابَ اسم إن منصوب وهو مضاف — الْمَدْرَسَةِ مضاف إليه مجرور — كَبِيرٌ خبر إن مرفوع</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Règle réécrite par moi autour de la notion de عَامِل.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="L-25">
+    <header><span class="ref">L-25</span><h3>Synthèse verbale — <span class="ar" lang="ar" dir="rtl">مُرَاجَعَةُ الْجُمْلَةِ الْفِعْلِيَّةِ</span></h3><p class="where">Module 12 · Analyse complète · identifiant <code>verbal-synthesis</code></p></header>
+    <dl>
+      <dt>Résumé</dt><dd>Analyse chaque mot dans l’ordre sans perdre le régissant.</dd>
+      <dt>Règle</dt><dd>Pour une phrase verbale : analyse le verbe, trouve son sujet, cherche l’objet, puis analyse les groupes complémentaires.</dd>
+      <dt>Exemple</dt><dd><span class="ar" lang="ar" dir="rtl">لَنْ يَكْتُبَ الطَّالِبَانِ الدَّرْسَ فِي الدَّفْتَرِ</span><br><em>Les deux étudiants n’écriront pas la leçon dans le cahier.</em></dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">يَكْتُبَ مضارع منصوب — الطَّالِبَانِ فاعل مرفوع بالألف — الدَّرْسَ مفعول به منصوب — الدَّفْتَرِ اسم مجرور</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article>
+
+<h2>3. Les 54 exercices</h2>
+<p class="lead">La réponse attendue est signalée en vert. La seconde explication et l’exemple supplémentaire ont été rédigés pour ce projet et n’ont jamais été relus.</p>
+<article class="item" id="E-01">
+    <header><span class="ref">E-01</span><h3>Quelle est la nature de فِي ?</h3><p class="where">Leçon « Nom, verbe ou particule ? » · identifiant <code>types-1</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">فِي</span></p>
+    <ul class="choices"><li class="">Nom — اسم</li><li class="">Verbe — فعل</li><li class="right">Particule — حرف <strong>← réponse attendue</strong></li></ul>
+    <dl>
+      <dt>Explication</dt><dd>فِي signifie « dans ». C’est une préposition, donc une particule.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فِي : حرف جر مبني على السكون لا محل له من الإعراب</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Test à appliquer : un mot qui ne veut rien dire tout seul et qui ne peut être ni sujet ni action est une particule. « فِي » isolé ne signifie rien ; « فِي الْبَيْتِ » signifie « dans la maison ».</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">عَلَى الْمَكْتَبِ</span><br><em>Sur le bureau.</em><br><span class="ar" lang="ar" dir="rtl">عَلَى حرف جر — الْمَكْتَبِ اسم مجرور</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Analyse complétée par moi : « مبني على السكون » ajouté à la formule.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-02">
+    <header><span class="ref">E-02</span><h3>Quelle est la nature de كَتَبَ ?</h3><p class="where">Leçon « Nom, verbe ou particule ? » · identifiant <code>types-2</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كَتَبَ</span></p>
+    <ul class="choices"><li class="">Nom — اسم</li><li class="right">Verbe — فعل <strong>← réponse attendue</strong></li><li class="">Particule — حرف</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>كَتَبَ exprime l’action d’écrire au passé.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبَ : فعل ماضٍ مبني على الفتح</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Test du temps : demande « quand ? ». Un verbe répond toujours, un nom jamais. كَتَبَ répond « avant maintenant ».</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">يَذْهَبُ الْوَلَدُ</span><br><em>Le garçon part.</em><br><span class="ar" lang="ar" dir="rtl">يَذْهَبُ فعل مضارع — الْوَلَدُ فاعل</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-03">
+    <header><span class="ref">E-03</span><h3>Quelle est la nature de الطَّالِبُ ?</h3><p class="where">Leçon « Nom, verbe ou particule ? » · identifiant <code>types-3</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الطَّالِبُ</span></p>
+    <ul class="choices"><li class="right">Nom — اسم <strong>← réponse attendue</strong></li><li class="">Verbe — فعل</li><li class="">Particule — حرف</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>الطَّالِبُ désigne une personne : l’étudiant.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الطَّالِبُ : اسم</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Test de l’article : si le mot accepte ال ou le tanwīn, c’est un nom. Ni un verbe ni une particule ne les acceptent.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">كِتَابٌ — الْكِتَابُ</span><br><em>Un livre — le livre.</em><br><span class="ar" lang="ar" dir="rtl">كلاهما اسم</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-04">
+    <header><span class="ref">E-04</span><h3>Une particule est généralement…</h3><p class="where">Leçon « Variable ou invariable » · identifiant <code>built-1</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">حَرْفٌ</span></p>
+    <ul class="choices"><li class="">Variable — مُعْرَب</li><li class="right">Invariable — مَبْنِيّ <strong>← réponse attendue</strong></li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Les particules sont invariables.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الحروف كلها مبنية</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Compare : mets مِنْ au début, au milieu, à la fin d’une phrase. Sa forme ne bouge jamais. Fais la même chose avec un nom : sa terminaison change à chaque fois.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-05">
+    <header><span class="ref">E-05</span><h3>Quel élément peut changer selon sa fonction ?</h3><p class="where">Leçon « Variable ou invariable » · identifiant <code>built-2</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الطَّالِبُ / الطَّالِبَ / الطَّالِبِ</span></p>
+    <ul class="choices"><li class="right">Le nom — الاسم <strong>← réponse attendue</strong></li><li class="">La particule — الحرف</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le nom peut recevoir la ḍamma, la fatḥa ou la kasra.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الاسم معرب: مرفوع أو منصوب أو مجرور</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>La méthode : place le mot en sujet, puis en complément, puis après une préposition. Si la fin du mot change, il est muʿrab. Un nom passe le test, une particule non.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">جَاءَ الطَّالِبُ — رَأَيْتُ الطَّالِبَ — مَعَ الطَّالِبِ</span><br><em>L’étudiant est venu — j’ai vu l’étudiant — avec l’étudiant.</em><br><span class="ar" lang="ar" dir="rtl">مرفوع ثم منصوب ثم مجرور</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-06">
+    <header><span class="ref">E-06</span><h3>Quel est l’état du sujet الطَّالِبُ ?</h3><p class="where">Leçon « Les états grammaticaux » · identifiant <code>states-1</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كَتَبَ الطَّالِبُ</span></p>
+    <ul class="choices"><li class="right">Nominatif — مرفوع <strong>← réponse attendue</strong></li><li class="">Accusatif — منصوب</li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le sujet du verbe est au nominatif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الطَّالِبُ فاعل مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Cherche d’abord qui accomplit l’action, avant de penser à la terminaison. Cette fonction, le fāʿil, est toujours marfūʿ : la question de l’état est déjà réglée par la fonction.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">نَامَ الطِّفْلُ</span><br><em>L’enfant a dormi.</em><br><span class="ar" lang="ar" dir="rtl">الطِّفْلُ فاعل مرفوع وعلامة رفعه الضمة</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-07">
+    <header><span class="ref">E-07</span><h3>Quel est l’état du complément الدَّرْسَ ?</h3><p class="where">Leçon « Les états grammaticaux » · identifiant <code>states-2</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كَتَبَ الطَّالِبُ الدَّرْسَ</span></p>
+    <ul class="choices"><li class="">Nominatif — مرفوع</li><li class="right">Accusatif — منصوب <strong>← réponse attendue</strong></li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le complément d’objet est à l’accusatif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الدَّرْسَ مفعول به منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Pose la question « il a écrit quoi ? ». Ce qui répond subit l’action, donc c’est un mafʿūl bihi, donc manṣūb. La fonction commande l’état, jamais l’inverse.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">فَتَحَ الْوَلَدُ الْبَابَ</span><br><em>Le garçon a ouvert la porte.</em><br><span class="ar" lang="ar" dir="rtl">الْبَابَ مفعول به منصوب</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-08">
+    <header><span class="ref">E-08</span><h3>Quel est l’état du nom après فِي ?</h3><p class="where">Leçon « Les états grammaticaux » · identifiant <code>states-3</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">فِي الْبَيْتِ</span></p>
+    <ul class="choices"><li class="">Nominatif — مرفوع</li><li class="">Accusatif — منصوب</li><li class="right">Génitif — مجرور <strong>← réponse attendue</strong></li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Une préposition place le nom suivant au génitif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْبَيْتِ اسم مجرور بحرف الجر «فِي» وعلامة جره الكسرة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Réflexe : dès qu’une préposition apparaît, le nom qui suit tombe au génitif. Aucune préposition ne laisse jamais un nom au nominatif.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">خَرَجَ مِنَ الْمَسْجِدِ</span><br><em>Il est sorti de la mosquée.</em><br><span class="ar" lang="ar" dir="rtl">الْمَسْجِدِ اسم مجرور وعلامة جره الكسرة</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Analyse reformulée par moi : « مجرور بفي » remplacé par « مجرور بحرف الجر «فِي» ».</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-09">
+    <header><span class="ref">E-09</span><h3>Quelle marque indique normalement le nominatif ?</h3><p class="where">Leçon « Les marques principales » · identifiant <code>marks-1</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">ـُ</span></p>
+    <ul class="choices"><li class="right">Ḍamma — الضمة <strong>← réponse attendue</strong></li><li class="">Fatḥa — الفتحة</li><li class="">Kasra — الكسرة</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>La ḍamma est la marque principale du rafʿ.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Retiens le couple par le son : la ḍamma est le « ou » de رَفْع, et رَفْع veut dire « élévation ». C’est la marque par défaut du sujet.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-10">
+    <header><span class="ref">E-10</span><h3>Quelle marque termine يَكْتُبْ après لَمْ ?</h3><p class="where">Leçon « Les marques principales » · identifiant <code>marks-2</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَمْ يَكْتُبْ</span></p>
+    <ul class="choices"><li class="right">Sukūn — السكون <strong>← réponse attendue</strong></li><li class="">Ḍamma — الضمة</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>لَمْ rend le présent majzūm, ici marqué par le sukūn.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فعل مضارع مجزوم وعلامة جزمه السكون</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>لَمْ est trompeuse : elle nie au passé mais s’écrit avec un verbe au présent, et elle coupe la voyelle finale. Le verbe reste مُضَارِع, seule sa terminaison change.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">لَمْ يَذْهَبْ</span><br><em>Il n’est pas parti.</em><br><span class="ar" lang="ar" dir="rtl">يَذْهَبْ فعل مضارع مجزوم بلم وعلامة جزمه السكون</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-11">
+    <header><span class="ref">E-11</span><h3>Quelle est la fonction de الْبَيْتُ ?</h3><p class="where">Leçon « Mubtadaʾ et khabar » · identifiant <code>mub-1</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الْبَيْتُ كَبِيرٌ</span></p>
+    <ul class="choices"><li class="right">Mubtadaʾ — مبتدأ <strong>← réponse attendue</strong></li><li class="">Khabar — خبر</li><li class="">Fāʿil — فاعل</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>C’est le thème de la phrase nominale.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْبَيْتُ مبتدأ مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Demande-toi : de quoi parle cette phrase ? Ce dont on parle est le mubtadaʾ, ce qu’on en dit est le khabar. Ici, on parle de la maison.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">الطَّالِبُ مُجْتَهِدٌ</span><br><em>L’étudiant est appliqué.</em><br><span class="ar" lang="ar" dir="rtl">الطَّالِبُ مبتدأ — مُجْتَهِدٌ خبر</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-12">
+    <header><span class="ref">E-12</span><h3>Quelle est la fonction de كَبِيرٌ ?</h3><p class="where">Leçon « Mubtadaʾ et khabar » · identifiant <code>mub-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الْبَيْتُ كَبِيرٌ</span></p>
+    <ul class="choices"><li class="right">Khabar — خبر <strong>← réponse attendue</strong></li><li class="">Objet — مفعول به</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>كَبِيرٌ donne l’information sur la maison.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كَبِيرٌ خبر مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Retire le mot de la phrase. S’il ne reste plus d’information, c’était le khabar : « الْبَيْتُ » seul ne dit rien.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-13">
+    <header><span class="ref">E-13</span><h3>Quelle est la forme du khabar ?</h3><p class="where">Leçon « Les formes du khabar » · identifiant <code>khab-1</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الطَّالِبُ يَدْرُسُ</span></p>
+    <ul class="choices"><li class="right">Phrase verbale — جملة فعلية <strong>← réponse attendue</strong></li><li class="">Mot simple — مفرد</li><li class="">Groupe prépositionnel — جار ومجرور</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>يَدْرُسُ est un verbe : la phrase verbale sert de khabar.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">جملة «يَدْرُسُ» الفعلية في محل رفع خبر</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Le khabar n’est pas forcément un seul mot. Regarde ce qui remplit la case : ici c’est un verbe avec son sujet caché, donc une phrase verbale entière qui occupe la place du khabar.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">الْوَلَدُ يَلْعَبُ</span><br><em>Le garçon joue.</em><br><span class="ar" lang="ar" dir="rtl">جملة «يَلْعَبُ» الفعلية في محل رفع خبر</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Classé en « nature du mot » parce que la réponse porte sur le type de constituant (mot, phrase, groupe) ; on peut soutenir « fonction », puisque la leçon travaille le khabar. Analyse également reformulée par moi en « جملة «يَدْرُسُ» الفعلية في محل رفع خبر ».</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-14">
+    <header><span class="ref">E-14</span><h3>Quelle est la forme du khabar ?</h3><p class="where">Leçon « Les formes du khabar » · identifiant <code>khab-2</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الْكِتَابُ عَلَى الْمَكْتَبِ</span></p>
+    <ul class="choices"><li class="right">Groupe prépositionnel — جار ومجرور <strong>← réponse attendue</strong></li><li class="">Mot simple — مفرد</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>عَلَى est une préposition suivie d’un nom au génitif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">عَلَى الْمَكْتَبِ جار ومجرور في محل رفع خبر</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Compte les mots après le mubtadaʾ. Une préposition suivie de son nom forme un bloc indissociable, le جار ومجرور, et c’est ce bloc entier qui joue le rôle de khabar.</dd>
+      
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Même hésitation que l’exercice précédent entre « nature » et « fonction ».</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-15">
+    <header><span class="ref">E-15</span><h3>Quel mot accomplit l’action ?</h3><p class="where">Leçon « Les piliers de la phrase verbale » · identifiant <code>pill-1</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">فَتَحَ الْوَلَدُ الْبَابَ</span></p>
+    <ul class="choices"><li class="right">الْوَلَدُ <strong>← réponse attendue</strong></li><li class="">الْبَابَ</li><li class="">فَتَحَ</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le garçon accomplit l’action : il est fāʿil.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْوَلَدُ فاعل مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Ne te fie pas à la place du mot, mais au sens : qui a fait l’action ? Le fāʿil peut apparaître après le verbe et rester le sujet.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">شَرِبَ الطِّفْلُ الْمَاءَ</span><br><em>L’enfant a bu l’eau.</em><br><span class="ar" lang="ar" dir="rtl">الطِّفْلُ فاعل مرفوع</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-16">
+    <header><span class="ref">E-16</span><h3>Quel mot reçoit l’action ?</h3><p class="where">Leçon « Les piliers de la phrase verbale » · identifiant <code>pill-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">فَتَحَ الْوَلَدُ الْبَابَ</span></p>
+    <ul class="choices"><li class="right">الْبَابَ <strong>← réponse attendue</strong></li><li class="">الْوَلَدُ</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>La porte reçoit l’action : elle est mafʿūl bihi.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْبَابَ مفعول به منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Le mafʿūl bihi subit l’action sans la faire. Vérifie par la terminaison : ici الْبَابَ porte une fatḥa, marque du naṣb, celle du complément.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-17">
+    <header><span class="ref">E-17</span><h3>Quelle est la forme du sujet dans كَتَبْتُ ?</h3><p class="where">Leçon « Les trois formes du fāʿil » · identifiant <code>sub-1</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كَتَبْتُ</span></p>
+    <ul class="choices"><li class="right">Pronom attaché — ضمير متصل <strong>← réponse attendue</strong></li><li class="">Nom apparent — اسم ظاهر</li><li class="">Pronom caché — ضمير مستتر</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le تُ est attaché au verbe et signifie « je ».</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">التاء ضمير متصل مبني على الضم في محل رفع فاعل</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Sépare le mot en deux : كَتَبْ est le verbe, تُ est le sujet collé à lui. Un sujet peut être une seule lettre soudée au verbe.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">كَتَبْنَا</span><br><em>Nous avons écrit.</em><br><span class="ar" lang="ar" dir="rtl">نَا ضمير متصل في محل رفع فاعل</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Classé en « nature » : la forme du fāʿil, pronom attaché plutôt que nom apparent. Certains y verraient une question de fonction.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-18">
+    <header><span class="ref">E-18</span><h3>Où est le sujet de يَكْتُبُ ?</h3><p class="where">Leçon « Les trois formes du fāʿil » · identifiant <code>sub-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">يَكْتُبُ</span></p>
+    <ul class="choices"><li class="right">Il est caché : هُوَ <strong>← réponse attendue</strong></li><li class="">Il n’y a aucun sujet</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Toute phrase verbale possède un sujet. Ici, il est sous-entendu.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الفاعل ضمير مستتر تقديره هو</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Une action sans auteur est impossible. Quand aucun nom n’est visible et qu’aucun pronom n’est collé, le sujet est caché : on l’écrit dans l’analyse sous la forme تقديره هو.</dd>
+      
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Analyse inchangée, mais vérifier que « تقديره هو » est la formulation attendue à ce niveau.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-19">
+    <header><span class="ref">E-19</span><h3>Choisis l’analyse correcte de الْكِتَابَ.</h3><p class="where">Leçon « La méthode complète » · identifiant <code>method-1</code> · catégorie <strong>Analyse complète</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">يَقْرَأُ الطَّالِبُ الْكِتَابَ</span></p>
+    <ul class="choices"><li class="right">مفعول به منصوب وعلامة نصبه الفتحة <strong>← réponse attendue</strong></li><li class="">فاعل مرفوع وعلامة رفعه الضمة</li><li class="">اسم مجرور وعلامة جره الكسرة</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le livre reçoit l’action de lire : c’est le complément d’objet direct.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Procède dans l’ordre plutôt que de deviner : الْكِتَابَ est un nom, il subit la lecture donc c’est un mafʿūl bihi, cette fonction impose le naṣb, et le naṣb se voit ici à la fatḥa. Les trois réponses proposées ne diffèrent que par ces trois étapes.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-20">
+    <header><span class="ref">E-20</span><h3>Quelle étape vient après la fonction ?</h3><p class="where">Leçon « La méthode complète » · identifiant <code>method-2</code> · catégorie <strong>Analyse complète</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">النَّوْعُ ← الْوَظِيفَةُ ← ؟ ← الْعَلَامَةُ</span></p>
+    <ul class="choices"><li class="right">L’état — الحالة الإعرابية <strong>← réponse attendue</strong></li><li class="">La traduction — الترجمة</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>La méthode est : nature, fonction, état, puis marque.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>L’ordre n’est pas arbitraire : tu ne peux pas nommer la marque avant de connaître l’état, et tu ne peux pas connaître l’état avant de savoir à quoi sert le mot. Chaque étape rend la suivante possible.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-21">
+    <header><span class="ref">E-21</span><h3>Quel mot est au génitif ?</h3><p class="where">Leçon « Les prépositions » · identifiant <code>prep-1</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">جَلَسْتُ فِي الْبَيْتِ</span></p>
+    <ul class="choices"><li class="">جَلَسْتُ</li><li class="">فِي</li><li class="right">الْبَيْتِ <strong>← réponse attendue</strong></li></ul>
+    <dl>
+      <dt>Explication</dt><dd>الْبَيْتِ suit la préposition فِي.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْبَيْتِ اسم مجرور بحرف الجر «فِي» وعلامة جره الكسرة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Écarte d’abord ce qui ne peut pas être majrūr : جَلَسْتُ est un verbe, فِي est la préposition elle-même. Il ne reste qu’un candidat.</dd>
+      
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Même reformulation que states-3 pour nommer le régissant.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-22">
+    <header><span class="ref">E-22</span><h3>Quelle marque principale indique le jarr ?</h3><p class="where">Leçon « Les prépositions » · identifiant <code>prep-2</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">مِنَ الْمَسْجِدِ</span></p>
+    <ul class="choices"><li class="right">Kasra — الكسرة <strong>← réponse attendue</strong></li><li class="">Fatḥa — الفتحة</li><li class="">Ḍamma — الضمة</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>La kasra est la marque principale du génitif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْمَسْجِدِ اسم مجرور وعلامة جره الكسرة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Retiens le couple par le son : la kasra est le « i » de جَرّ. Les trois principales marques suivent la même logique sonore que le nom de leur état.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-23">
+    <header><span class="ref">E-23</span><h3>Quel est l’état de يَذْهَبَ ?</h3><p class="where">Leçon « Particules du présent » · identifiant <code>part-1</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَنْ يَذْهَبَ</span></p>
+    <ul class="choices"><li class="">Nominatif — مرفوع</li><li class="right">Accusatif — منصوب <strong>← réponse attendue</strong></li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>لَنْ place le présent à l’accusatif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فعل مضارع منصوب بلن وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Regarde ce qui précède le verbe avant de regarder sa fin. لَنْ annonce un futur nié et impose le naṣb : la fatḥa finale n’est que la conséquence.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">لَنْ أَنْسَى</span><br><em>Je n’oublierai pas.</em><br><span class="ar" lang="ar" dir="rtl">أَنْسَى فعل مضارع منصوب بلن</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-24">
+    <header><span class="ref">E-24</span><h3>Quel est l’état de تَكْتُبْ ?</h3><p class="where">Leçon « Particules du présent » · identifiant <code>part-2</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَا تَكْتُبْ</span></p>
+    <ul class="choices"><li class="">Nominatif — مرفوع</li><li class="">Accusatif — منصوب</li><li class="">Génitif — مجرور</li><li class="right">Apocopé — مجزوم <strong>← réponse attendue</strong></li></ul>
+    <dl>
+      <dt>Explication</dt><dd>لَا الناهية rend le présent apocopé.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فعل مضارع مجزوم بلا الناهية وعلامة جزمه السكون</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Attention à لَا : elle a deux emplois. Suivie d’un présent apocopé, c’est une défense, « ne fais pas ». Suivie d’un présent au nominatif, c’est une simple négation.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">لَا تَنْسَ — لَا يَنْسَى</span><br><em>N’oublie pas — il n’oublie pas.</em><br><span class="ar" lang="ar" dir="rtl">الأول مجزوم بلا الناهية — الثاني مرفوع</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-25">
+    <header><span class="ref">E-25</span><h3>Pourquoi الْبَابُ est-il marfūʿ ?</h3><p class="where">Leçon « Les noms au nominatif » · identifiant <code>raised-1</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كُسِرَ الْبَابُ</span></p>
+    <ul class="choices"><li class="right">Sujet du passif — نائب فاعل <strong>← réponse attendue</strong></li><li class="">Objet — مفعول به</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Avec un verbe au passif, le patient devient نائب الفاعل.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">نائب فاعل مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Le verbe كُسِرَ ne dit pas qui a cassé. Quand l’auteur disparaît, la place du sujet reste vide et le patient vient la remplir : il devient نائب الفاعل et prend le rafʿ.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">فُتِحَ الْبَابُ</span><br><em>La porte a été ouverte.</em><br><span class="ar" lang="ar" dir="rtl">الْبَابُ نائب فاعل مرفوع</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-26">
+    <header><span class="ref">E-26</span><h3>Quelle fonction est toujours marfūʿ ?</h3><p class="where">Leçon « Les noms au nominatif » · identifiant <code>raised-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">جَاءَ الطَّالِبُ</span></p>
+    <ul class="choices"><li class="right">Fāʿil — فاعل <strong>← réponse attendue</strong></li><li class="">Mafʿūl bihi — مفعول به</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le sujet du verbe est au nominatif.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Le mafʿūl bihi change d’état selon la phrase, le fāʿil non. Cherche la fonction qui ne varie jamais.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-27">
+    <header><span class="ref">E-27</span><h3>Quelle est la fonction de مُبْتَسِمًا ?</h3><p class="where">Leçon « Les noms à l’accusatif » · identifiant <code>acc-1</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">رَجَعَ الطَّالِبُ مُبْتَسِمًا</span></p>
+    <ul class="choices"><li class="right">État/circonstance — حال <strong>← réponse attendue</strong></li><li class="">Sujet — فاعل</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le mot décrit l’état du sujet pendant l’action.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">حال منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Demande « comment est-il revenu ? ». Ce qui décrit la manière d’être pendant l’action est un ḥāl, et le ḥāl est manṣūb. Ne le confonds pas avec un adjectif : le ḥāl décrit un moment, l’adjectif décrit le nom en permanence.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-28">
+    <header><span class="ref">E-28</span><h3>Quel mot est le complément d’objet ?</h3><p class="where">Leçon « Les noms à l’accusatif » · identifiant <code>acc-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">شَرِبَ الْوَلَدُ الْمَاءَ</span></p>
+    <ul class="choices"><li class="">الْوَلَدُ</li><li class="right">الْمَاءَ <strong>← réponse attendue</strong></li></ul>
+    <dl>
+      <dt>Explication</dt><dd>L’eau reçoit l’action de boire.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْمَاءَ مفعول به منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Regarde les terminaisons : الْوَلَدُ porte une ḍamma, الْمَاءَ une fatḥa. La fatḥa signale le naṣb, donc le complément.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-29">
+    <header><span class="ref">E-29</span><h3>Quelle est la fonction de كِتَابًا ?</h3><p class="where">Leçon « Les noms à l’accusatif » · identifiant <code>acc-3</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">قَرَأْتُ عِشْرِينَ كِتَابًا</span></p>
+    <ul class="choices"><li class="right">Spécificatif — تمييز <strong>← réponse attendue</strong></li><li class="">Complément d’objet — مفعول به</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>عِشْرِينَ dit une quantité sans dire de quoi. كِتَابًا lève cette ambiguïté : c’est un tamyīz, manṣūb.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">كِتَابًا تمييز منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Le nombre laisse une question en suspens : vingt quoi ? Le mot qui répond s’appelle تَمْيِيز, littéralement « ce qui distingue », et il est manṣūb. Après 20 à 99, il reste toujours au singulier.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">اِشْتَرَيْتُ ثَلَاثِينَ دَفْتَرًا</span><br><em>J’ai acheté trente cahiers.</em><br><span class="ar" lang="ar" dir="rtl">دَفْتَرًا تمييز منصوب</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Exercice ajouté par moi pour combler une lacune : le tamyīz était cité dans la règle et jamais pratiqué. Le choix de عِشْرِينَ كِتَابًا et la règle du singulier après 20 à 99 sont à valider.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-30">
+    <header><span class="ref">E-30</span><h3>Le verbe كَتَبَ est…</h3><p class="where">Leçon « Passé et impératif » · identifiant <code>past-1</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كَتَبَ</span></p>
+    <ul class="choices"><li class="right">Invariable — مبني <strong>← réponse attendue</strong></li><li class="">Variable — معرب</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le passé est normalement invariable.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فعل ماضٍ مبني على الفتح</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Conjugue-le : كَتَبَ, كَتَبْتُ, كَتَبُوا. La fin bouge à cause de la personne, pas à cause de la fonction dans la phrase. C’est ce qui distingue mabnī de muʿrab.</dd>
+      
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Analyse corrigée par moi : « ماض » sans tanwīn remplacé par « ماضٍ ».</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-31">
+    <header><span class="ref">E-31</span><h3>Sur quoi اُكْتُبْ est-il construit ?</h3><p class="where">Leçon « Passé et impératif » · identifiant <code>past-2</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">اُكْتُبْ</span></p>
+    <ul class="choices"><li class="right">Le sukūn — السكون <strong>← réponse attendue</strong></li><li class="">La fatḥa — الفتحة</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>L’impératif régulier est ici construit sur le sukūn.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فعل أمر مبني على السكون</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Prononce le mot à voix haute : il s’arrête net, sans voyelle finale. Cet arrêt est le sukūn, et pour l’impératif régulier c’est une construction, pas un état grammatical.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-32">
+    <header><span class="ref">E-32</span><h3>Quel est l’état de يَجْلِسُ sans particule ?</h3><p class="where">Leçon « Le présent variable » · identifiant <code>present-1</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">يَجْلِسُ الطِّفْلُ</span></p>
+    <ul class="choices"><li class="right">Nominatif — مرفوع <strong>← réponse attendue</strong></li><li class="">Accusatif — منصوب</li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>En l’absence de régissant, le présent est marfūʿ.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فعل مضارع مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Cherche ce qui précède le verbe. Rien devant lui : aucune particule ne le gouverne, il reste donc dans son état par défaut, le rafʿ.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-33">
+    <header><span class="ref">E-33</span><h3>Quelle terminaison convient après لَنْ ?</h3><p class="where">Leçon « Le présent variable » · identifiant <code>present-2</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَنْ يَجْلِس…</span></p>
+    <ul class="choices"><li class="right">ـَ : يَجْلِسَ <strong>← réponse attendue</strong></li><li class="">ـُ : يَجْلِسُ</li><li class="">ـْ : يَجْلِسْ</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>لَنْ impose le naṣb, marqué ici par la fatḥa.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Trois terminaisons, trois situations : ḍamma quand rien ne le gouverne, fatḥa après une particule de naṣb comme لَنْ, sukūn après une particule de jazm comme لَمْ. Identifie la particule et la terminaison suit.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-34">
+    <header><span class="ref">E-34</span><h3>Quel mot est toujours majrūr ?</h3><p class="where">Leçon « L’annexion » · identifiant <code>idafa-1</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">بَابُ الْمَسْجِدِ</span></p>
+    <ul class="choices"><li class="">Le premier terme — المضاف</li><li class="right">Le second terme — المضاف إليه <strong>← réponse attendue</strong></li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le second terme de l’annexion est toujours au génitif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْمَسْجِدِ مضاف إليه مجرور وعلامة جره الكسرة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Traduis avec « de » : « la porte de la mosquée ». Ce qui vient après le « de » français est le second terme, et il est toujours majrūr, quelle que soit la fonction du groupe entier.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">رَأَيْتُ بَابَ الْمَسْجِدِ</span><br><em>J’ai vu la porte de la mosquée.</em><br><span class="ar" lang="ar" dir="rtl">بَابَ مفعول به منصوب وهو مضاف — الْمَسْجِدِ مضاف إليه مجرور</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Classé en « fonction » car la réponse attendue est المضاف إليه, alors que la question est formulée en termes d’état.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-35">
+    <header><span class="ref">E-35</span><h3>Quelle construction vois-tu ?</h3><p class="where">Leçon « L’annexion » · identifiant <code>idafa-2</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كِتَابُ الْمُعَلِّمِ</span></p>
+    <ul class="choices"><li class="right">Annexion — إضافة <strong>← réponse attendue</strong></li><li class="">Phrase verbale — جملة فعلية</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Deux noms liés sans préposition forment ici une iḍāfa.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Signe distinctif : le premier nom d’une iḍāfa n’a ni article ni tanwīn, alors qu’il est défini par le second. كِتَابُ sans ال veut déjà dire « le livre de ».</dd>
+      
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Classé en « nature » : reconnaître un type de construction. « Analyse complète » se défendrait aussi.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-36">
+    <header><span class="ref">E-36</span><h3>Quel est l’état de الْكَبِيرَ ?</h3><p class="where">Leçon « Le nom et son adjectif » · identifiant <code>adj-1</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">رَأَيْتُ الْبَيْتَ الْكَبِيرَ</span></p>
+    <ul class="choices"><li class="">Nominatif — مرفوع</li><li class="right">Accusatif — منصوب <strong>← réponse attendue</strong></li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>L’adjectif suit le nom الْبَيْتَ à l’accusatif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">نعت منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>L’adjectif ne choisit pas son état : il copie celui du nom qu’il décrit. Analyse d’abord الْبَيْتَ, et l’adjectif suivra.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">مَرَرْتُ بِالْبَيْتِ الْكَبِيرِ</span><br><em>Je suis passé près de la grande maison.</em><br><span class="ar" lang="ar" dir="rtl">الْبَيْتِ مجرور — الْكَبِيرِ نعت مجرور</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-37">
+    <header><span class="ref">E-37</span><h3>Quel mot est l’adjectif ?</h3><p class="where">Leçon « Le nom et son adjectif » · identifiant <code>adj-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">جَاءَ الطَّالِبُ الْمُجْتَهِدُ</span></p>
+    <ul class="choices"><li class="">الطَّالِبُ</li><li class="right">الْمُجْتَهِدُ <strong>← réponse attendue</strong></li></ul>
+    <dl>
+      <dt>Explication</dt><dd>الْمُجْتَهِدُ décrit l’étudiant et suit son nominatif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">نعت مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Demande-toi lequel des deux décrit l’autre. الْمُجْتَهِدُ ne désigne personne à lui seul : il qualifie l’étudiant, donc c’est le naʿt.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-38">
+    <header><span class="ref">E-38</span><h3>Quel est l’état de الْعِلْمَ ?</h3><p class="where">Leçon « L’action de إِنَّ » · identifiant <code>inna-1</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">إِنَّ الْعِلْمَ نُورٌ</span></p>
+    <ul class="choices"><li class="">Nominatif — مرفوع</li><li class="right">Accusatif — منصوب <strong>← réponse attendue</strong></li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le ism de إِنَّ est manṣūb.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">اسم إن منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Sans إِنَّ, la phrase serait الْعِلْمُ نُورٌ, deux mots au nominatif. إِنَّ arrive et fait basculer le premier au naṣb : compare les deux phrases pour voir son effet.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-39">
+    <header><span class="ref">E-39</span><h3>Quel est l’état de نُورٌ ?</h3><p class="where">Leçon « L’action de إِنَّ » · identifiant <code>inna-2</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">إِنَّ الْعِلْمَ نُورٌ</span></p>
+    <ul class="choices"><li class="right">Nominatif — مرفوع <strong>← réponse attendue</strong></li><li class="">Accusatif — منصوب</li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le khabar de إِنَّ reste marfūʿ.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">خبر إن مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>إِنَّ n’agit que sur le premier pilier. Le second garde le nominatif qu’il avait déjà avant qu’elle n’arrive.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-40">
+    <header><span class="ref">E-40</span><h3>Quelle particule exprime le souhait ?</h3><p class="where">Leçon « Les sœurs de إِنَّ » · identifiant <code>inna-s-1</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَيْتَ</span></p>
+    <ul class="choices"><li class="right">لَيْتَ <strong>← réponse attendue</strong></li><li class="">لَكِنَّ</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>لَيْتَ sert à exprimer un souhait.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Traduis chacune : لَكِنَّ signifie « mais » et corrige ce qui précède, لَيْتَ exprime un regret ou un désir, « si seulement ». Seule la seconde porte un souhait.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-41">
+    <header><span class="ref">E-41</span><h3>Quelle fonction porte الْجَوَّ ?</h3><p class="where">Leçon « Les sœurs de إِنَّ » · identifiant <code>inna-s-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَيْتَ الْجَوَّ جَمِيلٌ</span></p>
+    <ul class="choices"><li class="right">اسم ليت <strong>← réponse attendue</strong></li><li class="">خبر ليت</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le premier nom après لَيْتَ est son ism manṣūb.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">اسم ليت منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>La règle vaut pour toute la famille : le premier nom qui suit إِنَّ ou l’une de ses sœurs est son ism, et il est manṣūb. La fatḥa sur الْجَوَّ le confirme.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-42">
+    <header><span class="ref">E-42</span><h3>Quel est l’état de الْجَوُّ ?</h3><p class="where">Leçon « L’action de كَانَ » · identifiant <code>kana-1</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كَانَ الْجَوُّ جَمِيلًا</span></p>
+    <ul class="choices"><li class="right">Nominatif — مرفوع <strong>← réponse attendue</strong></li><li class="">Accusatif — منصوب</li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le ism de كَانَ est marfūʿ.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">اسم كان مرفوع وعلامة رفعه الضمة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>كَانَ et إِنَّ agissent en sens inverse. إِنَّ met le premier au naṣb ; كَانَ le laisse au rafʿ et déplace le naṣb sur le second. Retiens la paire ensemble.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-43">
+    <header><span class="ref">E-43</span><h3>Quel est l’état de جَمِيلًا ?</h3><p class="where">Leçon « L’action de كَانَ » · identifiant <code>kana-2</code> · catégorie <strong>État grammatical</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">كَانَ الْجَوُّ جَمِيلًا</span></p>
+    <ul class="choices"><li class="">Nominatif — مرفوع</li><li class="right">Accusatif — منصوب <strong>← réponse attendue</strong></li><li class="">Génitif — مجرور</li><li class="">Apocopé — مجزوم</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le khabar de كَانَ est manṣūb.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">خبر كان منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Repère la fatḥa de جَمِيلًا : elle est la trace du travail de كَانَ. Sans le verbe, la phrase serait الْجَوُّ جَمِيلٌ, avec deux nominatifs.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-44">
+    <header><span class="ref">E-44</span><h3>Quelle est la fonction de مُزْدَحِمًا ?</h3><p class="where">Leçon « Les sœurs de كَانَ » · identifiant <code>kana-s-1</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">أَصْبَحَ الطَّرِيقُ مُزْدَحِمًا</span></p>
+    <ul class="choices"><li class="right">خبر أصبح <strong>← réponse attendue</strong></li><li class="">اسم أصبح</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le second pilier est le khabar manṣūb.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">خبر أصبح منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>أَصْبَحَ se comporte exactement comme كَانَ. Repère les deux piliers : le premier reste marfūʿ, le second passe au naṣb, et c’est celui-là qu’on appelle khabar.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-45">
+    <header><span class="ref">E-45</span><h3>Quel verbe exprime la négation ?</h3><p class="where">Leçon « Les sœurs de كَانَ » · identifiant <code>kana-s-2</code> · catégorie <strong>Nature du mot</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَيْسَ</span></p>
+    <ul class="choices"><li class="right">لَيْسَ <strong>← réponse attendue</strong></li><li class="">صَارَ</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>لَيْسَ signifie « ne pas être ».</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>صَارَ marque un changement, « devenir ». لَيْسَ nie une qualité, « ne pas être ». Les deux appartiennent à la famille de كَانَ mais ne disent pas la même chose.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-46">
+    <header><span class="ref">E-46</span><h3>Quelle marque indique le rafʿ du duel ?</h3><p class="where">Leçon « Le duel » · identifiant <code>dual-1</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الطَّالِبَانِ</span></p>
+    <ul class="choices"><li class="right">Alif — الألف <strong>← réponse attendue</strong></li><li class="">Yāʾ — الياء</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le duel est marfūʿ avec alif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">مرفوع وعلامة رفعه الألف لأنه مثنى</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Pour le duel, la marque n’est plus une voyelle mais une lettre. Retiens la paire de formes : ـانِ au nominatif, ـيْنِ dans les deux autres états.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">جَاءَ الْوَلَدَانِ</span><br><em>Les deux garçons sont venus.</em><br><span class="ar" lang="ar" dir="rtl">الْوَلَدَانِ فاعل مرفوع وعلامة رفعه الألف</span></dd>
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-47">
+    <header><span class="ref">E-47</span><h3>Quelle forme convient après رَأَيْتُ ?</h3><p class="where">Leçon « Le duel » · identifiant <code>dual-2</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">رَأَيْتُ …</span></p>
+    <ul class="choices"><li class="right">الطَّالِبَيْنِ <strong>← réponse attendue</strong></li><li class="">الطَّالِبَانِ</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Le complément d’objet duel est manṣūb avec yāʾ.</dd>
+      
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>رَأَيْتُ demande un complément, donc un mot manṣūb. Pour un duel, le naṣb ne s’écrit pas avec une fatḥa mais avec la yāʾ.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-48">
+    <header><span class="ref">E-48</span><h3>Quelle marque indique le rafʿ du pluriel masculin régulier ?</h3><p class="where">Leçon « Les pluriels réguliers » · identifiant <code>plural-1</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">الْمُعَلِّمُونَ</span></p>
+    <ul class="choices"><li class="right">Wāw — الواو <strong>← réponse attendue</strong></li><li class="">Yāʾ — الياء</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Ce pluriel est marfūʿ avec wāw.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">مرفوع وعلامة رفعه الواو لأنه جمع مذكر سالم</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Le pluriel masculin régulier fonctionne comme le duel, avec un autre couple de lettres : la wāw au nominatif, la yāʾ ailleurs. Le ن final ne change pas et n’indique rien.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-49">
+    <header><span class="ref">E-49</span><h3>Quelle forme est majrūr ?</h3><p class="where">Leçon « Les pluriels réguliers » · identifiant <code>plural-2</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">سَلَّمْتُ عَلَى …</span></p>
+    <ul class="choices"><li class="right">الْمُعَلِّمِينَ <strong>← réponse attendue</strong></li><li class="">الْمُعَلِّمُونَ</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Après عَلَى, le pluriel masculin régulier prend yāʾ.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">اسم مجرور وعلامة جره الياء</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>عَلَى est une préposition, donc le nom qui suit est majrūr. Pour ce pluriel, le jarr s’écrit avec la yāʾ et non avec une kasra.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-50">
+    <header><span class="ref">E-50</span><h3>Quelle marque porte الْمُعَلِّمَاتِ après رَأَيْتُ ?</h3><p class="where">Leçon « Les pluriels réguliers » · identifiant <code>plural-3</code> · catégorie <strong>Marque d’iʿrāb</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">رَأَيْتُ الْمُعَلِّمَاتِ</span></p>
+    <ul class="choices"><li class="right">Kasra — الكسرة <strong>← réponse attendue</strong></li><li class="">Fatḥa — الفتحة</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>C’est le piège du pluriel féminin régulier : à l’accusatif il prend la kasra, jamais la fatḥa.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">الْمُعَلِّمَاتِ مفعول به منصوب وعلامة نصبه الكسرة لأنه جمع مؤنث سالم</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>C’est l’exception à connaître. Là où tous les autres noms prennent la fatḥa au naṣb, le pluriel féminin régulier prend la kasra. Sa forme est donc identique au génitif : الْمُعَلِّمَاتِ dans les deux cas.</dd>
+      <dt>Exemple supplémentaire <span class="mine">rédigé pour ce projet</span></dt><dd><span class="ar" lang="ar" dir="rtl">سَلَّمْتُ عَلَى الْمُعَلِّمَاتِ</span><br><em>J’ai salué les professeures.</em><br><span class="ar" lang="ar" dir="rtl">الْمُعَلِّمَاتِ اسم مجرور وعلامة جره الكسرة</span></dd>
+    </dl>
+    <p class="flag"><span aria-hidden="true">⚑</span> Exercice ajouté par moi : le pluriel féminin régulier était énoncé dans la règle mais absent des exercices et de l’exemple. Le point visé est la kasra au naṣb.</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-51">
+    <header><span class="ref">E-51</span><h3>Pourquoi بَابَ est-il manṣūb ?</h3><p class="where">Leçon « Synthèse nominale » · identifiant <code>syn-n-1</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">إِنَّ بَابَ الْمَدْرَسَةِ كَبِيرٌ</span></p>
+    <ul class="choices"><li class="right">C’est le ism de إِنَّ <strong>← réponse attendue</strong></li><li class="">C’est un objet</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>إِنَّ place son ism à l’accusatif.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">اسم إن منصوب وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Deux régissants pourraient expliquer un naṣb : un verbe qui prendrait un complément, ou إِنَّ. Ici il n’y a aucun verbe dans la phrase, donc c’est إِنَّ qui agit.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-52">
+    <header><span class="ref">E-52</span><h3>Pourquoi الْمَدْرَسَةِ est-il majrūr ?</h3><p class="where">Leçon « Synthèse nominale » · identifiant <code>syn-n-2</code> · catégorie <strong>Fonction syntaxique</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">بَابَ الْمَدْرَسَةِ</span></p>
+    <ul class="choices"><li class="right">C’est un مضاف إليه <strong>← réponse attendue</strong></li><li class="">Il suit une préposition</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>Il est le second terme de l’annexion.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">مضاف إليه مجرور وعلامة جره الكسرة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Deux causes possibles pour un jarr : une préposition, ou une annexion. Cherche la préposition : il n’y en a pas. Reste l’annexion.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-53">
+    <header><span class="ref">E-53</span><h3>Quelle analyse convient à الطَّالِبَانِ ?</h3><p class="where">Leçon « Synthèse verbale » · identifiant <code>syn-v-1</code> · catégorie <strong>Analyse complète</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَنْ يَكْتُبَ الطَّالِبَانِ</span></p>
+    <ul class="choices"><li class="right">فاعل مرفوع بالألف <strong>← réponse attendue</strong></li><li class="">مفعول به منصوب بالياء</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>C’est le sujet duel du verbe.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فاعل مرفوع وعلامة رفعه الألف لأنه مثنى</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Décompose : le mot est un duel, donc sa marque est une lettre. Sa fonction est sujet du verbe, donc son état est le rafʿ. Le rafʿ du duel s’écrit avec l’alif, et c’est bien ce que tu vois.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item" id="E-54">
+    <header><span class="ref">E-54</span><h3>Quelle analyse convient à يَكْتُبَ ?</h3><p class="where">Leçon « Synthèse verbale » · identifiant <code>syn-v-2</code> · catégorie <strong>Analyse complète</strong></p></header>
+    <p class="phrase"><span class="ar" lang="ar" dir="rtl">لَنْ يَكْتُبَ</span></p>
+    <ul class="choices"><li class="right">مضارع منصوب بالفتحة <strong>← réponse attendue</strong></li><li class="">مضارع مجزوم بالسكون</li></ul>
+    <dl>
+      <dt>Explication</dt><dd>لَنْ est une particule de naṣb.</dd>
+      <dt>Analyse</dt><dd><span class="ar" lang="ar" dir="rtl">فعل مضارع منصوب بلن وعلامة نصبه الفتحة</span></dd>
+      <dt>Seconde explication <span class="mine">rédigée pour ce projet</span></dt><dd>Ne regarde pas la fin du verbe en premier : regarde ce qui le précède. لَنْ impose le naṣb, لَمْ imposerait le jazm. La particule décide, la terminaison confirme.</dd>
+      
+    </dl>
+    
+    <div class="annotate"><span>Remarques</span></div>
+  </article>
+
+<h2>4. Les 59 termes du glossaire</h2>
+<p class="lead">Définitions écrites pour des francophones débutants. La terminologie est classique, la formulation est à valider.</p>
+<h3 class="group">La méthode</h3><article class="item compact" id="G-01">
+    <header><span class="ref">G-01</span><h3><span class="ar" lang="ar" dir="rtl">إِعْرَاب</span> <span class="translit">iʿrāb</span></h3><p class="where">Analyse grammaticale</p></header>
+    <p>Déterminer pour chaque mot sa nature, sa fonction, son état grammatical et la marque qui le rend visible.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Les états grammaticaux, Les marques principales, La méthode complète, Passé et impératif, Le présent variable</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><h3 class="group">Nature des mots</h3><article class="item compact" id="G-02">
+    <header><span class="ref">G-02</span><h3><span class="ar" lang="ar" dir="rtl">كَلِمَة</span> <span class="translit">kalima</span></h3><p class="where">Mot</p></header>
+    <p>Unité de base de la phrase : elle est nom, verbe ou particule.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Variable ou invariable</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-03">
+    <header><span class="ref">G-03</span><h3><span class="ar" lang="ar" dir="rtl">اِسْم</span> <span class="translit">ism</span></h3><p class="where">Nom</p></header>
+    <p>Mot qui désigne une personne, une chose ou une qualité, sans indication de temps.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Variable ou invariable, Les états grammaticaux, Les trois formes du fāʿil, La méthode complète, Les prépositions, L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ, Les pluriels réguliers, Synthèse nominale, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-04">
+    <header><span class="ref">G-04</span><h3><span class="ar" lang="ar" dir="rtl">فِعْل</span> <span class="translit">fiʿl</span></h3><p class="where">Verbe</p></header>
+    <p>Mot qui exprime une action liée à un temps.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Variable ou invariable, Les marques principales, Les piliers de la phrase verbale, La méthode complète, Particules du présent, Les noms au nominatif, Passé et impératif, Le présent variable, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-05">
+    <header><span class="ref">G-05</span><h3><span class="ar" lang="ar" dir="rtl">حَرْف</span> <span class="translit">ḥarf</span></h3><p class="where">Particule</p></header>
+    <p>Mot-outil qui relie ou modifie, et n’a de sens que par ce qu’il accompagne.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Variable ou invariable, Les états grammaticaux, La méthode complète, Les prépositions</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-06">
+    <header><span class="ref">G-06</span><h3><span class="ar" lang="ar" dir="rtl">مُعْرَب</span> <span class="translit">muʿrab</span></h3><p class="where">Variable</p></header>
+    <p>Mot dont la terminaison change selon sa fonction dans la phrase.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Passé et impératif, Le présent variable</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-07">
+    <header><span class="ref">G-07</span><h3><span class="ar" lang="ar" dir="rtl">مَبْنِيّ</span> <span class="translit">mabnī</span></h3><p class="where">Invariable</p></header>
+    <p>Mot dont la terminaison ne change jamais, quelle que soit sa fonction.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Variable ou invariable, Les trois formes du fāʿil, Les noms au nominatif, Passé et impératif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-08">
+    <header><span class="ref">G-08</span><h3><span class="ar" lang="ar" dir="rtl">جُمْلَة اِسْمِيَّة</span> <span class="translit">jumla ismiyya</span></h3><p class="where">Phrase nominale</p></header>
+    <p>Phrase qui commence par un nom et s’articule autour du mubtadaʾ et du khabar.</p>
+    <p class="where">Leçons concernées : Mubtadaʾ et khabar, Les formes du khabar, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-09">
+    <header><span class="ref">G-09</span><h3><span class="ar" lang="ar" dir="rtl">جُمْلَة فِعْلِيَّة</span> <span class="translit">jumla fiʿliyya</span></h3><p class="where">Phrase verbale</p></header>
+    <p>Phrase qui commence par un verbe, suivi de son sujet puis de ses compléments.</p>
+    <p class="where">Leçons concernées : Les formes du khabar, Les piliers de la phrase verbale, Les trois formes du fāʿil, La méthode complète, L’annexion, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><h3 class="group">Fonctions</h3><article class="item compact" id="G-10">
+    <header><span class="ref">G-10</span><h3><span class="ar" lang="ar" dir="rtl">مُبْتَدَأ</span> <span class="translit">mubtadaʾ</span></h3><p class="where">Thème</p></header>
+    <p>Nom qui ouvre la phrase nominale et dont on parle. Normalement marfūʿ.</p>
+    <p class="where">Leçons concernées : Mubtadaʾ et khabar</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-11">
+    <header><span class="ref">G-11</span><h3><span class="ar" lang="ar" dir="rtl">خَبَر</span> <span class="translit">khabar</span></h3><p class="where">Prédicat</p></header>
+    <p>Ce qu’on dit du mubtadaʾ. Normalement marfūʿ. Il peut être un mot, une phrase ou un groupe.</p>
+    <p class="where">Leçons concernées : Mubtadaʾ et khabar, Les formes du khabar, L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-12">
+    <header><span class="ref">G-12</span><h3><span class="ar" lang="ar" dir="rtl">فَاعِل</span> <span class="translit">fāʿil</span></h3><p class="where">Sujet</p></header>
+    <p>Celui qui accomplit l’action du verbe. Toujours marfūʿ.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Les états grammaticaux, Mubtadaʾ et khabar, Les piliers de la phrase verbale, Les trois formes du fāʿil, La méthode complète, Les noms au nominatif, Les noms à l’accusatif, Le duel, Les pluriels réguliers, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-13">
+    <header><span class="ref">G-13</span><h3><span class="ar" lang="ar" dir="rtl">نَائِب فَاعِل</span> <span class="translit">nāʾib fāʿil</span></h3><p class="where">Sujet du passif</p></header>
+    <p>Nom qui prend la place du sujet lorsque le verbe est au passif. Marfūʿ.</p>
+    <p class="where">Leçons concernées : Les noms au nominatif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-14">
+    <header><span class="ref">G-14</span><h3><span class="ar" lang="ar" dir="rtl">مَفْعُول بِهِ</span> <span class="translit">mafʿūl bihi</span></h3><p class="where">Complément d’objet</p></header>
+    <p>Ce sur quoi porte l’action du verbe. Manṣūb.</p>
+    <p class="where">Leçons concernées : Les états grammaticaux, Mubtadaʾ et khabar, Les piliers de la phrase verbale, La méthode complète, Les noms au nominatif, Les noms à l’accusatif, Le nom et son adjectif, Le duel, Les pluriels réguliers, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-15">
+    <header><span class="ref">G-15</span><h3><span class="ar" lang="ar" dir="rtl">حَال</span> <span class="translit">ḥāl</span></h3><p class="where">Circonstant d’état</p></header>
+    <p>Décrit l’état du sujet ou de l’objet pendant l’action. Manṣūb.</p>
+    <p class="where">Leçons concernées : Les noms à l’accusatif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-16">
+    <header><span class="ref">G-16</span><h3><span class="ar" lang="ar" dir="rtl">تَمْيِيز</span> <span class="translit">tamyīz</span></h3><p class="where">Spécificatif</p></header>
+    <p>Lève l’ambiguïté d’une quantité ou d’une mesure. Manṣūb.</p>
+    <p class="where">Leçons concernées : Les noms à l’accusatif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-17">
+    <header><span class="ref">G-17</span><h3><span class="ar" lang="ar" dir="rtl">مُضَاف</span> <span class="translit">muḍāf</span></h3><p class="where">Premier terme d’annexion</p></header>
+    <p>Premier nom d’une iḍāfa. Il ne prend ni article ni tanwīn.</p>
+    <p class="where">Leçons concernées : L’annexion, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-18">
+    <header><span class="ref">G-18</span><h3><span class="ar" lang="ar" dir="rtl">مُضَاف إِلَيْهِ</span> <span class="translit">muḍāf ilayhi</span></h3><p class="where">Second terme d’annexion</p></header>
+    <p>Second nom d’une iḍāfa. Toujours majrūr.</p>
+    <p class="where">Leçons concernées : L’annexion, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-19">
+    <header><span class="ref">G-19</span><h3><span class="ar" lang="ar" dir="rtl">إِضَافَة</span> <span class="translit">iḍāfa</span></h3><p class="where">Annexion</p></header>
+    <p>Groupe de deux noms exprimant l’appartenance ou la précision, sans préposition.</p>
+    <p class="where">Leçons concernées : L’annexion</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-20">
+    <header><span class="ref">G-20</span><h3><span class="ar" lang="ar" dir="rtl">نَعْت</span> <span class="translit">naʿt</span></h3><p class="where">Adjectif épithète</p></header>
+    <p>Qualifie un nom et s’accorde avec lui en état, définition, genre et nombre.</p>
+    <p class="where">Leçons concernées : Le nom et son adjectif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-21">
+    <header><span class="ref">G-21</span><h3><span class="ar" lang="ar" dir="rtl">مَنْعُوت</span> <span class="translit">manʿūt</span></h3><p class="where">Nom qualifié</p></header>
+    <p>Nom auquel se rapporte le naʿt.</p>
+    <p class="where">Leçons concernées : Le nom et son adjectif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-22">
+    <header><span class="ref">G-22</span><h3><span class="ar" lang="ar" dir="rtl">جَار وَمَجْرُور</span> <span class="translit">jārr wa-majrūr</span></h3><p class="where">Groupe prépositionnel</p></header>
+    <p>Ensemble formé d’une préposition et du nom qu’elle met au génitif.</p>
+    <p class="where">Leçons concernées : Les formes du khabar, Les prépositions</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-23">
+    <header><span class="ref">G-23</span><h3><span class="ar" lang="ar" dir="rtl">ظَرْف</span> <span class="translit">ẓarf</span></h3><p class="where">Complément de temps ou de lieu</p></header>
+    <p>Situe l’action dans le temps ou l’espace. Manṣūb.</p>
+    <p class="where">Leçons concernées : Les formes du khabar, Les noms à l’accusatif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-24">
+    <header><span class="ref">G-24</span><h3><span class="ar" lang="ar" dir="rtl">اِسْم إِنَّ</span> <span class="translit">ism inna</span></h3><p class="where">Nom de inna</p></header>
+    <p>Premier nom après إِنَّ ou l’une de ses sœurs. Manṣūb.</p>
+    <p class="where">Leçons concernées : L’action de إِنَّ, L’action de كَانَ, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-25">
+    <header><span class="ref">G-25</span><h3><span class="ar" lang="ar" dir="rtl">خَبَر إِنَّ</span> <span class="translit">khabar inna</span></h3><p class="where">Prédicat de inna</p></header>
+    <p>Second pilier après إِنَّ. Reste marfūʿ.</p>
+    <p class="where">Leçons concernées : L’action de إِنَّ, L’action de كَانَ, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-26">
+    <header><span class="ref">G-26</span><h3><span class="ar" lang="ar" dir="rtl">اِسْم كَانَ</span> <span class="translit">ism kāna</span></h3><p class="where">Nom de kāna</p></header>
+    <p>Premier pilier après كَانَ ou l’une de ses sœurs. Reste marfūʿ.</p>
+    <p class="where">Leçons concernées : L’action de كَانَ</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-27">
+    <header><span class="ref">G-27</span><h3><span class="ar" lang="ar" dir="rtl">خَبَر كَانَ</span> <span class="translit">khabar kāna</span></h3><p class="where">Prédicat de kāna</p></header>
+    <p>Second pilier après كَانَ. Devient manṣūb.</p>
+    <p class="where">Leçons concernées : L’action de كَانَ</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><h3 class="group">États grammaticaux</h3><article class="item compact" id="G-28">
+    <header><span class="ref">G-28</span><h3><span class="ar" lang="ar" dir="rtl">رَفْع</span> <span class="translit">rafʿ</span></h3><p class="where">Nominatif</p></header>
+    <p>État du sujet et des deux piliers de la phrase nominale. Marque principale : la ḍamma.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Les états grammaticaux, Mubtadaʾ et khabar, Les formes du khabar, Les piliers de la phrase verbale, Les trois formes du fāʿil, La méthode complète, Les noms au nominatif, Le présent variable, Le nom et son adjectif, L’action de إِنَّ, L’action de كَانَ, Le duel, Les pluriels réguliers, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-29">
+    <header><span class="ref">G-29</span><h3><span class="ar" lang="ar" dir="rtl">نَصْب</span> <span class="translit">naṣb</span></h3><p class="where">Accusatif</p></header>
+    <p>État des compléments et du présent après une particule de naṣb. Marque principale : la fatḥa.</p>
+    <p class="where">Leçons concernées : Les états grammaticaux, Les piliers de la phrase verbale, La méthode complète, Particules du présent, Les noms à l’accusatif, Le nom et son adjectif, L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ, Les pluriels réguliers, Synthèse nominale, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-30">
+    <header><span class="ref">G-30</span><h3><span class="ar" lang="ar" dir="rtl">جَرّ</span> <span class="translit">jarr</span></h3><p class="where">Génitif</p></header>
+    <p>État du nom après une préposition ou en second terme d’annexion. Marque principale : la kasra.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Les états grammaticaux, La méthode complète, Les prépositions, L’annexion, Les pluriels réguliers, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-31">
+    <header><span class="ref">G-31</span><h3><span class="ar" lang="ar" dir="rtl">جَزْم</span> <span class="translit">jazm</span></h3><p class="where">Apocopé</p></header>
+    <p>État du présent après une particule de jazm. Marque principale : le sukūn. Un nom n’est jamais majzūm.</p>
+    <p class="where">Leçons concernées : Les états grammaticaux, Les marques principales, Particules du présent</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-32">
+    <header><span class="ref">G-32</span><h3><span class="ar" lang="ar" dir="rtl">مَرْفُوع</span> <span class="translit">marfūʿ</span></h3><p class="where">Au nominatif</p></header>
+    <p>Se dit d’un mot qui se trouve dans l’état de rafʿ.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Les états grammaticaux, Mubtadaʾ et khabar, Les piliers de la phrase verbale, La méthode complète, Particules du présent, Les noms au nominatif, Le présent variable, Le nom et son adjectif, L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ, Le duel, Les pluriels réguliers, Synthèse nominale, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-33">
+    <header><span class="ref">G-33</span><h3><span class="ar" lang="ar" dir="rtl">مَنْصُوب</span> <span class="translit">manṣūb</span></h3><p class="where">À l’accusatif</p></header>
+    <p>Se dit d’un mot qui se trouve dans l’état de naṣb.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Les états grammaticaux, Les piliers de la phrase verbale, La méthode complète, Particules du présent, Les noms à l’accusatif, Le présent variable, Le nom et son adjectif, L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ, Le duel, Les pluriels réguliers, Synthèse nominale, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-34">
+    <header><span class="ref">G-34</span><h3><span class="ar" lang="ar" dir="rtl">مَجْرُور</span> <span class="translit">majrūr</span></h3><p class="where">Au génitif</p></header>
+    <p>Se dit d’un mot qui se trouve dans l’état de jarr.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Les états grammaticaux, Les formes du khabar, La méthode complète, Les prépositions, Particules du présent, Le présent variable, L’annexion, Le nom et son adjectif, L’action de إِنَّ, L’action de كَانَ, Les pluriels réguliers, Synthèse nominale, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-35">
+    <header><span class="ref">G-35</span><h3><span class="ar" lang="ar" dir="rtl">مَجْزُوم</span> <span class="translit">majzūm</span></h3><p class="where">Apocopé</p></header>
+    <p>Se dit d’un présent qui se trouve dans l’état de jazm.</p>
+    <p class="where">Leçons concernées : Les états grammaticaux, Les marques principales, Particules du présent, Le présent variable, Le nom et son adjectif, L’action de إِنَّ, L’action de كَانَ, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><h3 class="group">Marques</h3><article class="item compact" id="G-36">
+    <header><span class="ref">G-36</span><h3><span class="ar" lang="ar" dir="rtl">عَلَامَة</span> <span class="translit">ʿalāma</span></h3><p class="where">Marque</p></header>
+    <p>Signe qui rend l’état grammatical visible à la fin du mot.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Les états grammaticaux, Les marques principales, Mubtadaʾ et khabar, Les piliers de la phrase verbale, La méthode complète, Les prépositions, Particules du présent, Les noms au nominatif, Les noms à l’accusatif, Le présent variable, L’annexion, Le nom et son adjectif, L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ, Le duel, Les pluriels réguliers, Synthèse nominale, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-37">
+    <header><span class="ref">G-37</span><h3><span class="ar" lang="ar" dir="rtl">ضَمَّة</span> <span class="translit">ḍamma</span></h3><p class="where">Ḍamma</p></header>
+    <p>Voyelle brève « ou », marque principale du nominatif.</p>
+    <p class="where">Leçons concernées : Variable ou invariable, Les états grammaticaux, Les marques principales, Mubtadaʾ et khabar, Les piliers de la phrase verbale, La méthode complète, Les prépositions, Les noms au nominatif, Le présent variable, Le nom et son adjectif, L’action de إِنَّ, L’action de كَانَ</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-38">
+    <header><span class="ref">G-38</span><h3><span class="ar" lang="ar" dir="rtl">فَتْحَة</span> <span class="translit">fatḥa</span></h3><p class="where">Fatḥa</p></header>
+    <p>Voyelle brève « a », marque principale de l’accusatif.</p>
+    <p class="where">Leçons concernées : Les états grammaticaux, Les marques principales, Les piliers de la phrase verbale, La méthode complète, Les prépositions, Particules du présent, Les noms à l’accusatif, Passé et impératif, Le présent variable, Le nom et son adjectif, L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ, Les pluriels réguliers, Synthèse nominale, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-39">
+    <header><span class="ref">G-39</span><h3><span class="ar" lang="ar" dir="rtl">كَسْرَة</span> <span class="translit">kasra</span></h3><p class="where">Kasra</p></header>
+    <p>Voyelle brève « i », marque principale du génitif.</p>
+    <p class="where">Leçons concernées : Les états grammaticaux, Les marques principales, La méthode complète, Les prépositions, L’annexion, Les pluriels réguliers, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-40">
+    <header><span class="ref">G-40</span><h3><span class="ar" lang="ar" dir="rtl">سُكُون</span> <span class="translit">sukūn</span></h3><p class="where">Sukūn</p></header>
+    <p>Absence de voyelle, marque principale de l’apocopé.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Les marques principales, Particules du présent, Passé et impératif, Le présent variable, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-41">
+    <header><span class="ref">G-41</span><h3><span class="ar" lang="ar" dir="rtl">تَنْوِين</span> <span class="translit">tanwīn</span></h3><p class="where">Tanwīn</p></header>
+    <p>Nūn final non écrit qui double la voyelle d’un nom indéfini.</p>
+    <p class="where">Leçons concernées : Les marques principales</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-42">
+    <header><span class="ref">G-42</span><h3><span class="ar" lang="ar" dir="rtl">عَلَامَة فَرْعِيَّة</span> <span class="translit">ʿalāma farʿiyya</span></h3><p class="where">Marque secondaire</p></header>
+    <p>Marque autre qu’une voyelle brève : alif, wāw, yāʾ ou suppression du nūn.</p>
+    <p class="where">Leçons concernées : Le duel</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-43">
+    <header><span class="ref">G-43</span><h3><span class="ar" lang="ar" dir="rtl">مُثَنَّى</span> <span class="translit">muthannā</span></h3><p class="where">Duel</p></header>
+    <p>Forme des deux : nominatif en ـانِ, accusatif et génitif en ـيْنِ.</p>
+    <p class="where">Leçons concernées : Le duel, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-44">
+    <header><span class="ref">G-44</span><h3><span class="ar" lang="ar" dir="rtl">جَمْع مُذَكَّر سَالِم</span> <span class="translit">jamʿ mudhakkar sālim</span></h3><p class="where">Pluriel masculin régulier</p></header>
+    <p>Nominatif en ـُونَ, accusatif et génitif en ـِينَ.</p>
+    <p class="where">Leçons concernées : Les pluriels réguliers</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-45">
+    <header><span class="ref">G-45</span><h3><span class="ar" lang="ar" dir="rtl">جَمْع مُؤَنَّث سَالِم</span> <span class="translit">jamʿ muʾannath sālim</span></h3><p class="where">Pluriel féminin régulier</p></header>
+    <p>Nominatif en ـَاتٌ ; accusatif et génitif en ـَاتٍ, avec kasra et non fatḥa.</p>
+    <p class="where">Leçons concernées : Les pluriels réguliers</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><h3 class="group">Régissants</h3><article class="item compact" id="G-46">
+    <header><span class="ref">G-46</span><h3><span class="ar" lang="ar" dir="rtl">حَرْف جَرّ</span> <span class="translit">ḥarf jarr</span></h3><p class="where">Préposition</p></header>
+    <p>Particule qui met au génitif le nom qui la suit : مِنْ, إِلَى, عَنْ, عَلَى, فِي, بِـ, لِـ.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Les états grammaticaux, La méthode complète, Les prépositions</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-47">
+    <header><span class="ref">G-47</span><h3><span class="ar" lang="ar" dir="rtl">نَوَاصِب</span> <span class="translit">nawāṣib</span></h3><p class="where">Particules de naṣb</p></header>
+    <p>Particules qui mettent le présent à l’accusatif : أَنْ, لَنْ, كَيْ.</p>
+    <p class="where">Leçons concernées : Particules du présent</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-48">
+    <header><span class="ref">G-48</span><h3><span class="ar" lang="ar" dir="rtl">جَوَازِم</span> <span class="translit">jawāzim</span></h3><p class="where">Particules de jazm</p></header>
+    <p>Particules qui apocopent le présent : لَمْ, لَمَّا, لَا الناهية.</p>
+    <p class="where">Leçons concernées : Particules du présent</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-49">
+    <header><span class="ref">G-49</span><h3><span class="ar" lang="ar" dir="rtl">لَا النَّاهِيَة</span> <span class="translit">lā al-nāhiya</span></h3><p class="where">Lā de défense</p></header>
+    <p>Particule d’interdiction qui apocope le présent : لَا تَكْتُبْ, « n’écris pas ».</p>
+    <p class="where">Leçons concernées : Particules du présent</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-50">
+    <header><span class="ref">G-50</span><h3><span class="ar" lang="ar" dir="rtl">إِنَّ وَأَخَوَاتُهَا</span> <span class="translit">inna wa-akhawātuhā</span></h3><p class="where">Inna et ses sœurs</p></header>
+    <p>أَنَّ, كَأَنَّ, لَكِنَّ, لَيْتَ, لَعَلَّ : elles mettent leur ism au naṣb et laissent leur khabar au rafʿ.</p>
+    <p class="where">Leçons concernées : L’action de إِنَّ, Les sœurs de إِنَّ, L’action de كَانَ, Les sœurs de كَانَ</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-51">
+    <header><span class="ref">G-51</span><h3><span class="ar" lang="ar" dir="rtl">كَانَ وَأَخَوَاتُهَا</span> <span class="translit">kāna wa-akhawātuhā</span></h3><p class="where">Kāna et ses sœurs</p></header>
+    <p>أَصْبَحَ, أَمْسَى, صَارَ, لَيْسَ, ظَلَّ : elles laissent leur ism au rafʿ et mettent leur khabar au naṣb.</p>
+    <p class="where">Leçons concernées : L’action de كَانَ, Les sœurs de كَانَ</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-52">
+    <header><span class="ref">G-52</span><h3><span class="ar" lang="ar" dir="rtl">عَامِل</span> <span class="translit">ʿāmil</span></h3><p class="where">Régissant</p></header>
+    <p>Élément qui impose son état grammatical à un autre mot.</p>
+    <p class="where">Leçons concernées : Le présent variable, Synthèse nominale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><h3 class="group">Verbes et pronoms</h3><article class="item compact" id="G-53">
+    <header><span class="ref">G-53</span><h3><span class="ar" lang="ar" dir="rtl">مَاضٍ</span> <span class="translit">māḍī</span></h3><p class="where">Passé</p></header>
+    <p>Verbe accompli, normalement invariable, souvent construit sur la fatḥa.</p>
+    <p class="where">Leçons concernées : Nom, verbe ou particule ?, Variable ou invariable, Les noms au nominatif, Passé et impératif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-54">
+    <header><span class="ref">G-54</span><h3><span class="ar" lang="ar" dir="rtl">مُضَارِع</span> <span class="translit">muḍāriʿ</span></h3><p class="where">Présent</p></header>
+    <p>Verbe inaccompli, seul verbe normalement variable : marfūʿ, manṣūb ou majzūm.</p>
+    <p class="where">Leçons concernées : Les marques principales, La méthode complète, Particules du présent, Le présent variable, Synthèse verbale</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-55">
+    <header><span class="ref">G-55</span><h3><span class="ar" lang="ar" dir="rtl">أَمْر</span> <span class="translit">amr</span></h3><p class="where">Impératif</p></header>
+    <p>Verbe d’ordre, invariable, souvent construit sur le sukūn.</p>
+    <p class="where">Leçons concernées : Passé et impératif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-56">
+    <header><span class="ref">G-56</span><h3><span class="ar" lang="ar" dir="rtl">مَبْنِيّ لِلْمَجْهُول</span> <span class="translit">mabnī li-l-majhūl</span></h3><p class="where">Passif</p></header>
+    <p>Verbe dont l’auteur n’est pas nommé ; le patient devient nāʾib fāʿil.</p>
+    <p class="where">Leçons concernées : Les noms au nominatif</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-57">
+    <header><span class="ref">G-57</span><h3><span class="ar" lang="ar" dir="rtl">ضَمِير مُتَّصِل</span> <span class="translit">ḍamīr muttaṣil</span></h3><p class="where">Pronom attaché</p></header>
+    <p>Pronom soudé au verbe ou au nom, comme le تُ de كَتَبْتُ.</p>
+    <p class="where">Leçons concernées : Les trois formes du fāʿil</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-58">
+    <header><span class="ref">G-58</span><h3><span class="ar" lang="ar" dir="rtl">ضَمِير مُسْتَتِر</span> <span class="translit">ḍamīr mustatir</span></h3><p class="where">Pronom caché</p></header>
+    <p>Sujet non écrit mais sous-entendu, dont on indique l’estimation : تقديره هو.</p>
+    <p class="where">Leçons concernées : Les trois formes du fāʿil</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article><article class="item compact" id="G-59">
+    <header><span class="ref">G-59</span><h3><span class="ar" lang="ar" dir="rtl">اِسْم ظَاهِر</span> <span class="translit">ism ẓāhir</span></h3><p class="where">Nom apparent</p></header>
+    <p>Sujet exprimé par un nom visible, par opposition à un pronom.</p>
+    <p class="where">Leçons concernées : Les trois formes du fāʿil</p>
+    <div class="annotate"><span>Remarques</span></div>
+  </article>
+
+<h2>5. Le classement des exercices en catégories</h2>
+<p class="lead">Chaque exercice est rangé dans l’une des cinq étapes de la méthode. Ce classement pilote la révision ciblée : un apprenant peut demander à ne réviser que les questions d’état, ou que les questions de marque. C’est un choix pédagogique de ma part, à confirmer dans son ensemble.</p>
+<table><thead><tr><th>Catégorie</th><th>Nombre</th><th>Exercices</th></tr></thead><tbody><tr><th scope="row">Nature du mot <span class="ar" lang="ar" dir="rtl">نَوْعُ الْكَلِمَةِ</span></th><td>12</td><td><code>types-1</code> <code>types-2</code> <code>types-3</code> <code>built-1</code> <code>built-2</code> <code>khab-1</code> <code>khab-2</code> <code>sub-1</code> <code>past-1</code> <code>idafa-2</code> <code>inna-s-1</code> <code>kana-s-2</code></td></tr><tr><th scope="row">Fonction syntaxique <span class="ar" lang="ar" dir="rtl">الْوَظِيفَةُ</span></th><td>16</td><td><code>mub-1</code> <code>mub-2</code> <code>pill-1</code> <code>pill-2</code> <code>sub-2</code> <code>raised-1</code> <code>raised-2</code> <code>acc-1</code> <code>acc-2</code> <code>acc-3</code> <code>idafa-1</code> <code>adj-2</code> <code>inna-s-2</code> <code>kana-s-1</code> <code>syn-n-1</code> <code>syn-n-2</code></td></tr><tr><th scope="row">État grammatical <span class="ar" lang="ar" dir="rtl">الْحَالَةُ الْإِعْرَابِيَّةُ</span></th><td>12</td><td><code>states-1</code> <code>states-2</code> <code>states-3</code> <code>prep-1</code> <code>part-1</code> <code>part-2</code> <code>present-1</code> <code>adj-1</code> <code>inna-1</code> <code>inna-2</code> <code>kana-1</code> <code>kana-2</code></td></tr><tr><th scope="row">Marque d’iʿrāb <span class="ar" lang="ar" dir="rtl">الْعَلَامَةُ</span></th><td>10</td><td><code>marks-1</code> <code>marks-2</code> <code>prep-2</code> <code>past-2</code> <code>present-2</code> <code>dual-1</code> <code>dual-2</code> <code>plural-1</code> <code>plural-2</code> <code>plural-3</code></td></tr><tr><th scope="row">Analyse complète <span class="ar" lang="ar" dir="rtl">الْإِعْرَابُ الْكَامِلُ</span></th><td>4</td><td><code>method-1</code> <code>method-2</code> <code>syn-v-1</code> <code>syn-v-2</code></td></tr></tbody></table>
+<div class="annotate"><span>Remarques sur le classement</span></div>
+
+</div>
+</body>
+</html>
