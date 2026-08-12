@@ -1,8 +1,8 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 12 août 2026
-- Dernier jalon livré : sprint 7 — positionnement initial
-- Sprints 1 à 7 livrés et publiés ; `git log` donne le détail commit par commit
+- Dernier jalon livré : sprint 8 — jalons du parcours
+- Sprints 1 à 8 livrés et publiés ; `git log` donne le détail commit par commit
 
 ## 1. Liens utiles
 
@@ -45,7 +45,8 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - heure personnelle de remise à zéro de l’objectif quotidien ;
 - seconde explication et exemple supplémentaire au deuxième échec sur un même exercice ;
 - recherche unique sur les leçons, les exercices et le glossaire, en français, en translittération et en arabe ;
-- test de positionnement initial qui désigne le point de départ et oriente le coach.
+- test de positionnement initial qui désigne le point de départ et oriente le coach ;
+- six jalons calculés à partir de la progression, jamais enregistrés.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -64,6 +65,7 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `explanations.js` | Seconde explication de chaque exercice |
 | `search.js` | Index et recherche sur tout le contenu |
 | `diagnostic.js` | Sondes de positionnement et placement |
+| `badges.js` | Jalons du parcours, dérivés de l’historique |
 | `glossary.js` | Termes du glossaire |
 | `glossary-index.js` | Rattachement d’un terme aux leçons |
 | `srs.js` | Planification de la répétition espacée |
@@ -179,6 +181,7 @@ node --check content-helpers.js
 node --check explanations.js
 node --check search.js
 node --check diagnostic.js
+node --check badges.js
 node --check glossary.js
 node --check glossary-index.js
 node srs.test.mjs
@@ -196,6 +199,7 @@ node glossary.test.mjs
 node explanations.test.mjs
 node search.test.mjs
 node diagnostic.test.mjs
+node badges.test.mjs
 git diff --check
 ```
 
@@ -230,6 +234,9 @@ git push origin main:gh-pages
 - Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
 - Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
 - La seconde explication n'apparaît qu'au deuxième échec sur un même exercice : au premier, l'apprenant n'a pas encore eu l'occasion de relire la première.
+- Les jalons sont calculés à la demande, jamais stockés : rien de neuf à synchroniser, et deux appareils ne peuvent pas afficher des acquis différents.
+- Chaque jalon ne porte que sur l'historique — `questions` et le journal d'activité — jamais sur la maîtrise courante, qui est révocable. Un jalon obtenu ne se reprend donc jamais. C'est le seul consommateur restant de `questions`.
+- La zone d'annonce met les messages en file : deux annonces peuvent tomber dans la même action, et la seconde effaçait la première avant qu'elle soit lue.
 - Les sondes du positionnement sont des exercices existants, jamais des questions écrites pour l'occasion : rien de neuf à faire relire, et l'apprenant est jugé sur ce qu'il va réellement travailler.
 - Les réponses au positionnement n'alimentent ni le journal d'activité ni la répétition espacée. Sinon un débutant en sortirait avec une dizaine de cartes en retard sur des leçons jamais ouvertes.
 - Le positionnement ne commande le point de départ que tant qu'aucune leçon n'est terminée : ensuite la progression réelle reprend la main.
@@ -251,6 +258,7 @@ git push origin main:gh-pages
 - Le corpus a reçu une relecture assistée, pas une validation d'arabophone qualifié : sept corrections nettes ont été appliquées, mais l'exactitude d'ensemble n'est pas garantie.
 - Les 54 secondes explications et leurs exemples n'ont pas été relus par un enseignant. C'est la plus grande surface de contenu non validée du projet.
 - Le glossaire emploie la terminologie classique ; ses 59 définitions n'ont pas été relues par un enseignant.
+- Les jalons fondés sur le journal d'activité dépendent des 1 000 dernières tentatives : un historique très ancien peut sortir du journal et, en théorie, faire disparaître « Semaine régulière » ou « Retour tenu ».
 - Le placement au premier module raté est une heuristique simple, pas un modèle psychométrique : il suppose que le parcours est strictement progressif.
 - La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur réel.
 - L'accessibilité a été vérifiée au clavier et par contrôle programmatique des contrastes et des noms accessibles, mais pas avec un vrai lecteur d'écran ni par une personne concernée.
@@ -276,8 +284,7 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 
 ### P1 — Expérience pédagogique
 
-1. Ajouter des badges sobres pour les étapes réellement utiles : première analyse complète, semaine régulière, module maîtrisé.
-2. Faire tester l’application avec un vrai lecteur d’écran, idéalement par une personne qui en utilise un.
+1. Faire tester l’application avec un vrai lecteur d’écran, idéalement par une personne qui en utilise un.
 
 ### P2 — Contenu et produit
 
@@ -301,6 +308,12 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - catégories d’erreurs et révision ciblée par catégorie ;
 - reprise à la question interrompue ;
 - fuseau local pour les jours, les séries et l’objectif.
+
+### Sprint 8 — Jalons du parcours (livré)
+
+- six jalons : première analyse, erreur retournée, module bouclé, semaine régulière, retour tenu, parcours terminé ;
+- dérivés de l’historique, donc jamais révoqués ;
+- annoncés une fois, consultables dans le bilan.
 
 ### Sprint 7 — Positionnement initial (livré)
 

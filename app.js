@@ -11,6 +11,7 @@ import { GLOSSARY_GROUPS, buildGlossary } from './glossary.js'
 import { normalizeArabic } from './glossary-index.js'
 import { buildSearchIndex, searchContent } from './search.js'
 import { buildDiagnostic, diagnosticRecord, isComplete, nextProbeIndex, placeLearner } from './diagnostic.js'
+import { BADGES, badgeById, earnedBadges, newlyEarned } from './badges.js'
 import { migrateProgress } from './progress-schema.js'
 import { describeCloudError } from './cloud-errors.js'
 import { publish, synchronize } from './sync.js'
@@ -20,7 +21,7 @@ let installPrompt = null
 let online = navigator.onLine
 
 const STORAGE_KEY = 'irab-fr:progress'
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, glossaryQuery:'', searchQuery:'', probe:{ answers:[], selected:null, placement:null }, progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, glossaryQuery:'', searchQuery:'', probe:{ answers:[], selected:null, placement:null }, freshBadges:[], progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
 const app = document.querySelector('#app')
 let cloudSaveTimer = null
 
@@ -77,11 +78,24 @@ function restoreFocus(key){
 
 // Zone d'annonce pour les lecteurs d'écran : elle vit hors de #app, donc elle
 // survit aux rendus et son contenu est bien lu.
+//
+// Les messages sont mis en file plutôt qu'écrasés. Deux annonces peuvent tomber
+// dans la même action — un jalon atteint puis la fin de la session — et la
+// seconde effaçait la première avant qu'elle ait pu être lue.
+let announceQueue = []
+let announceTimer = null
 function announce(message){
   const region=document.querySelector('#live-region')
-  if(!region)return
+  if(!region||!message)return
+  announceQueue=[...announceQueue,message]
+  if(announceTimer)return
+  const flush=()=>{
+    if(!announceQueue.length){ announceTimer=null; return }
+    region.textContent=announceQueue.shift()
+    announceTimer=setTimeout(flush,1400)
+  }
   region.textContent=''
-  setTimeout(()=>{ region.textContent=message },50)
+  announceTimer=setTimeout(flush,50)
 }
 
 function viewMarkup(){
@@ -115,7 +129,7 @@ function homeView(){
   const coach = createCoach(state.progress,curriculum,reviewQuestions().map(question=>question.id))
   const resume = resumeTarget()
   const quick = buildQuickSession(state.progress,curriculum,reviewQuestions().map(question=>question.id))
-  return `<div class="shell">${header()}<main class="container">${cloudBanner()}
+  return `<div class="shell">${header()}<main class="container">${cloudBanner()}${freshBadgeCard()}
     <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}${!state.progress.lessons.length&&!state.progress.diagnostic?'<button class="review-button" data-action="diagnostic">Situer mon niveau</button>':''}</div>${resume?`<button class="resume-line" data-action="resume"><span class="resume-mark">↩</span><span><strong>Reprendre où tu t’es arrêté</strong><small>${escapeHtml(resume.lesson.title)} · question ${resume.index+1} sur ${resume.lesson.questions.length}</small></span></button>`:''}</div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${masteredTotal()}/${allQuestions.length}</strong><span>exercices maîtrisés</span></div></div></aside></section>
     <section class="coach-card"><div class="coach-goal"><span class="eyebrow">Objectif du jour</span><div class="coach-goal-line"><strong>${coach.daily.attempts}/${coach.daily.goal}</strong><span>${coach.daily.remaining?`${coach.daily.remaining} tentative${coach.daily.remaining>1?'s':''} restante${coach.daily.remaining>1?'s':''}`:'Objectif atteint ✓'}</span></div><div class="coach-progress" role="progressbar" aria-label="Objectif quotidien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${coach.daily.percent}"><i style="width:${coach.daily.percent}%"></i></div><div class="goal-options"><span id="goal-rhythm-label">Mon rythme</span><div class="goal-buttons" role="group" aria-labelledby="goal-rhythm-label">${[5,10,15].map(goal=>`<button class="${coach.daily.goal===goal?'active':''}" data-goal="${goal}" aria-pressed="${coach.daily.goal===goal}">${goal}</button>`).join('')}</div></div><div class="goal-reset"><label for="goal-reset-hour">Ma journée commence à</label><select id="goal-reset-hour">${Array.from({length:24},(_,hour)=>`<option value="${hour}" ${coach.daily.resetHour===hour?'selected':''}>${String(hour).padStart(2,'0')} h</option>`).join('')}</select></div></div><div class="coach-recommendation"><span class="eyebrow">Conseil personnalisé</span><h2>${coach.recommendation.title}</h2><p>${coach.recommendation.reason}</p>${coach.recommendation.type!=='complete'?`<button class="primary" data-action="coach">${coach.recommendation.type==='review'?'Lancer la révision':'Ouvrir la leçon'}</button>`:''}${quick.questionIds.length?`<button class="quick-button" data-action="quick">Session rapide · ${quick.questionIds.length} exercice${quick.questionIds.length>1?'s':''}<small>${quickComposition(quick)}</small></button>`:''}</div></section>
@@ -154,6 +168,7 @@ function statsView(){
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Régularité</span><h2>Activité sur 7 jours</h2></div><strong>${stats.attempts} au total</strong></div><div class="activity-chart">${stats.days.map(day=>`<div class="activity-day"><span class="activity-value">${day.attempts||''}</span><i style="height:${Math.max(day.attempts?12:3,Math.round(day.attempts/maxDay*100))}%"></i><small>${day.label}</small></div>`).join('')}</div></section>
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Compétences</span><h2>Maîtrise par thème</h2></div></div><div class="topic-list">${stats.modules.map(module=>`<article class="topic-row"><div><strong>${module.title}</strong><span>${module.mastered}/${module.total} maîtrisés${module.attempts?` · ${module.accuracy}% de réussite`:''}</span></div><div class="topic-bar"><i style="width:${module.mastery}%"></i></div><b>${module.mastery}%</b></article>`).join('')}</div></section>
     ${practisedTopics.length?`<section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Types d’erreurs</span><h2>Sur quoi tu butes</h2></div></div><p class="panel-lead">Chaque exercice teste une étape de la méthode. Cible directement celle qui te résiste.</p><div class="topic-kinds">${practisedTopics.map(topic=>`<article class="topic-kind ${topic.errors&&topic.accuracy<70?'weak':''}"><div><strong>${topic.label}</strong><span>${topic.errors?`${topic.errors} erreur${topic.errors>1?'s':''} sur ${topic.attempts} tentative${topic.attempts>1?'s':''}`:`${topic.attempts} tentative${topic.attempts>1?'s':''}, aucune erreur`}</span></div><div class="topic-bar"><i style="width:${topic.accuracy}%"></i></div><b>${topic.accuracy}%</b>${topicReviewCount(topic.id)?`<button class="topic-review" data-topic="${topic.id}">Réviser ${topicReviewCount(topic.id)}</button>`:'<span class="topic-clear">à jour</span>'}</article>`).join('')}</div></section>`:''}
+    ${badgeWall()}
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Révision ciblée</span><h2>Erreurs fréquentes</h2></div>${reviews?'<button class="review-button" data-action="review">Réviser maintenant</button>':''}</div>${stats.trouble.length?`<div class="trouble-list">${stats.trouble.map(item=>`<article><span>${item.moduleTitle}${item.topic?` · ${topicLabel(item.topic)}`:''}</span><strong>${escapeHtml(item.prompt)}</strong><small>${item.errors} erreur${item.errors>1?'s':''} sur ${item.attempts} tentative${item.attempts>1?'s':''}</small></article>`).join('')}</div>`:'<p class="empty-note">Aucune erreur enregistrée pour le moment.</p>'}</section>
   </main></div>`
 }
@@ -190,6 +205,26 @@ function accountView(){
 }
 
 function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='blocked'?'Mise à jour requise':state.cloud.status==='error'?'Erreur':'Connecté' }
+
+// Les jalons sont recalculés à la demande : rien n'est stocké, donc rien ne peut
+// se désynchroniser entre deux appareils.
+function currentBadges(){ return earnedBadges(state.progress,curriculum) }
+function noteNewBadges(before){
+  const fresh=newlyEarned(before,currentBadges())
+  if(!fresh.length)return
+  state.freshBadges=[...state.freshBadges,...fresh]
+  const labels=fresh.map(id=>badgeById(id).label).join(', ')
+  announce(`Jalon atteint : ${labels}.`)
+}
+function freshBadgeCard(){
+  if(!state.freshBadges.length)return ''
+  const badges=state.freshBadges.map(id=>badgeById(id)).filter(Boolean)
+  return `<section class="fresh-badges" role="status"><div><span class="eyebrow">${badges.length>1?'Jalons atteints':'Jalon atteint'}</span>${badges.map(badge=>`<h2>${escapeHtml(badge.label)}</h2><p>${escapeHtml(badge.detail)}</p>`).join('')}</div><button data-action="dismiss-badges">Vu</button></section>`
+}
+function badgeWall(){
+  const earned=new Set(currentBadges())
+  return `<section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Jalons</span><h2>Ce que tu as franchi</h2></div><strong>${earned.size} sur ${BADGES.length}</strong></div><div class="badge-grid">${BADGES.map(badge=>`<article class="milestone ${earned.has(badge.id)?'won':''}"><span class="milestone-mark" aria-hidden="true">${earned.has(badge.id)?'✓':'○'}</span><div><strong>${escapeHtml(badge.label)}</strong><p>${escapeHtml(earned.has(badge.id)?badge.detail:badge.hint)}</p></div><span class="sr-only">${earned.has(badge.id)?'Atteint':'Pas encore atteint'}</span></article>`).join('')}</div></section>`
+}
 
 // Positionnement : une sonde par module, jusqu'à deux échecs consécutifs.
 // Les réponses restent hors du journal et de la répétition espacée, sinon un
@@ -340,6 +375,7 @@ function bind(){
   document.querySelectorAll('[data-action="glossary"]').forEach(button=>button.onclick=()=>{state.view='glossary';state.glossaryQuery='';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="search"]').forEach(button=>button.onclick=()=>openSearch())
   document.querySelectorAll('[data-action="diagnostic"]').forEach(button=>button.onclick=openDiagnostic)
+  document.querySelector('[data-action="dismiss-badges"]')?.addEventListener('click',()=>{state.freshBadges=[];render()})
   document.querySelectorAll('[data-probe-choice]').forEach(button=>button.onclick=()=>{state.probe={...state.probe,selected:button.dataset.probeChoice};render()})
   document.querySelector('[data-action="probe-next"]')?.addEventListener('click',()=>{
     const probe=diagnostic[nextProbeIndex(state.probe.answers,diagnostic)]
@@ -426,7 +462,7 @@ function openSearch(){
   document.querySelector('#search-query')?.focus()
 }
 
-function openLesson(id,index=0){ const lesson=allLessons.find(l=>l.id===id); if(!lesson)return; state={...state,view:'lesson',lesson,stage:index>0?'practice':'learn',qi:Math.min(index,lesson.questions.length-1),selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
+function openLesson(id,index=0){ const lesson=allLessons.find(l=>l.id===id); if(!lesson)return; state={...state,freshBadges:[],view:'lesson',lesson,stage:index>0?'practice':'learn',qi:Math.min(index,lesson.questions.length-1),selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
 function resumeLesson(){ const target=resumeTarget(); if(!target)return; openLesson(target.lesson.id,target.index) }
 
 // Une révision peut être limitée à un type d'erreur : nature, fonction, état,
@@ -449,10 +485,12 @@ function setDailyGoal(dailyGoal){ if(![5,10,15].includes(dailyGoal))return;state
 function setResetHour(resetHour){ if(!Number.isInteger(resetHour)||resetHour<0||resetHour>23)return;state.progress.preferences={...state.progress.preferences,resetHour,updatedAt:new Date().toISOString()};save();render();announce(`Ta journée commence à ${String(resetHour).padStart(2,'0')} heures.`) }
 function next(){
   const x=state.lesson.questions[state.qi]
+  const badgesBefore=currentBadges()
   if(answerIsCorrect(x)&&!state.progress.questions.includes(x.id)) state.progress.questions.push(x.id)
-  if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;rememberPosition();save();render();scrollTo(0,0);return}
+  if(state.qi<state.lesson.questions.length-1){state.qi++;state.selected=null;state.built=[];state.checked=false;rememberPosition();noteNewBadges(badgesBefore);save();render();scrollTo(0,0);return}
   if(!state.review&&!completed(state.lesson.id))state.progress.lessons.push(state.lesson.id)
   if(!state.review)forgetPosition()
+  noteNewBadges(badgesBefore)
   announce(state.review?'Session terminée. Retour au parcours.':'Leçon terminée. Retour au parcours.')
   save();state.view='home';state.review=false;state.built=[];render();scrollTo(0,0)
 }

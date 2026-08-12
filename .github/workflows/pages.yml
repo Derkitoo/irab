@@ -29,6 +29,7 @@ jobs:
           node --check explanations.js
           node --check search.js
           node --check diagnostic.js
+          node --check badges.js
           node --check glossary.js
           node --check glossary-index.js
           node --check srs.js
@@ -61,6 +62,7 @@ jobs:
           node explanations.test.mjs
           node search.test.mjs
           node diagnostic.test.mjs
+          node badges.test.mjs
 
       - name: Check required static files
         run: |
@@ -76,6 +78,7 @@ jobs:
           test -f explanations.js
           test -f search.js
           test -f diagnostic.js
+          test -f badges.js
           test -f glossary.js
           test -f glossary-index.js
           test -f srs.js

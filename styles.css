@@ -340,3 +340,15 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 .probe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .probe-actions button:not(.primary) { min-height: 52px; padding: 0 20px; border: 1px solid var(--green-2); border-radius: 15px; color: var(--green); background: white; cursor: pointer; font-weight: 700; }
 @media (max-width: 430px) { .probe-result { grid-template-columns: 1fr; } }
+
+.fresh-badges { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 18px; padding: 20px 24px; border: 1px solid rgba(196,145,63,.45); border-radius: 20px; background: var(--gold-soft); }
+.fresh-badges h2 { margin: 8px 0 4px; font-size: 22px; letter-spacing: -.02em; }
+.fresh-badges p { margin: 0; max-width: 62ch; color: #6b5a33; line-height: 1.55; }
+.fresh-badges button { min-height: 44px; padding: 0 20px; border: 1px solid var(--green); border-radius: 13px; color: var(--green); background: transparent; cursor: pointer; font-weight: 700; }
+.badge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.milestone { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 13px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: #f8f2e8; }
+.milestone.won { border-color: rgba(28,112,78,.4); background: #eef6f1; }
+.milestone-mark { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; color: var(--muted); background: white; font-weight: 700; }
+.milestone.won .milestone-mark { color: white; background: var(--ok); }
+.milestone strong { display: block; font-size: 15px; }
+.milestone p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
