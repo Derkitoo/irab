@@ -1,7 +1,7 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 11 août 2026
-- Dernier jalon livré : sprint 5 — quand l’apprenant bloque
+- Dernier jalon livré : sprint 6 — recherche dans le contenu
 - Commit de référence : `a2e1edd` (coach), puis les correctifs de fusion du sprint 1
 
 ## 1. Liens utiles
@@ -43,7 +43,8 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - contrastes conformes AA sur tout le texte ;
 - `prefers-reduced-motion` respecté ;
 - heure personnelle de remise à zéro de l’objectif quotidien ;
-- seconde explication et exemple supplémentaire au deuxième échec sur un même exercice.
+- seconde explication et exemple supplémentaire au deuxième échec sur un même exercice ;
+- recherche unique sur les leçons, les exercices et le glossaire, en français, en translittération et en arabe.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -60,6 +61,7 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `content-advanced.js` | Modules 5 à 12 |
 | `content-helpers.js` | Constructeurs de leçon et d’exercice |
 | `explanations.js` | Seconde explication de chaque exercice |
+| `search.js` | Index et recherche sur tout le contenu |
 | `glossary.js` | Termes du glossaire |
 | `glossary-index.js` | Rattachement d’un terme aux leçons |
 | `srs.js` | Planification de la répétition espacée |
@@ -169,6 +171,7 @@ node --check content-core.js
 node --check content-advanced.js
 node --check content-helpers.js
 node --check explanations.js
+node --check search.js
 node --check glossary.js
 node --check glossary-index.js
 node srs.test.mjs
@@ -184,6 +187,7 @@ node session.test.mjs
 node curriculum.test.mjs
 node glossary.test.mjs
 node explanations.test.mjs
+node search.test.mjs
 git diff --check
 ```
 
@@ -218,6 +222,8 @@ git push origin main:gh-pages
 - Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
 - Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
 - La seconde explication n'apparaît qu'au deuxième échec sur un même exercice : au premier, l'apprenant n'a pas encore eu l'occasion de relire la première.
+- La recherche normalise d'un coup accents français, voyelles brèves arabes et signes de translittération, en s'appuyant sur la décomposition Unicode. Un mot arabe est cherché avec et sans son article, puisqu'il se copie depuis une leçon mais se range sans dans le glossaire.
+- Les passes de consolidation ne sont pas indexées : elles reprennent mot pour mot leur exercice d'origine et doubleraient chaque résultat.
 - Tout le contenu rédigé après la relecture assistée est réuni dans `explanations.js`, pour qu'un enseignant sache où regarder en priorité.
 - Le champ `analysis` d'une leçon s'affiche dans un panneau droite-à-gauche : il doit être en arabe, et un test le vérifie.
 - Les anciennes sauvegardes sans `activity` ou `preferences` restent compatibles.
@@ -265,11 +271,9 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 
 1. Créer une interface d’administration ou un format de contenu externe afin de ne plus modifier `app.js` pour chaque leçon.
 2. Ajouter des enregistrements audio humains, avec licences documentées, en complément de la synthèse vocale.
-3. Ajouter une recherche par règle, mot arabe et fonction grammaticale.
-4. Produire un glossaire français–arabe relié aux leçons.
-5. Ajouter un parcours de diagnostic initial pour recommander un point de départ.
-6. Préparer les traductions de l’interface sans dupliquer le contenu.
-7. Définir une stratégie produit avant toute monétisation : public cible, métriques pédagogiques, support et politique de conservation des données.
+3. Ajouter un parcours de diagnostic initial pour recommander un point de départ.
+4. Préparer les traductions de l’interface sans dupliquer le contenu.
+5. Définir une stratégie produit avant toute monétisation : public cible, métriques pédagogiques, support et politique de conservation des données.
 
 ## 10. Proposition des trois prochains sprints
 
@@ -286,6 +290,12 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - catégories d’erreurs et révision ciblée par catégorie ;
 - reprise à la question interrompue ;
 - fuseau local pour les jours, les séries et l’objectif.
+
+### Sprint 6 — Recherche dans le contenu (livré)
+
+- index sur les 25 leçons, les 54 exercices et les 59 termes ;
+- recherche en français, en translittération et en arabe ;
+- accès depuis l’en-tête et par la touche « / ».
 
 ### Sprint 5 — Quand l’apprenant bloque (livré)
 

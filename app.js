@@ -9,6 +9,7 @@ import { buildQuickSession } from './session.js'
 import { secondExplanation } from './explanations.js'
 import { GLOSSARY_GROUPS, buildGlossary } from './glossary.js'
 import { normalizeArabic } from './glossary-index.js'
+import { buildSearchIndex, searchContent } from './search.js'
 import { migrateProgress } from './progress-schema.js'
 import { describeCloudError } from './cloud-errors.js'
 import { publish, synchronize } from './sync.js'
@@ -18,7 +19,7 @@ let installPrompt = null
 let online = navigator.onLine
 
 const STORAGE_KEY = 'irab-fr:progress'
-let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, glossaryQuery:'', progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
+let state = { view:'home', lesson:null, stage:'learn', qi:0, selected:null, built:[], checked:false, review:false, glossaryQuery:'', searchQuery:'', progress:loadProgress(), cloud:{configured:isCloudConfigured(),session:null,status:'idle',error:'',retryable:false,retry:null} }
 const app = document.querySelector('#app')
 let cloudSaveTimer = null
 
@@ -88,6 +89,7 @@ function viewMarkup(){
     case 'account': return accountView()
     case 'privacy': return privacyView()
     case 'glossary': return glossaryView()
+    case 'search': return searchView()
     case 'stats': return statsView()
     default: return lessonView()
   }
@@ -103,7 +105,7 @@ function render(){
   bind()
   restoreFocus(previous)
 }
-function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="stats">Bilan</button><button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
+function header(back=false){ const accountLabel=state.cloud.session?.user?.email?'Synchronisé':'Compte'; return `<header class="topbar">${back?'<button class="ghost back" data-action="home">← <span class="hide-mobile">Parcours</span></button>':''}<div class="brand"><span class="brand-mark ar">إ</span><span>Iʿrāb</span></div><span class="top-spacer"></span>${!online?'<span class="offline-badge">Hors ligne</span>':''}${installPrompt?'<button class="install-button" data-action="install">Installer</button>':''}<button class="account-button" data-action="search" aria-label="Chercher dans le contenu"><span aria-hidden="true">⌕</span><span class="hide-mobile" aria-hidden="true"> Chercher</span></button><button class="account-button" data-action="stats">Bilan</button><button class="account-button" data-action="account">${accountLabel}</button><span class="ar hide-mobile">نَحْوٌ وَإِعْرَابٌ</span></header>` }
 
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
@@ -187,6 +189,44 @@ function accountView(){
 
 function cloudStatusLabel(){ return state.cloud.status==='syncing'?'Synchronisation…':state.cloud.status==='synced'?'À jour':state.cloud.status==='blocked'?'Mise à jour requise':state.cloud.status==='error'?'Erreur':'Connecté' }
 
+// Recherche : l'index est bâti une fois, et seule la liste des résultats est
+// redessinée à la frappe pour ne pas déplacer le curseur du champ.
+// Construit au premier usage : le glossaire dont il dépend est déclaré plus bas,
+// et l'index n'a pas à coûter quoi que ce soit tant qu'on ne cherche rien.
+let searchIndex = null
+function getSearchIndex(){ searchIndex ??= buildSearchIndex(curriculum,glossary); return searchIndex }
+const SEARCH_KINDS = { term: 'Glossaire', lesson: 'Leçon', exercise: 'Exercice' }
+function searchResultCard(result){
+  const target = result.kind==='term' ? 'data-search-term' : result.kind==='exercise' ? 'data-search-exercise' : 'data-search-lesson'
+  const value = result.kind==='exercise' ? `${result.lessonId}:${result.questionIndex}` : result.kind==='term' ? result.id : result.lessonId
+  return `<button class="result" ${target}="${escapeHtml(value)}"><span class="result-kind">${SEARCH_KINDS[result.kind]}</span><strong>${escapeHtml(result.title)}</strong><span class="result-where">${escapeHtml(result.subtitle)}</span><span class="result-snippet">${escapeHtml(result.snippet)}</span></button>`
+}
+function searchResults(query){
+  if(normalizeArabic(query).length<2&&query.trim().length<2)return '<p class="empty-note">Tape au moins deux caractères. Le français, la translittération et l’arabe fonctionnent tous les trois.</p>'
+  const results=searchContent(query,getSearchIndex())
+  if(!results.length)return `<p class="empty-note">Rien ne correspond à « ${escapeHtml(query)} ».</p>`
+  return `<p class="result-count">${results.length} résultat${results.length>1?'s':''}</p><div class="result-list">${results.map(searchResultCard).join('')}</div>`
+}
+function searchView(){
+  return `<div class="shell">${header(true)}<main class="container">
+    <header class="stats-title"><span class="eyebrow">Recherche</span><h1>Trouver une règle</h1><p>Cherche une règle, un mot arabe, une fonction grammaticale ou un terme, en français comme en arabe.</p></header>
+    <div class="glossary-search"><label class="sr-only" for="search-query">Chercher dans le contenu</label><input id="search-query" type="search" autocomplete="off" placeholder="مبتدأ, mubtada, thème, annexion…" value="${escapeHtml(state.searchQuery)}"></div>
+    <div id="search-results">${searchResults(state.searchQuery)}</div>
+  </main></div>`
+}
+function bindSearchResults(){
+  const results=document.querySelector('#search-results')
+  if(!results)return
+  results.querySelectorAll('[data-search-lesson]').forEach(button=>button.onclick=()=>openLesson(button.dataset.searchLesson))
+  results.querySelectorAll('[data-search-exercise]').forEach(button=>button.onclick=()=>{
+    const [lessonId,index]=button.dataset.searchExercise.split(':')
+    openLesson(lessonId,Number(index))
+  })
+  results.querySelectorAll('[data-search-term]').forEach(button=>button.onclick=()=>{
+    state.view='glossary';state.glossaryQuery=button.dataset.searchTerm;render();scrollTo(0,0)
+  })
+}
+
 // Glossaire : la liste est construite une fois, la recherche ne refait pas
 // tout le rendu pour ne pas voler le focus du champ à chaque frappe.
 const glossary = buildGlossary(curriculum)
@@ -253,6 +293,10 @@ function bind(){
   document.querySelectorAll('[data-action="stats"]').forEach(button=>button.onclick=()=>{state.view='stats';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="privacy"]').forEach(button=>button.onclick=()=>{state.view='privacy';render();scrollTo(0,0)})
   document.querySelectorAll('[data-action="glossary"]').forEach(button=>button.onclick=()=>{state.view='glossary';state.glossaryQuery='';render();scrollTo(0,0)})
+  document.querySelectorAll('[data-action="search"]').forEach(button=>button.onclick=()=>openSearch())
+  const searchInput=document.querySelector('#search-query')
+  if(searchInput)searchInput.oninput=()=>{state.searchQuery=searchInput.value;document.querySelector('#search-results').innerHTML=searchResults(state.searchQuery);bindSearchResults()}
+  bindSearchResults()
   const glossaryInput=document.querySelector('#glossary-query')
   if(glossaryInput)glossaryInput.oninput=()=>{state.glossaryQuery=glossaryInput.value;const results=document.querySelector('#glossary-results');results.innerHTML=glossaryList(state.glossaryQuery);bindGlossaryResults()}
   document.querySelector('[data-action="retry"]')?.addEventListener('click',()=>{const retry=state.cloud.retry;if(!retry)return;clearCloudError();render();retry()})
@@ -317,6 +361,16 @@ function secondPassBlock(question,correct){
     ? `<div class="second-example"><span class="second-label">Un autre exemple</span><p class="second-ar ar">${entry.example.ar}</p><p class="second-fr">${escapeHtml(entry.example.fr)}</p><p class="second-ar ar">${entry.example.analysis}</p></div>`
     : ''
   return `<div class="second-pass"><span class="second-label">Reprenons autrement</span><p>${escapeHtml(entry.again)}</p>${example}</div>`
+}
+
+// La barre oblique ouvre la recherche, comme partout ailleurs. Le champ prend
+// le focus tout de suite : venir chercher, c'est déjà vouloir taper.
+function openSearch(){
+  state.view='search'
+  state.searchQuery=''
+  render()
+  scrollTo(0,0)
+  document.querySelector('#search-query')?.focus()
 }
 
 function openLesson(id,index=0){ const lesson=allLessons.find(l=>l.id===id); if(!lesson)return; state={...state,view:'lesson',lesson,stage:index>0?'practice':'learn',qi:Math.min(index,lesson.questions.length-1),selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }
@@ -456,8 +510,10 @@ window.addEventListener('appinstalled',()=>{installPrompt=null;if(state.view==='
 // Échap ramène au parcours depuis n'importe quelle vue secondaire, et le lien
 // d'évitement conduit le focus au contenu plutôt que de simplement s'y ancrer.
 window.addEventListener('keydown',event=>{
+  const typing=document.activeElement?.tagName==='INPUT'||document.activeElement?.tagName==='SELECT'
+  if(event.key==='/'&&!typing&&state.view!=='search'){ event.preventDefault(); openSearch(); return }
   if(event.key!=='Escape'||state.view==='home')return
-  if(document.activeElement?.tagName==='INPUT')return
+  if(typing)return
   state.view='home'
   state.review=false
   render()

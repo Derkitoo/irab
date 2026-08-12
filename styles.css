@@ -321,3 +321,12 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
 .second-example { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
 .second-ar { margin: 0; font-size: 21px; line-height: 1.85; }
 .second-fr { margin: 4px 0 8px; color: var(--muted); font-size: 14px; }
+
+.result-count { margin: 18px 0 12px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.result-list { display: grid; gap: 10px; padding-bottom: 60px; }
+.result { display: grid; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); cursor: pointer; text-align: left; }
+.result:hover { border-color: var(--green-2); }
+.result-kind { color: var(--gold-text); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.result strong { font-size: 17px; line-height: 1.35; }
+.result-where { color: var(--green-2); font-size: 12px; font-weight: 700; }
+.result-snippet { color: var(--muted); font-size: 14px; line-height: 1.5; }
