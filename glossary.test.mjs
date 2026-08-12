@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import { curriculum } from './curriculum.js'
 import { GLOSSARY_GROUPS, buildGlossary, glossaryEntries } from './glossary.js'
-import { lessonText, lessonsUsing, normalizeArabic } from './glossary-index.js'
+import { lessonText, lessonsUsing } from './glossary-index.js'
+import { normalizeText } from './normalize.js'
 
 const entries = glossaryEntries()
 assert.ok(entries.length >= 55, `glossaire trop court : ${entries.length}`)
@@ -24,8 +25,8 @@ for (const group of GLOSSARY_GROUPS) {
   assert.ok(entries.some(entry => entry.group === group.id), `groupe vide : ${group.id}`)
 }
 
-assert.equal(normalizeArabic('الْمُبْتَدَأُ'), 'المبتدا')
-assert.equal(normalizeArabic('  فِي   الْبَيْتِ '), 'في البيت')
+assert.equal(normalizeText('الْمُبْتَدَأُ'), 'المبتدا')
+assert.equal(normalizeText('  فِي   الْبَيْتِ '), 'في البيت')
 
 // Le lien vers les leçons est calculé, donc il ne peut pas pointer dans le vide.
 const linked = buildGlossary(curriculum)

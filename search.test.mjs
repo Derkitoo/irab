@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict'
 import { curriculum } from './curriculum.js'
 import { buildGlossary } from './glossary.js'
-import { buildSearchIndex, normalizeSearch, searchContent } from './search.js'
+import { buildSearchIndex, searchContent } from './search.js'
+import { normalizeText } from './normalize.js'
 
 // La normalisation gomme accents, voyelles brèves et signes de translittération.
-assert.equal(normalizeSearch('État'), 'etat')
-assert.equal(normalizeSearch('iʿrāb'), 'irab')
-assert.equal(normalizeSearch('الْحَالَةُ'), 'الحالة')
-assert.equal(normalizeSearch('أَقْسَام'), 'اقسام')
-assert.equal(normalizeSearch('  DEUX   mots '), 'deux mots')
+assert.equal(normalizeText('État'), 'etat')
+assert.equal(normalizeText('iʿrāb'), 'irab')
+assert.equal(normalizeText('الْحَالَةُ'), 'الحالة')
+assert.equal(normalizeText('أَقْسَام'), 'اقسام')
+assert.equal(normalizeText('  DEUX   mots '), 'deux mots')
 
 const index = buildSearchIndex(curriculum, buildGlossary(curriculum))
 const find = (query, limit) => searchContent(query, index, limit)
@@ -68,7 +69,7 @@ for (const result of find('duel')) {
 }
 
 // L'extrait privilégie la phrase qui contient le mot cherché…
-const withToken = find('génitif').find(result => normalizeSearch(result.snippet).includes('genitif'))
+const withToken = find('génitif').find(result => normalizeText(result.snippet).includes('genitif'))
 assert.ok(withToken, 'aucun extrait ne contient le mot cherché')
 
 // …et retombe sur le début du texte quand le mot est ailleurs, par exemple

@@ -2,17 +2,9 @@
 // Le lien est calculé à partir du texte des leçons, jamais saisi à la main :
 // une leçon renommée ou supprimée ne peut donc pas laisser un lien mort.
 
-const DIACRITICS = /[ً-ْٰـ]/g
-const ARABIC_LETTER = '[\\u0621-\\u064A]'
+import { normalizeText } from './normalize.js'
 
-export function normalizeArabic(value = '') {
-  return String(value)
-    .replace(DIACRITICS, '')
-    .replace(/[أإآٱ]/g, 'ا')
-    .replace(/ى/g, 'ي')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
+const ARABIC_LETTER = '[\u0621-\u064A]'
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -27,7 +19,7 @@ const CLITIC = '[وفبكل]?'
 const SUFFIX = '(?:ها|هما|هم|هن|كم|ه)?'
 
 function termPattern(term) {
-  const words = normalizeArabic(term).split(' ').filter(Boolean)
+  const words = normalizeText(term).split(' ').filter(Boolean)
   if (!words.length) return null
   const body = words
     .map((word, index) => {
@@ -47,7 +39,7 @@ export function lessonText(lesson = {}, moduleTitle = '') {
     question.analysis,
     ...(question.choices ?? []).map(choice => choice[0]),
   ])
-  return normalizeArabic([moduleTitle, lesson.ar, lesson.rule, lesson.example, lesson.analysis, ...questions].filter(Boolean).join(' '))
+  return normalizeText([moduleTitle, lesson.ar, lesson.rule, lesson.example, lesson.analysis, ...questions].filter(Boolean).join(' '))
 }
 
 export function lessonsUsing(entry, curriculum = []) {

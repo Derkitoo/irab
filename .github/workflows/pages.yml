@@ -32,6 +32,8 @@ jobs:
           node --check badges.js
           node --check glossary.js
           node --check glossary-index.js
+          node --check normalize.js
+          node --check supabase-config.js
           node --check srs.js
           node --check sw.js
           node --check backup.js
@@ -64,6 +66,7 @@ jobs:
           node diagnostic.test.mjs
           node badges.test.mjs
           node review.test.mjs
+          node project.test.mjs
           node tools/build-review.mjs --check
 
       - name: Check required static files
@@ -85,6 +88,7 @@ jobs:
           test -f tools/build-review.mjs
           test -f glossary.js
           test -f glossary-index.js
+          test -f normalize.js
           test -f srs.js
           test -f sw.js
           test -f manifest.webmanifest

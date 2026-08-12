@@ -1,29 +1,14 @@
 // Recherche unique sur les leçons, les exercices et le glossaire.
 //
-// La normalisation gomme d'un coup les accents français, les voyelles brèves
-// arabes et les signes de translittération : « etat », « état », « الحالة » et
-// « halah » doivent atteindre le même contenu. La décomposition Unicode fait
-// l'essentiel, puisque les harakāt comme les accents sont des marques
-// combinantes, et que أ إ آ se décomposent en alif suivi d'une marque.
+// La normalisation vit dans normalize.js : « etat », « état », « الحالة » et
+// « halah » doivent atteindre le même contenu.
 
-const COMBINING = /\p{M}/gu
-const TRANSLITERATION = /[ʿʾʼ'’`]/g
-
-export function normalizeSearch(value = '') {
-  return String(value)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(COMBINING, '')
-    .replace(TRANSLITERATION, '')
-    .replace(/ى/g, 'ي')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
+import { normalizeText } from './normalize.js'
 
 function firstSentence(text = '', token = '') {
   const sentences = String(text).split(/(?<=[.!?؟])\s+/).filter(Boolean)
   if (!sentences.length) return String(text)
-  const hit = token ? sentences.find(sentence => normalizeSearch(sentence).includes(token)) : null
+  const hit = token ? sentences.find(sentence => normalizeText(sentence).includes(token)) : null
   return hit ?? sentences[0]
 }
 
@@ -38,7 +23,7 @@ function entry({ kind, id, title, subtitle, body, lessonId, questionIndex, field
     questionIndex,
     // Chaque champ est pesé séparément : un mot dans un titre vaut mieux que le
     // même mot noyé dans une explication.
-    fields: fields.map(([weight, text]) => [weight, normalizeSearch(text)]),
+    fields: fields.map(([weight, text]) => [weight, normalizeText(text)]),
   }
 }
 
@@ -121,7 +106,7 @@ function tokenVariants(token) {
 }
 
 export function searchContent(query, index = [], limit = 30) {
-  const tokens = normalizeSearch(query).split(' ').filter(token => token.length >= 2).map(tokenVariants)
+  const tokens = normalizeText(query).split(' ').filter(token => token.length >= 2).map(tokenVariants)
   if (!tokens.length) return []
 
   const results = []

@@ -1,5 +1,6 @@
 import { allLessons, allQuestions, curriculum } from './curriculum.js'
-import { dateKey, isDue, scheduleCard } from './srs.js'
+import { isDue, scheduleCard } from './srs.js'
+import { localDayKey } from './day.js'
 import { createBackup, parseBackup } from './backup.js'
 import { computeAnalytics } from './analytics.js'
 import { createCoach } from './coach.js'
@@ -8,7 +9,7 @@ import { topicLabel, topicOf } from './question-topics.js'
 import { buildQuickSession } from './session.js'
 import { secondExplanation } from './explanations.js'
 import { GLOSSARY_GROUPS, buildGlossary } from './glossary.js'
-import { normalizeArabic } from './glossary-index.js'
+import { normalizeText } from './normalize.js'
 import { buildSearchIndex, searchContent } from './search.js'
 import { buildDiagnostic, diagnosticRecord, isComplete, nextProbeIndex, placeLearner } from './diagnostic.js'
 import { BADGES, badgeById, earnedBadges, newlyEarned } from './badges.js'
@@ -125,10 +126,14 @@ function header(back=false){ const accountLabel=state.cloud.session?.user?.email
 
 function homeView(){
   const pct = Math.round(state.progress.lessons.length / allLessons.length * 100)
-  const reviews = reviewQuestions().length
-  const coach = createCoach(state.progress,curriculum,reviewQuestions().map(question=>question.id))
+  // Un seul balayage des 133 exercices par rendu : la liste des révisions dues
+  // servait trois fois de suite.
+  const due = reviewQuestions()
+  const dueIds = due.map(question=>question.id)
+  const reviews = due.length
+  const coach = createCoach(state.progress,curriculum,dueIds)
   const resume = resumeTarget()
-  const quick = buildQuickSession(state.progress,curriculum,reviewQuestions().map(question=>question.id))
+  const quick = buildQuickSession(state.progress,curriculum,dueIds)
   return `<div class="shell">${header()}<main class="container">${cloudBanner()}${freshBadgeCard()}
     <section class="hero"><div class="hero-copy"><span class="eyebrow">Grammaire arabe · Français</span><h1>Lis la fonction.<br>Comprends la terminaison.</h1><p>Un parcours progressif pour apprendre le iʿrāb, analyser chaque mot et construire une réponse grammaticale complète.</p><div class="hero-arabic ar">الإِعْرَابُ خُطْوَةً خُطْوَةً</div><div class="hero-actions"><button class="primary" data-action="continue">${state.progress.lessons.length ? 'Continuer mon parcours' : 'Commencer le parcours'}</button>${reviews?`<button class="review-button" data-action="review">Révision du jour <span>${reviews}</span></button>`:''}${!state.progress.lessons.length&&!state.progress.diagnostic?'<button class="review-button" data-action="diagnostic">Situer mon niveau</button>':''}</div>${resume?`<button class="resume-line" data-action="resume"><span class="resume-mark">↩</span><span><strong>Reprendre où tu t’es arrêté</strong><small>${escapeHtml(resume.lesson.title)} · question ${resume.index+1} sur ${resume.lesson.questions.length}</small></span></button>`:''}</div>
     <aside class="hero-card"><div><span class="eyebrow">Ta progression</span><div class="ring" style="--progress:${pct}%"><div class="ring-content"><strong>${pct}%</strong><span>du parcours</span></div></div></div><div class="stats"><div class="stat"><strong>${state.progress.lessons.length}/${allLessons.length}</strong><span>leçons terminées</span></div><div class="stat"><strong>${masteredTotal()}/${allQuestions.length}</strong><span>exercices maîtrisés</span></div></div></aside></section>
@@ -151,7 +156,8 @@ function moduleCard(m,i){ const done=m.lessons.filter(l=>completed(l.id)).length
 
 function statsView(){
   const stats=computeAnalytics(state.progress,curriculum)
-  const reviews=reviewQuestions().length
+  const due=reviewQuestions()
+  const reviews=due.length
   const maxDay=Math.max(1,...stats.days.map(day=>day.attempts))
   const mastered=stats.mastered
   const empty=stats.attempts===0
@@ -167,7 +173,7 @@ function statsView(){
     ${empty?'<p class="stats-notice">L’historique commence aujourd’hui. Réponds à quelques exercices pour voir apparaître ton taux de réussite et tes erreurs fréquentes.</p>':''}
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Régularité</span><h2>Activité sur 7 jours</h2></div><strong>${stats.attempts} au total</strong></div><div class="activity-chart">${stats.days.map(day=>`<div class="activity-day"><span class="activity-value">${day.attempts||''}</span><i style="height:${Math.max(day.attempts?12:3,Math.round(day.attempts/maxDay*100))}%"></i><small>${day.label}</small></div>`).join('')}</div></section>
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Compétences</span><h2>Maîtrise par thème</h2></div></div><div class="topic-list">${stats.modules.map(module=>`<article class="topic-row"><div><strong>${module.title}</strong><span>${module.mastered}/${module.total} maîtrisés${module.attempts?` · ${module.accuracy}% de réussite`:''}</span></div><div class="topic-bar"><i style="width:${module.mastery}%"></i></div><b>${module.mastery}%</b></article>`).join('')}</div></section>
-    ${practisedTopics.length?`<section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Types d’erreurs</span><h2>Sur quoi tu butes</h2></div></div><p class="panel-lead">Chaque exercice teste une étape de la méthode. Cible directement celle qui te résiste.</p><div class="topic-kinds">${practisedTopics.map(topic=>`<article class="topic-kind ${topic.errors&&topic.accuracy<70?'weak':''}"><div><strong>${topic.label}</strong><span>${topic.errors?`${topic.errors} erreur${topic.errors>1?'s':''} sur ${topic.attempts} tentative${topic.attempts>1?'s':''}`:`${topic.attempts} tentative${topic.attempts>1?'s':''}, aucune erreur`}</span></div><div class="topic-bar"><i style="width:${topic.accuracy}%"></i></div><b>${topic.accuracy}%</b>${topicReviewCount(topic.id)?`<button class="topic-review" data-topic="${topic.id}">Réviser ${topicReviewCount(topic.id)}</button>`:'<span class="topic-clear">à jour</span>'}</article>`).join('')}</div></section>`:''}
+    ${practisedTopics.length?`<section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Types d’erreurs</span><h2>Sur quoi tu butes</h2></div></div><p class="panel-lead">Chaque exercice teste une étape de la méthode. Cible directement celle qui te résiste.</p><div class="topic-kinds">${practisedTopics.map(topic=>`<article class="topic-kind ${topic.errors&&topic.accuracy<70?'weak':''}"><div><strong>${topic.label}</strong><span>${topic.errors?`${topic.errors} erreur${topic.errors>1?'s':''} sur ${topic.attempts} tentative${topic.attempts>1?'s':''}`:`${topic.attempts} tentative${topic.attempts>1?'s':''}, aucune erreur`}</span></div><div class="topic-bar"><i style="width:${topic.accuracy}%"></i></div><b>${topic.accuracy}%</b>${topicReviewCount(due,topic.id)?`<button class="topic-review" data-topic="${topic.id}">Réviser ${topicReviewCount(due,topic.id)}</button>`:'<span class="topic-clear">à jour</span>'}</article>`).join('')}</div></section>`:''}
     ${badgeWall()}
     <section class="stats-panel"><div class="stats-panel-head"><div><span class="eyebrow">Révision ciblée</span><h2>Erreurs fréquentes</h2></div>${reviews?'<button class="review-button" data-action="review">Réviser maintenant</button>':''}</div>${stats.trouble.length?`<div class="trouble-list">${stats.trouble.map(item=>`<article><span>${item.moduleTitle}${item.topic?` · ${topicLabel(item.topic)}`:''}</span><strong>${escapeHtml(item.prompt)}</strong><small>${item.errors} erreur${item.errors>1?'s':''} sur ${item.attempts} tentative${item.attempts>1?'s':''}</small></article>`).join('')}</div>`:'<p class="empty-note">Aucune erreur enregistrée pour le moment.</p>'}</section>
   </main></div>`
@@ -246,7 +252,7 @@ function diagnosticView(){
   return `<div class="shell">${header(true)}<main class="lesson-shell">
     <div class="quiz-head"><span class="counter">Sonde ${index+1}${index?` · ${state.probe.answers.filter(Boolean).length} juste${state.probe.answers.filter(Boolean).length>1?'s':''} sur ${index}`:''}</span><h1>${question.prompt}</h1><p class="probe-module">${escapeHtml(probe.moduleTitle)}</p></div>
     <div class="question-wrap"><div class="question-ar ar">${question.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(question.arabic)}" aria-label="Écouter la phrase">◖))</button></div>
-    <div class="choices" role="radiogroup" aria-label="Propositions">${question.choices.map(choice=>`<button class="choice ${state.probe.selected===choice[1]?'selected':''}" data-probe-choice="${choice[1]}" role="radio" aria-checked="${state.probe.selected===choice[1]}">${choice[0]}</button>`).join('')}</div>
+    ${choiceGroup(question.choices,state.probe.selected,{ attribute:'probe-choice' })}
     <div class="quiz-actions"><button class="primary" data-action="probe-next" ${state.probe.selected===null?'disabled':''}>${index===diagnostic.length-1?'Terminer':'Valider'}</button><button class="ghost-link" data-action="probe-skip">Je ne sais pas</button></div>
     <p class="probe-note">Ces réponses ne comptent ni dans ton bilan ni dans tes révisions. Elles servent seulement à te situer.</p>
   </main></div>`
@@ -282,7 +288,7 @@ function searchResultCard(result){
   return `<button class="result" ${target}="${escapeHtml(value)}"><span class="result-kind">${SEARCH_KINDS[result.kind]}</span><strong>${escapeHtml(result.title)}</strong><span class="result-where">${escapeHtml(result.subtitle)}</span><span class="result-snippet">${escapeHtml(result.snippet)}</span></button>`
 }
 function searchResults(query){
-  if(normalizeArabic(query).length<2&&query.trim().length<2)return '<p class="empty-note">Tape au moins deux caractères. Le français, la translittération et l’arabe fonctionnent tous les trois.</p>'
+  if(normalizeText(query).length<2&&query.trim().length<2)return '<p class="empty-note">Tape au moins deux caractères. Le français, la translittération et l’arabe fonctionnent tous les trois.</p>'
   const results=searchContent(query,getSearchIndex())
   if(!results.length)return `<p class="empty-note">Rien ne correspond à « ${escapeHtml(query)} ».</p>`
   return `<p class="result-count">${results.length} résultat${results.length>1?'s':''}</p><div class="result-list">${results.map(searchResultCard).join('')}</div>`
@@ -313,11 +319,11 @@ const glossary = buildGlossary(curriculum)
 function matchesGlossaryQuery(entry,query){
   if(!query)return true
   const plain=query.toLowerCase()
-  const arabic=normalizeArabic(query)
+  const arabic=normalizeText(query)
   return entry.fr.toLowerCase().includes(plain)
     || entry.tr.toLowerCase().includes(plain)
     || entry.def.toLowerCase().includes(plain)
-    || (Boolean(arabic)&&normalizeArabic(entry.ar).includes(arabic))
+    || (Boolean(arabic)&&normalizeText(entry.ar).includes(arabic))
 }
 function glossaryEntryCard(entry){
   return `<article class="term"><div class="term-head"><span class="term-ar ar">${entry.ar}</span><button class="speak speak--term" data-speak="${encodeURIComponent(entry.ar)}" aria-label="Écouter le terme">◖))</button></div><strong>${escapeHtml(entry.fr)}</strong><span class="term-tr">${escapeHtml(entry.tr)}</span><p>${escapeHtml(entry.def)}</p>${entry.lessons.length?`<div class="term-lessons">${entry.lessons.slice(0,4).map(lesson=>`<button data-lesson="${lesson.id}">${escapeHtml(lesson.title)}</button>`).join('')}</div>`:'<span class="term-orphan">Terme de référence, pas encore travaillé dans une leçon.</span>'}</article>`
@@ -343,12 +349,23 @@ function bindGlossaryResults(){
   results.querySelectorAll('[data-speak]').forEach(button=>button.onclick=()=>speakArabic(decodeURIComponent(button.dataset.speak)))
 }
 
-function topicReviewCount(topicId){ return reviewQuestions().filter(question=>topicOf(question.id)===topicId).length }
+function topicReviewCount(due,topicId){ return due.filter(question=>topicOf(question.id)===topicId).length }
 function competenceCard(module){ const questions=module.lessons.flatMap(lesson=>lesson.questions); const mastered=questions.filter(question=>isMastered(state.progress,question.id)).length; const pct=Math.round(mastered/questions.length*100); return `<article class="competence"><div><strong>${module.title}</strong><span>${mastered}/${questions.length}</span></div><div class="skill-bar" role="progressbar" aria-label="${module.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></article>` }
+
+// Un seul rendu pour les propositions : les exercices et les sondes du
+// positionnement affichaient le m\u00eame groupe de boutons radio en double, avec le
+// risque qu'une correction d'accessibilit\u00e9 n'en touche qu'un des deux.
+function choiceGroup(choices,selected,{ attribute='choice', disabled=false, extraClass='' }={}){
+  return `<div class="${`choices ${extraClass}`.trim().replace(/\s+/g,' ')}" role="radiogroup" aria-label="Propositions">${choices.map(choice=>`<button class="${`choice ${selected===choice[1]?'selected':''}`.trim()}" data-${attribute}="${choice[1]}" role="radio" aria-checked="${selected===choice[1]}" ${disabled?'disabled':''}>${choice[0]}</button>`).join('')}</div>`
+}
 
 function answerIsCorrect(question){ return question.type==='builder' ? state.built.map(index=>question.tokens[index]).join(' ')===question.answer : state.selected===question.answer }
 function exerciseReady(question){ return question.type==='builder' ? state.built.length===question.tokens.length : state.selected!==null }
-function choiceExercise(question){ const wordMode=question.choices.every(choice=>!/\p{L}/u.test(choice[0].replace(/[\u0600-\u06ff]/g,''))); const endingMode=/terminaison|marque|forme convient/i.test(question.prompt); return `<div class="choices ${wordMode?'choices--words':''} ${endingMode?'choices--endings':''}" role="radiogroup" aria-label="Propositions">${question.choices.map(choice=>`<button class="choice ${state.selected===choice[1]?'selected':''}" data-choice="${choice[1]}" role="radio" aria-checked="${state.selected===choice[1]}" ${state.checked?'disabled':''}>${choice[0]}</button>`).join('')}</div>` }
+function choiceExercise(question){
+  const wordMode=question.choices.every(choice=>!/\p{L}/u.test(choice[0].replace(/[\u0600-\u06ff]/g,'')))
+  const endingMode=/terminaison|marque|forme convient/i.test(question.prompt)
+  return choiceGroup(question.choices,state.selected,{ disabled:state.checked, extraClass:`${wordMode?'choices--words':''} ${endingMode?'choices--endings':''}` })
+}
 function builderExercise(question){ const remaining=question.order.filter(index=>!state.built.includes(index)); return `<section class="builder"><span class="builder-label">Ton analyse</span><div class="builder-answer ar">${state.built.length?state.built.map((index,position)=>`<button data-remove="${position}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join(' '):'<span>Choisis les blocs ci-dessous…</span>'}</div><span class="builder-label">Blocs disponibles</span><div class="builder-pool ar">${remaining.map(index=>`<button data-token="${index}" ${state.checked?'disabled':''}>${question.tokens[index]}</button>`).join('')}</div></section>` }
 function exerciseBody(question){ return question.type==='builder' ? builderExercise(question) : choiceExercise(question) }
 
@@ -496,7 +513,7 @@ function next(){
 }
 
 async function installApp(){ if(!installPrompt)return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt=null; render() }
-function exportProgress(){ const payload=createBackup(state.progress); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=`irab-progression-${dateKey()}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000) }
+function exportProgress(){ const payload=createBackup(state.progress); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=`irab-progression-${localDayKey()}.json`; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000) }
 async function importProgress(event){ const file=event.target.files?.[0]; if(!file)return; try{ const progress=parseBackup(await file.text()); localStorage.setItem(STORAGE_KEY,JSON.stringify(progress)); location.reload() }catch{ alert('Cette sauvegarde Iʿrāb est invalide ou endommagée.') } }
 
 // Toute erreur cloud passe par ici : message traduit, et nouvelle tentative
