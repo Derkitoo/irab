@@ -23,3 +23,16 @@ export function shiftLocalDays(value, days) {
 export function localWeekdayLabel(value) {
   return new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(value).replace('.', '')
 }
+
+// Le jour de l'objectif quotidien peut basculer plus tard que minuit : qui
+// révise à une heure du matin travaille encore sa journée de la veille.
+// Reculer l'instant de `resetHour` heures fait tomber la tentative dans le
+// bon jour d'objectif.
+export function goalDayKey(value = new Date(), resetHour = 0) {
+  const hour = Number(resetHour)
+  const safeHour = Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : 0
+  const date = value instanceof Date ? new Date(value) : new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  date.setHours(date.getHours() - safeHour)
+  return localDayKey(date)
+}

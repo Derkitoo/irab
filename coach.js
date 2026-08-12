@@ -1,17 +1,19 @@
-import { localDayKey } from './day.js'
+import { goalDayKey } from './day.js'
 import { isMastered } from './mastery.js'
 
 export function createCoach(progress = {}, curriculum = [], reviewIds = [], now = new Date()) {
   const activity = Array.isArray(progress.activity) ? progress.activity : []
-  const today = localDayKey(now)
-  const attemptsToday = activity.filter(event => localDayKey(event?.at) === today).length
+  const resetHour = Number(progress.preferences?.resetHour)
+  const hour = Number.isInteger(resetHour) && resetHour >= 0 && resetHour <= 23 ? resetHour : 0
+  const today = goalDayKey(now, hour)
+  const attemptsToday = activity.filter(event => goalDayKey(event?.at, hour) === today).length
   const configuredGoal = Number(progress.preferences?.dailyGoal)
   const goal = [5, 10, 15].includes(configuredGoal) ? configuredGoal : 5
   const completedLessons = new Set(Array.isArray(progress.lessons) ? progress.lessons : [])
 
   if (reviewIds.length) {
     return {
-      daily: { attempts: attemptsToday, goal, remaining: Math.max(0, goal - attemptsToday), percent: Math.min(100, Math.round(attemptsToday / goal * 100)) },
+      daily: { attempts: attemptsToday, goal, resetHour: hour, remaining: Math.max(0, goal - attemptsToday), percent: Math.min(100, Math.round(attemptsToday / goal * 100)) },
       recommendation: { type: 'review', title: 'Révision ciblée', reason: `${reviewIds.length} exercice${reviewIds.length > 1 ? 's' : ''} à consolider avant de poursuivre.` },
     }
   }
@@ -35,7 +37,7 @@ export function createCoach(progress = {}, curriculum = [], reviewIds = [], now 
     : { type: 'complete', title: 'Parcours terminé', reason: 'Continue avec les révisions espacées pour consolider tes acquis.' }
 
   return {
-    daily: { attempts: attemptsToday, goal, remaining: Math.max(0, goal - attemptsToday), percent: Math.min(100, Math.round(attemptsToday / goal * 100)) },
+    daily: { attempts: attemptsToday, goal, resetHour: hour, remaining: Math.max(0, goal - attemptsToday), percent: Math.min(100, Math.round(attemptsToday / goal * 100)) },
     recommendation,
   }
 }

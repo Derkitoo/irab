@@ -46,4 +46,20 @@ const masteryCoach = createCoach(
 )
 assert.equal(masteryCoach.recommendation.lessonId, 'l1')
 
+// Heure personnelle de remise à zéro : à 1 h du matin avec une bascule à 4 h,
+// on travaille encore la journée de la veille.
+const nightNow = new Date(2026, 7, 13, 1, 0, 0)
+const nightActivity = [
+  { id: 'n1', at: new Date(2026, 7, 12, 22, 0, 0).toISOString() },
+  { id: 'n2', at: new Date(2026, 7, 13, 0, 30, 0).toISOString() },
+]
+assert.equal(createCoach({ activity: nightActivity }, curriculum, [], nightNow).daily.attempts, 1)
+const shifted = createCoach({ activity: nightActivity, preferences: { resetHour: 4 } }, curriculum, [], nightNow)
+assert.equal(shifted.daily.attempts, 2, 'les deux tentatives appartiennent au même jour d’objectif')
+assert.equal(shifted.daily.resetHour, 4)
+
+// Une heure invalide retombe sur minuit.
+assert.equal(createCoach({ preferences: { resetHour: 30 } }, curriculum, [], nightNow).daily.resetHour, 0)
+assert.equal(createCoach({ preferences: { resetHour: 'tard' } }, curriculum, [], nightNow).daily.resetHour, 0)
+
 console.log('Coach tests passed')
