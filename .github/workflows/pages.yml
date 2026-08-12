@@ -26,6 +26,7 @@ jobs:
           node --check content-core.js
           node --check content-advanced.js
           node --check content-helpers.js
+          node --check explanations.js
           node --check glossary.js
           node --check glossary-index.js
           node --check srs.js
@@ -55,6 +56,7 @@ jobs:
           node day.test.mjs
           node curriculum.test.mjs
           node glossary.test.mjs
+          node explanations.test.mjs
 
       - name: Check required static files
         run: |
@@ -67,6 +69,7 @@ jobs:
           test -f content-core.js
           test -f content-advanced.js
           test -f content-helpers.js
+          test -f explanations.js
           test -f glossary.js
           test -f glossary-index.js
           test -f srs.js

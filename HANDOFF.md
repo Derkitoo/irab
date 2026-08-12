@@ -1,7 +1,7 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 11 août 2026
-- Dernier jalon livré : sprint 4 — accessibilité et confort d’usage
+- Dernier jalon livré : sprint 5 — quand l’apprenant bloque
 - Commit de référence : `a2e1edd` (coach), puis les correctifs de fusion du sprint 1
 
 ## 1. Liens utiles
@@ -42,7 +42,8 @@ L’application est indépendante d’Arabiya. Elle fonctionne en français et e
 - annonces pour lecteur d’écran et arabe balisé `lang="ar"` ;
 - contrastes conformes AA sur tout le texte ;
 - `prefers-reduced-motion` respecté ;
-- heure personnelle de remise à zéro de l’objectif quotidien.
+- heure personnelle de remise à zéro de l’objectif quotidien ;
+- seconde explication et exemple supplémentaire au deuxième échec sur un même exercice.
 
 Le déploiement public et les tests automatiques sont verts au moment de cette passation.
 
@@ -58,6 +59,7 @@ Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sa
 | `content-core.js` | Modules 1 à 4 |
 | `content-advanced.js` | Modules 5 à 12 |
 | `content-helpers.js` | Constructeurs de leçon et d’exercice |
+| `explanations.js` | Seconde explication de chaque exercice |
 | `glossary.js` | Termes du glossaire |
 | `glossary-index.js` | Rattachement d’un terme aux leçons |
 | `srs.js` | Planification de la répétition espacée |
@@ -166,6 +168,7 @@ node --check curriculum.js
 node --check content-core.js
 node --check content-advanced.js
 node --check content-helpers.js
+node --check explanations.js
 node --check glossary.js
 node --check glossary-index.js
 node srs.test.mjs
@@ -180,6 +183,7 @@ node question-topics.test.mjs
 node session.test.mjs
 node curriculum.test.mjs
 node glossary.test.mjs
+node explanations.test.mjs
 git diff --check
 ```
 
@@ -213,6 +217,8 @@ git push origin main:gh-pages
 - Le contenu ne vit plus dans `app.js`. Une leçon s'ajoute dans `content-core.js` ou `content-advanced.js`, et `curriculum.js` s'occupe des passes de consolidation et des constructions par blocs.
 - Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
 - Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
+- La seconde explication n'apparaît qu'au deuxième échec sur un même exercice : au premier, l'apprenant n'a pas encore eu l'occasion de relire la première.
+- Tout le contenu rédigé après la relecture assistée est réuni dans `explanations.js`, pour qu'un enseignant sache où regarder en priorité.
 - Le champ `analysis` d'une leçon s'affiche dans un panneau droite-à-gauche : il doit être en arabe, et un test le vérifie.
 - Les anciennes sauvegardes sans `activity` ou `preferences` restent compatibles.
 - Le contenu utilisateur ou distant inséré dans le HTML doit passer par `escapeHtml`.
@@ -226,6 +232,7 @@ git push origin main:gh-pages
 - Le journal est limité à 1 000 tentatives et ne constitue pas une conservation analytique illimitée.
 - Le découpage des exercices en cinq catégories est un choix pédagogique, à confirmer lors de la relecture du corpus par un enseignant.
 - Le corpus a reçu une relecture assistée, pas une validation d'arabophone qualifié : sept corrections nettes ont été appliquées, mais l'exactitude d'ensemble n'est pas garantie.
+- Les 54 secondes explications et leurs exemples n'ont pas été relus par un enseignant. C'est la plus grande surface de contenu non validée du projet.
 - Le glossaire emploie la terminologie classique ; ses 59 définitions n'ont pas été relues par un enseignant.
 - La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur réel.
 - L'accessibilité a été vérifiée au clavier et par contrôle programmatique des contrastes et des noms accessibles, mais pas avec un vrai lecteur d'écran ni par une personne concernée.
@@ -244,16 +251,15 @@ git push origin main:gh-pages
 
 1. Déployer `delete_own_account` sur le projet Supabase existant, puis vérifier la suppression avec un compte de test.
 2. Compléter la couverture par un test dans un vrai navigateur, contre un projet Supabase de test : inscription, confirmation e-mail et synchronisation entre deux sessions réelles.
-3. Faire relire par un enseignant d’arabe : les 25 leçons, les analyses, les 54 exercices écrits, les 59 définitions du glossaire et le classement des exercices en cinq catégories.
+3. Faire relire par un enseignant d’arabe : les 25 leçons, les analyses, les 54 exercices écrits, les 54 secondes explications et leurs exemples, les 59 définitions du glossaire et le classement des exercices en cinq catégories.
 4. Faire relire la page Confidentialité par un regard juridique avant toute diffusion large.
 
 Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentative, page Confidentialité et suppression des données, versionnage du format de progression, test complet de la couche de synchronisation.
 
 ### P1 — Expérience pédagogique
 
-1. Ajouter des explications alternatives et davantage d’exemples pour chaque erreur récurrente.
-2. Ajouter des badges sobres pour les étapes réellement utiles : première analyse complète, semaine régulière, module maîtrisé.
-3. Faire tester l’application avec un vrai lecteur d’écran, idéalement par une personne qui en utilise un.
+1. Ajouter des badges sobres pour les étapes réellement utiles : première analyse complète, semaine régulière, module maîtrisé.
+2. Faire tester l’application avec un vrai lecteur d’écran, idéalement par une personne qui en utilise un.
 
 ### P2 — Contenu et produit
 
@@ -280,6 +286,12 @@ Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentat
 - catégories d’erreurs et révision ciblée par catégorie ;
 - reprise à la question interrompue ;
 - fuseau local pour les jours, les séries et l’objectif.
+
+### Sprint 5 — Quand l’apprenant bloque (livré)
+
+- seconde explication pour chacun des 54 exercices écrits ;
+- exemple supplémentaire analysé pour les points les plus glissants ;
+- déclenchement au deuxième échec, pas avant.
 
 ### Sprint 4 — Accessibilité et confort d’usage (livré)
 

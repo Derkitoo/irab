@@ -6,6 +6,7 @@ import { createCoach } from './coach.js'
 import { countMastered, isMastered } from './mastery.js'
 import { topicLabel, topicOf } from './question-topics.js'
 import { buildQuickSession } from './session.js'
+import { secondExplanation } from './explanations.js'
 import { GLOSSARY_GROUPS, buildGlossary } from './glossary.js'
 import { normalizeArabic } from './glossary-index.js'
 import { migrateProgress } from './progress-schema.js'
@@ -233,7 +234,7 @@ function exerciseBody(question){ return question.type==='builder' ? builderExerc
 
 function lessonView(){ const l=state.lesson; if(state.stage==='learn') return `<div class="shell">${header(true)}<main class="lesson-shell"><header class="lesson-title"><span class="eyebrow">Règle essentielle</span><h1>${l.title}</h1><p class="ar">${l.ar}</p></header><p class="lead">${l.summary}</p><div class="lesson-grid"><section class="panel"><span class="panel-label">La règle</span><p>${l.rule}</p></section><section class="panel example"><span class="panel-label">Exemple</span><button class="speak" data-speak="${encodeURIComponent(l.example)}" aria-label="Écouter l’exemple">◖))</button><p class="example-ar ar">${l.example}</p><p>${l.translation}</p></section><section class="panel analysis"><span class="panel-label">Analyse</span><p class="ar">${l.analysis}</p></section></div><div class="method"><span>1 · Nature</span><span>2 · Fonction</span><span>3 · État</span><span>4 · Marque</span></div><div class="lesson-actions"><button class="primary" data-action="practice">Passer aux exercices</button><button class="ghost-link" data-action="glossary">Un terme t’échappe ? Ouvre le glossaire</button></div></main></div>`
   const x=l.questions[state.qi]; const correct=answerIsCorrect(x)
-  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}" tabindex="-1" role="group" aria-label="Correction"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(l.id==='quick'?'Terminer la session':state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
+  return `<div class="shell">${header(true)}<main class="lesson-shell"><div class="quiz-head"><span class="counter">Question ${state.qi+1} sur ${l.questions.length}</span><h1>${x.prompt}</h1></div><div class="question-wrap"><div class="question-ar ar">${x.arabic}</div><button class="speak speak--question" data-speak="${encodeURIComponent(x.arabic)}" aria-label="Écouter la phrase">◖))</button></div>${exerciseBody(x)}${state.checked?`<div class="feedback ${correct?'ok':'bad'}" tabindex="-1" role="group" aria-label="Correction"><strong>${correct?'✓ Bien analysé':'Pas encore'}</strong><p>${x.explanation}</p>${x.analysis?`<p class="ar">${x.analysis}</p>`:''}${secondPassBlock(x,correct)}<button class="primary" data-action="next">${state.qi===l.questions.length-1?(l.id==='quick'?'Terminer la session':state.review?'Terminer la révision':'Terminer la leçon'):'Question suivante'}</button></div>`:`<div class="quiz-actions"><button class="primary" data-action="check" ${exerciseReady(x)?'':'disabled'}>Vérifier</button></div>`}</main></div>`
 }
 
 function bind(){
@@ -287,7 +288,7 @@ function checkAnswer(){
   render()
   const feedback=app.querySelector('.feedback')
   if(feedback)feedback.focus({ preventScroll:true })
-  announce(correct?'Bonne réponse.':'Réponse incorrecte.')
+  announce(correct?'Bonne réponse.':repeatedFailure(question.id)&&secondExplanation(question.id)?'Réponse incorrecte. Une autre explication est proposée.':'Réponse incorrecte.')
 }
 
 // Un groupe de boutons radio se parcourt aux flèches, pas à la tabulation.
@@ -303,6 +304,19 @@ function bindChoiceKeys(){
     const next=choices[(current+step+choices.length)%choices.length] ?? choices[0]
     next?.focus()
   }
+}
+
+// Un apprenant qui rate deux fois le même exercice a besoin d'un autre angle,
+// pas de la même phrase répétée. Le bloc n'apparaît donc qu'au deuxième échec.
+function repeatedFailure(questionId){ return (state.progress.wrongs[questionId] ?? 0) >= 2 }
+function secondPassBlock(question,correct){
+  if(correct||!repeatedFailure(question.id))return ''
+  const entry=secondExplanation(question.id)
+  if(!entry)return ''
+  const example=entry.example
+    ? `<div class="second-example"><span class="second-label">Un autre exemple</span><p class="second-ar ar">${entry.example.ar}</p><p class="second-fr">${escapeHtml(entry.example.fr)}</p><p class="second-ar ar">${entry.example.analysis}</p></div>`
+    : ''
+  return `<div class="second-pass"><span class="second-label">Reprenons autrement</span><p>${escapeHtml(entry.again)}</p>${example}</div>`
 }
 
 function openLesson(id,index=0){ const lesson=allLessons.find(l=>l.id===id); if(!lesson)return; state={...state,view:'lesson',lesson,stage:index>0?'practice':'learn',qi:Math.min(index,lesson.questions.length-1),selected:null,built:[],checked:false,review:false}; render(); scrollTo(0,0) }

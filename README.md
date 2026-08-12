@@ -36,6 +36,7 @@ La passation complète, les décisions techniques et la roadmap restante sont di
 - contenu des leçons séparé du moteur d’interface
 - navigation clavier, annonces pour lecteur d’écran et contrastes AA
 - heure personnelle de remise à zéro de l’objectif quotidien
+- seconde explication et exemple supplémentaire quand la même erreur revient
 
 ## Activer les comptes Supabase
 

@@ -1,4 +1,4 @@
-const CACHE = 'irab-fr-v9'
+const CACHE = 'irab-fr-v10'
 const SHELL = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const SHELL = [
   './content-core.js',
   './content-advanced.js',
   './content-helpers.js',
+  './explanations.js',
   './glossary.js',
   './glossary-index.js',
   './srs.js',

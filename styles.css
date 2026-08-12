@@ -314,3 +314,10 @@ h1 { margin-bottom: 18px; font-size: clamp(38px, 6vw, 70px); line-height: .98; l
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .primary:hover, .resume-line:hover { transform: none; }
 }
+
+.second-pass { margin-top: 18px; padding: 18px; border-left: 4px solid var(--gold); border-radius: 0 14px 14px 0; background: rgba(255,255,255,.72); }
+.second-label { display: block; margin-bottom: 8px; color: var(--gold-text); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.second-pass > p { margin: 0; color: var(--ink); line-height: 1.6; }
+.second-example { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
+.second-ar { margin: 0; font-size: 21px; line-height: 1.85; }
+.second-fr { margin: 4px 0 8px; color: var(--muted); font-size: 14px; }
