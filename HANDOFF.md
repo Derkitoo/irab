@@ -1,102 +1,96 @@
 # Passation — Iʿrāb FR
 
 - Dernière mise à jour : 12 août 2026
-- Dernier jalon livré : consolidation du code après neuf sprints
-- Sprints 1 à 9 livrés et publiés ; `git log` donne le détail commit par commit
+- État : application publiée et fonctionnelle, neuf sprints livrés puis consolidation
+- Ce qui bloque la suite n’est plus du code : c’est la relecture du corpus par un enseignant d’arabe
 
-## 1. Liens utiles
+Ce document décrit l’état du projet, pas son histoire. Le détail des changements est dans `git log`, dont les messages expliquent chaque décision.
 
-- Application publique : https://derkitoo.github.io/irab/
-- Dépôt : https://github.com/Derkitoo/irab
-- Branche de développement : `main`
-- Branche publiée par GitHub Pages : `gh-pages`
-- Projet Supabase : `pxywcrnvhejdmmlqpipq`
-- Workflow de validation : `.github/workflows/pages.yml`
-- Dossier de relecture pour un enseignant : https://derkitoo.github.io/irab/revue.html
+## 1. Liens
 
-## 2. État livré
+| | |
+| --- | --- |
+| Application | https://derkitoo.github.io/irab/ |
+| Dossier de relecture | https://derkitoo.github.io/irab/revue.html |
+| Dépôt | https://github.com/Derkitoo/irab |
+| Branches | `main` pour le développement, `gh-pages` pour la publication |
+| Projet Supabase | `pxywcrnvhejdmmlqpipq` |
+| Validation | `.github/workflows/pages.yml` |
 
-L’application est indépendante d’Arabiya. Elle fonctionne en français et en arabe, sur ordinateur et mobile.
+## 2. Ce que fait l’application
 
-- 12 modules, 25 leçons et 133 exercices ;
-- QCM, choix de mots, terminaisons et construction du iʿrāb par blocs ;
-- corrections expliquées et lecture audio arabe par synthèse vocale ;
-- progression locale, révision ciblée et répétition espacée ;
-- PWA installable et fonctionnement hors ligne ;
-- export et restauration d’une sauvegarde JSON ;
-- inscription, connexion et synchronisation Supabase ;
-- fusion sans doublons de la progression entre appareils ;
-- bilan pédagogique : maîtrise, réussite, activité sur sept jours, série et erreurs fréquentes ;
-- coach personnalisé : objectif quotidien 5/10/15, priorité aux révisions, détection des thèmes faibles et recommandation de la prochaine leçon ;
-- page Confidentialité, effacement des données locales et suppression définitive du compte ;
-- messages d’erreur réseau explicites, avec bouton de nouvelle tentative et reprise automatique au retour du réseau ;
-- format de progression versionné, migré automatiquement et protégé contre l’écrasement par une version plus ancienne ;
-- session rapide de dix exercices composée par le coach ;
-- catégories d’erreurs — nature, fonction, état, marque, analyse — avec révision ciblée par catégorie ;
-- reprise d’une leçon à la question interrompue, synchronisée entre appareils ;
-- jours, séries et objectif quotidien calculés dans le fuseau de l’appareil ;
-- maîtrise révocable : un exercice raté ne compte plus comme maîtrisé ;
-- contenu séparé du moteur : `app.js` ne connaît plus la forme d’une leçon ;
-- corpus testé automatiquement : identifiants, réponses, arabe présent, blocs mélangés ;
-- glossaire de 59 termes, cherchable en français, en translittération et en arabe, relié aux leçons ;
-- navigation clavier complète : focus conservé à chaque rendu, flèches dans les propositions, Échap pour revenir, lien d’évitement ;
-- annonces pour lecteur d’écran et arabe balisé `lang="ar"` ;
-- contrastes conformes AA sur tout le texte ;
-- `prefers-reduced-motion` respecté ;
-- heure personnelle de remise à zéro de l’objectif quotidien ;
-- seconde explication et exemple supplémentaire au deuxième échec sur un même exercice ;
-- recherche unique sur les leçons, les exercices et le glossaire, en français, en translittération et en arabe ;
-- test de positionnement initial qui désigne le point de départ et oriente le coach ;
-- six jalons calculés à partir de la progression, jamais enregistrés ;
-- dossier de relecture généré depuis les sources, à remettre à un enseignant d’arabe.
+Un parcours de grammaire arabe pour francophones : 12 modules, 25 leçons, 133 exercices, en français et en arabe, sur ordinateur et mobile. Indépendante d’Arabiya.
 
-Le déploiement public et les tests automatiques sont verts au moment de cette passation.
+**Apprendre.** QCM, choix de mots, terminaisons et construction du iʿrāb par blocs. Chaque correction explique la réponse ; au deuxième échec sur un même exercice, une seconde explication prend un autre angle et ajoute souvent un exemple analysé. Lecture audio de l’arabe par la synthèse vocale du navigateur. Glossaire de 59 termes, relié aux leçons qui les emploient. Recherche sur tout le contenu, en français, en translittération ou en arabe.
+
+**Être guidé.** Test de positionnement facultatif au premier lancement, une sonde par module. Répétition espacée avec révision ciblée, y compris par type d’erreur : nature, fonction, état, marque, analyse complète. Coach avec objectif quotidien réglable, session rapide de dix exercices, reprise à la question quittée. Bilan : maîtrise, réussite, activité sur sept jours, série, erreurs fréquentes, types d’erreurs, et six jalons.
+
+**Garder sa progression.** Sauvegarde locale, PWA installable, fonctionnement hors ligne. Export et import JSON. Compte Supabase optionnel avec fusion sans doublon entre appareils. Page Confidentialité, effacement local et suppression définitive du compte.
+
+**Rester utilisable.** Navigation clavier complète avec conservation du focus, annonces pour lecteur d’écran, arabe balisé `lang="ar"`, contrastes AA, `prefers-reduced-motion` respecté.
+
+Le déploiement public et les 19 suites de tests sont verts au moment de cette passation.
 
 ## 3. Architecture
 
-Le projet est volontairement simple : HTML, CSS et modules JavaScript natifs, sans étape de compilation.
+HTML, CSS et modules JavaScript natifs. Aucune étape de compilation, aucune dépendance installée. La bibliothèque Supabase est le seul code tiers, chargé à la demande depuis un CDN et seulement si un compte est utilisé.
+
+**Contenu** — se modifie sans toucher au moteur.
 
 | Fichier | Responsabilité |
 | --- | --- |
-| `index.html` | Coquille HTML et chargement de l’application |
-| `app.js` | Vues, navigation et orchestration |
-| `curriculum.js` | Assemblage du programme et exercices dérivés |
 | `content-core.js` | Modules 1 à 4 |
 | `content-advanced.js` | Modules 5 à 12 |
 | `content-helpers.js` | Constructeurs de leçon et d’exercice |
+| `curriculum.js` | Assemble le programme et dérive consolidations et constructions |
 | `explanations.js` | Seconde explication de chaque exercice |
-| `search.js` | Index et recherche sur tout le contenu |
-| `diagnostic.js` | Sondes de positionnement et placement |
-| `badges.js` | Jalons du parcours, dérivés de l’historique |
-| `tools/build-review.mjs` | Génère `revue.html` depuis les sources |
-| `tools/review-flags.js` | Points signalés à l’enseignant |
-| `revue.html` | Dossier de relecture, fichier généré |
-| `glossary.js` | Termes du glossaire |
-| `glossary-index.js` | Rattachement d’un terme aux leçons |
-| `normalize.js` | Normalisation unique du texte français et arabe |
-| `srs.js` | Planification de la répétition espacée |
-| `analytics.js` | Calcul du bilan pédagogique |
-| `coach.js` | Objectif quotidien et moteur de recommandation |
-| `session.js` | Composition de la session rapide |
+| `glossary.js` | Les 59 termes |
 | `question-topics.js` | Catégorie de compétence de chaque exercice |
-| `mastery.js` | Définition unique de « maîtrisé » |
-| `day.js` | Jour local, décalage, libellés et journée d’objectif |
-| `progress-schema.js` | Version du format de progression et migrations |
-| `sync.js` | Orchestration pull/merge/push, indépendante du DOM |
-| `cloud-errors.js` | Traduction des erreurs Supabase et réseau |
-| `merge.js` | Normalisation et fusion local/cloud |
-| `backup.js` | Export et import de progression |
-| `cloud.js` | Authentification et persistance Supabase |
-| `supabase-config.js` | URL et clé publique Supabase uniquement |
-| `sw.js` | Cache PWA et mise à jour hors ligne |
-| `styles.css` | Design responsive |
-| `supabase/schema.sql` | Table, règles RLS et fonction `delete_own_account` |
 
-La bibliothèque Supabase est chargée à la demande depuis un CDN. Ne jamais ajouter de clé `service_role` ou de clé secrète dans le dépôt.
+**Pédagogie** — logique pure, testable sous Node, sans DOM.
+
+| Fichier | Responsabilité |
+| --- | --- |
+| `srs.js` | Planification de la répétition espacée |
+| `mastery.js` | Définition unique de « maîtrisé » |
+| `analytics.js` | Calcul du bilan |
+| `coach.js` | Objectif quotidien et recommandation |
+| `session.js` | Composition de la session rapide |
+| `diagnostic.js` | Sondes de positionnement et placement |
+| `badges.js` | Jalons, dérivés de l’historique |
+| `day.js` | Jour local, décalage, journée d’objectif |
+
+**Données et synchronisation**
+
+| Fichier | Responsabilité |
+| --- | --- |
+| `progress-schema.js` | Version du format et migrations |
+| `merge.js` | Fusion local/cloud |
+| `sync.js` | Orchestration pull/merge/push, sans DOM |
+| `cloud.js` | Authentification et persistance Supabase |
+| `cloud-errors.js` | Traduction des erreurs Supabase et réseau |
+| `backup.js` | Export et import |
+| `supabase-config.js` | URL et clé publique uniquement |
+| `supabase/schema.sql` | Table, RLS et `delete_own_account` |
+
+**Interface et outils**
+
+| Fichier | Responsabilité |
+| --- | --- |
+| `index.html` | Coquille, lien d’évitement, zone d’annonce |
+| `app.js` | Vues, navigation, orchestration |
+| `styles.css` | Design responsive |
+| `sw.js` | Cache PWA |
+| `normalize.js` | Normalisation unique du texte français et arabe |
+| `glossary-index.js` | Rattache un terme aux leçons par son texte arabe |
+| `search.js` | Index et recherche |
+| `tools/build-review.mjs` | Génère `revue.html` |
+| `tools/review-flags.js` | Points signalés à l’enseignant |
+| `revue.html` | **Fichier généré**, ne jamais éditer à la main |
 
 ## 4. Données synchronisées
 
-Une ligne `learning_progress` existe par utilisateur. Le champ JSON `progress` contient actuellement :
+Une ligne `learning_progress` par utilisateur, protégée par RLS.
 
 ```json
 {
@@ -106,286 +100,184 @@ Une ligne `learning_progress` existe par utilisateur. Le champ JSON `progress` c
   "wrongs": {},
   "cards": {},
   "activity": [],
-  "preferences": {
-    "dailyGoal": 5,
-    "resetHour": 0,
-    "updatedAt": "2026-08-11T12:00:00.000Z"
-  },
+  "preferences": { "dailyGoal": 5, "resetHour": 0, "updatedAt": "2026-08-11T12:00:00.000Z" },
   "resume": null,
   "diagnostic": null
 }
 ```
 
-- `lessons` : identifiants des leçons terminées ;
-- `questions` : exercices déjà maîtrisés ;
-- `wrongs` : erreurs encore à revoir ;
-- `cards` : échéances de répétition espacée ;
-- `activity` : tentatives horodatées, limitées aux 1 000 plus récentes ;
-- `preferences` : objectif quotidien, heure de bascule de la journée et date de dernière modification ;
-- `resume` : leçon et question quittées en cours de route, ou `null` ;
-- `diagnostic` : trace du positionnement initial, ou `null` ;
-- `schemaVersion` : version du format, gérée par `progress-schema.js`.
-
-Les champs ajoutés dans le JSON ne nécessitent pas de migration SQL. `merge.js` doit néanmoins être mis à jour pour chaque nouvelle donnée synchronisée.
+| Champ | Contenu | Règle de fusion |
+| --- | --- | --- |
+| `lessons` | leçons terminées | union |
+| `questions` | exercices réussis **au moins une fois** — historique, pas maîtrise | union |
+| `wrongs` | erreurs encore à revoir | conservée tant que la carte fusionnée n’indique pas de réussite postérieure |
+| `cards` | échéances de répétition espacée, horodatées par `at` | la réponse la plus récente gagne |
+| `activity` | tentatives horodatées, 1 000 plus récentes | union par identifiant de tentative |
+| `preferences` | objectif quotidien, heure de bascule | le plus récent `updatedAt` gagne |
+| `resume` | leçon et question quittées | le plus récent `at` gagne |
+| `diagnostic` | trace du positionnement | le plus récent `at` gagne |
+| `schemaVersion` | version du format | la plus élevée des deux |
 
 ### Faire évoluer le format
 
-1. incrémenter `CURRENT_SCHEMA_VERSION` dans `progress-schema.js` ;
-2. ajouter la migration correspondante dans l’objet `migrations`, indexée par la version de départ ;
-3. compléter `merge.js` si la nouvelle donnée doit être fusionnée entre appareils ;
+Ajouter un champ optionnel ne demande ni migration SQL ni incrément de version : les champs inconnus sont conservés. Mais `mergeProgress` liste ses champs explicitement, donc un ancien client qui fusionne effacera un champ qu’il ne connaît pas — acceptable pour `resume`, pas pour une donnée précieuse.
+
+N’incrémenter `CURRENT_SCHEMA_VERSION` que lorsqu’une ancienne version interpréterait **mal** des données existantes. Dans ce cas :
+
+1. incrémenter la constante dans `progress-schema.js` ;
+2. ajouter la migration dans `migrations`, indexée par la version de départ ;
+3. compléter `merge.js` si la donnée doit voyager entre appareils ;
 4. couvrir l’ancien format dans `progress-schema.test.mjs`.
 
-Les champs inconnus sont conservés à l’identique et une progression distante portant une version supérieure n’est jamais fusionnée ni réécrite : la synchronisation rend l’état `blocked` et invite à actualiser l’application.
-
-Un champ optionnel ajouté sans incrémenter la version, comme `resume`, ne bloque pas les anciennes versions ; en revanche `mergeProgress` liste ses champs explicitement, donc un ancien client qui fusionne effacera ce champ. N’incrémenter la version que lorsqu’une ancienne version interpréterait mal des données existantes.
+Une progression distante portant une version supérieure n’est jamais fusionnée ni réécrite : la synchronisation rend l’état `blocked` et invite à actualiser l’application.
 
 ## 5. Supabase et sécurité
 
-La table est protégée par RLS : un utilisateur authentifié ne peut lire et modifier que sa propre ligne. Le rôle anonyme n’a aucun droit sur la table.
+RLS : un utilisateur authentifié ne lit et ne modifie que sa propre ligne. Le rôle anonyme n’a aucun droit.
 
-La fonction `delete_own_account` est `security definer` mais n’agit que sur `auth.uid()` : elle supprime la ligne de progression puis le compte lui-même. Elle n’est exécutable que par le rôle `authenticated`. C’est le seul moyen de supprimer un compte depuis le navigateur, aucune clé d’administration n’étant présente côté client. Si elle est absente du projet, l’application supprime la progression, déconnecte l’utilisateur et l’indique explicitement.
+`delete_own_account` est `security definer` mais n’agit que sur `auth.uid()` : elle supprime la ligne de progression puis le compte. Seul le rôle `authenticated` peut l’exécuter. C’est le seul chemin de suppression depuis le navigateur, aucune clé d’administration n’existant côté client. La fonction est déployée et la suppression a été vérifiée par le mainteneur le 12 août 2026. Si elle manquait sur un nouveau projet, l’application supprimerait la progression, déconnecterait l’utilisateur et le lui dirait.
 
-Configuration attendue dans Supabase Auth :
+Configuration Supabase Auth attendue — Site URL et Redirect URL : `https://derkitoo.github.io/irab/`.
 
-- Site URL : `https://derkitoo.github.io/irab/`
-- Redirect URL : `https://derkitoo.github.io/irab/`
+Sur un nouveau projet : exécuter `supabase/schema.sql`, puis renseigner **uniquement** l’URL et la clé publique dans `supabase-config.js`. Jamais de clé `service_role` ni de secret dans le dépôt.
 
-Le schéma a déjà été exécuté. En cas de nouveau projet Supabase, exécuter `supabase/schema.sql`, puis renseigner uniquement l’URL et la clé publique dans `supabase-config.js`.
-
-## 6. Développement et tests
-
-Lancer localement :
+## 6. Développer, valider, publier
 
 ```powershell
 python -m http.server 5200 --bind 127.0.0.1
 ```
 
-Puis ouvrir `http://127.0.0.1:5200/`.
+Puis `http://127.0.0.1:5200/`.
 
-Contrôles avant chaque publication :
+La liste exhaustive des contrôles est dans `.github/workflows/pages.yml`, et `project.test.mjs` échoue si un module ou une suite y manque : il n’y a donc plus de liste à tenir à jour ici. En local, avant de pousser :
 
 ```powershell
-node --check app.js
-node --check srs.js
-node --check analytics.js
-node --check coach.js
-node --check day.js
-node --check mastery.js
-node --check question-topics.js
-node --check session.js
-node --check progress-schema.js
-node --check cloud-errors.js
-node --check sync.js
-node --check merge.js
-node --check backup.js
-node --check cloud.js
-node --check sw.js
-node --check curriculum.js
-node --check content-core.js
-node --check content-advanced.js
-node --check content-helpers.js
-node --check explanations.js
-node --check search.js
-node --check diagnostic.js
-node --check badges.js
-node --check glossary.js
-node --check glossary-index.js
-node --check normalize.js
-node srs.test.mjs
-node analytics.test.mjs
-node coach.test.mjs
-node merge.test.mjs
-node backup.test.mjs
-node progress-schema.test.mjs
-node cloud-errors.test.mjs
-node sync.test.mjs
-node question-topics.test.mjs
-node session.test.mjs
-node curriculum.test.mjs
-node glossary.test.mjs
-node explanations.test.mjs
-node search.test.mjs
-node diagnostic.test.mjs
-node badges.test.mjs
-node review.test.mjs
-node project.test.mjs
+Get-ChildItem *.js -Exclude *.test.mjs | ForEach-Object { node --check $_.Name }
+Get-ChildItem *.test.mjs | ForEach-Object { node $_.Name }
 node tools/build-review.mjs --check
 git diff --check
 ```
 
-Après une modification d’un fichier mis en cache, augmenter la version `CACHE` dans `sw.js`. Sans cela, les appareils déjà installés peuvent conserver une ancienne version.
+Après toute modification d’un fichier mis en cache, **incrémenter `CACHE` dans `sw.js`** — actuellement `irab-fr-v14`. Sans cela, les appareils déjà installés gardent l’ancienne version.
 
-Publication actuelle : pousser `main`, puis publier le même commit sur `gh-pages`.
+Publier :
 
 ```powershell
 git push origin main
 git push origin main:gh-pages
 ```
 
-## 7. Décisions importantes
+Puis vérifier la version réellement servie, et non seulement le succès du push :
 
-- Le mode invité doit toujours rester utilisable si Supabase est indisponible.
+```powershell
+curl.exe -s "https://derkitoo.github.io/irab/sw.js" | Select-Object -First 1
+```
+
+## 7. Décisions à ne pas défaire
+
+Ces choix ont chacun corrigé un défaut réel. Les annuler le ramènerait.
+
+**Synchronisation**
+
+- Le mode invité reste utilisable si Supabase est indisponible.
 - Une première connexion peut recevoir une progression distante `null` ; ce cas est testé.
-- La fusion des activités repose sur un identifiant unique par tentative.
-- Chaque carte SRS porte un horodatage `at` : c'est la réponse la plus récente qui gagne la fusion, jamais celle qui a le plus de `reps`. Sans cela, un échec était effacé par une réussite plus ancienne.
-- Une erreur reste dans `wrongs` tant que la carte fusionnée n'indique pas une réussite postérieure (`reps > 0`).
-- La déconnexion efface la progression locale : elle appartient au compte quitté et se retrouverait sinon fusionnée dans le compte suivant.
-- Le choix d’objectif le plus récent gagne grâce à `preferences.updatedAt`.
+- Chaque carte porte un horodatage `at` : la réponse la plus récente gagne la fusion, jamais celle qui a le plus de `reps`. Sans cela un échec était effacé par une réussite plus ancienne.
+- Une erreur reste dans `wrongs` tant que la carte fusionnée n’indique pas une réussite postérieure.
+- La déconnexion efface la progression locale : elle appartient au compte quitté et se retrouvait sinon fusionnée dans le compte suivant.
+- `sync.js` n’a aucun accès au DOM : c’est ce qui rend l’échange testable sous Node.
+- Une erreur cloud n’est jamais affichée brute ; `describeCloudError` la traduit et décide si « Réessayer » a un sens.
+- Une suppression de compte retire d’abord la progression distante ; si la fonction serveur manque, l’utilisateur est déconnecté et prévenu plutôt que laissé dans le doute.
+
+**Pédagogie**
+
+- « Maîtrisé » se lit sur la carte (`reps > 0`), pas sur `questions` : la maîtrise est révocable dès qu’un exercice est raté. `questions` reste l’historique des réussites, et sert la fusion et les jalons.
 - Le coach recommande dans cet ordre : révision due, thème sous 70 % après au moins deux tentatives, prochaine leçon inachevée.
-- « Maîtrisé » se lit sur la carte de répétition espacée (`reps > 0`), pas sur `questions` : la maîtrise est révocable dès qu'un exercice est raté. `questions` reste l'historique des réussites et sert la fusion.
-- La session rapide se remplit dans cet ordre : révisions dues, thèmes fragiles, suite du parcours.
-- Les catégories d'exercices vivent dans `question-topics.js`, hors des fichiers de contenu ; un test échoue si un exercice est ajouté sans catégorie.
-- Les jours viennent de `day.js` et suivent le fuseau de l'appareil. Les échéances SRS étaient déjà locales.
-- L'application se redessine entièrement à chaque interaction : `render` retient donc l'élément focalisé et le retrouve après coup, sinon la navigation au clavier est impraticable. Tout nouvel élément interactif doit porter un attribut listé dans `FOCUS_KEYS`, ou un `id`.
-- La zone d'annonce vit dans `index.html`, hors de `#app` : placée à l'intérieur, elle serait effacée à chaque rendu et jamais lue.
-- Les couleurs de texte passent par `--gold-text` et `--muted`, calibrées pour AA. `--gold` reste réservé aux éléments graphiques.
-- Le doré clair `--gold-light` est le seul lisible sur les fonds verts.
-- Le contenu ne vit plus dans `app.js`. Une leçon s'ajoute dans `content-core.js` ou `content-advanced.js`, et `curriculum.js` s'occupe des passes de consolidation et des constructions par blocs.
-- Les liens du glossaire vers les leçons sont calculés à partir du texte arabe, jamais saisis : une leçon renommée ne peut pas laisser un lien mort.
-- Tout terme du glossaire doit être employé en arabe quelque part dans le parcours, et un test le vérifie. Pour ajouter un terme, le nommer en arabe dans la règle de la leçon qui l'enseigne.
-- La seconde explication n'apparaît qu'au deuxième échec sur un même exercice : au premier, l'apprenant n'a pas encore eu l'occasion de relire la première.
-- `normalize.js` est l'unique normaliseur de texte, et `day.js` l'unique calcul de jour local. Les deux existaient en double avec des comportements divergents ; `project.test.mjs` refuse maintenant qu'un second apparaisse.
-- L'ordre des opérations dans `normalize.js` n'est pas indifférent : décomposer, retirer les seules marques latines, recomposer, puis traiter l'arabe. Retirer toutes les marques combinantes d'un coup casse ئ et ؤ, et « نائب » devient « نايب ».
-- `choiceGroup` rend tous les groupes de propositions, exercices comme sondes du positionnement. Sans cela une correction d'accessibilité risquait de n'en toucher qu'un des deux.
-- Le cache de `sw.js`, les contrôles de syntaxe et les suites du workflow étaient tenus à jour à la main. `project.test.mjs` vérifie ces trois listes : un module absent du cache casse le mode hors ligne, une suite absente du workflow cesse d'être exécutée, et les deux échecs sont silencieux.
-- `revue.html` est **généré**, jamais édité à la main : le modifier directement serait écrasé au prochain `node tools/build-review.mjs`, et la CI refuse un fichier périmé. Corriger le contenu se fait dans `content-core.js`, `content-advanced.js`, `explanations.js` ou `glossary.js`, puis on régénère.
-- Les jalons sont calculés à la demande, jamais stockés : rien de neuf à synchroniser, et deux appareils ne peuvent pas afficher des acquis différents.
-- Chaque jalon ne porte que sur l'historique — `questions` et le journal d'activité — jamais sur la maîtrise courante, qui est révocable. Un jalon obtenu ne se reprend donc jamais. C'est le seul consommateur restant de `questions`.
-- La zone d'annonce met les messages en file : deux annonces peuvent tomber dans la même action, et la seconde effaçait la première avant qu'elle soit lue.
-- Les sondes du positionnement sont des exercices existants, jamais des questions écrites pour l'occasion : rien de neuf à faire relire, et l'apprenant est jugé sur ce qu'il va réellement travailler.
-- Les réponses au positionnement n'alimentent ni le journal d'activité ni la répétition espacée. Sinon un débutant en sortirait avec une dizaine de cartes en retard sur des leçons jamais ouvertes.
-- Le positionnement ne commande le point de départ que tant qu'aucune leçon n'est terminée : ensuite la progression réelle reprend la main.
-- La recherche normalise d'un coup accents français, voyelles brèves arabes et signes de translittération, en s'appuyant sur la décomposition Unicode. Un mot arabe est cherché avec et sans son article, puisqu'il se copie depuis une leçon mais se range sans dans le glossaire.
-- Les passes de consolidation ne sont pas indexées : elles reprennent mot pour mot leur exercice d'origine et doubleraient chaque résultat.
-- Tout le contenu rédigé après la relecture assistée est réuni dans `explanations.js`, pour qu'un enseignant sache où regarder en priorité.
-- Le champ `analysis` d'une leçon s'affiche dans un panneau droite-à-gauche : il doit être en arabe, et un test le vérifie.
-- Les anciennes sauvegardes sans `activity` ou `preferences` restent compatibles.
-- Le contenu utilisateur ou distant inséré dans le HTML doit passer par `escapeHtml`.
-- La logique de synchronisation vit dans `sync.js`, sans DOM : c’est ce qui la rend testable sous Node.
-- Une erreur cloud n’est jamais affichée brute ; elle passe par `describeCloudError`, qui décide aussi si « Réessayer » a un sens.
-- Une suppression de compte supprime d’abord la progression distante ; si la fonction serveur manque, l’utilisateur est déconnecté et prévenu plutôt que laissé dans le doute.
+- La session rapide se remplit ainsi : révisions dues, thèmes fragiles, suite du parcours.
+- La seconde explication n’apparaît qu’au deuxième échec : au premier, l’apprenant n’a pas encore eu l’occasion de se servir de la première.
+- Les sondes du positionnement sont des exercices existants, et leurs réponses n’alimentent ni le journal ni la répétition espacée — sinon un débutant en sortirait avec une dizaine de cartes en retard sur des leçons jamais ouvertes.
+- Le positionnement ne commande le départ que tant qu’aucune leçon n’est terminée.
+- Les jalons sont calculés, jamais stockés, et ne portent que sur l’historique : un jalon obtenu ne se reprend jamais.
+- Les jours viennent de `day.js` et suivent le fuseau de l’appareil, avec une heure de bascule réglable.
+
+**Contenu**
+
+- Le contenu ne vit plus dans `app.js`. Une leçon s’ajoute dans `content-core.js` ou `content-advanced.js` ; `curriculum.js` dérive le reste.
+- Le champ `analysis` d’une leçon s’affiche dans un panneau droite-à-gauche : il doit être en arabe, et un test le vérifie.
+- Les catégories vivent dans `question-topics.js`, hors des fichiers de contenu. Un test échoue si un exercice est ajouté sans catégorie.
+- Les liens du glossaire vers les leçons sont calculés depuis le texte arabe, jamais saisis : une leçon renommée ne peut pas laisser de lien mort.
+- Tout terme du glossaire doit être employé en arabe quelque part dans le parcours ; un test l’exige. Pour en ajouter un, le nommer dans la règle de la leçon qui l’enseigne.
+- Tout ce qui a été rédigé après la relecture assistée est réuni dans `explanations.js`, pour que la relecture ait un point d’entrée unique.
+- `revue.html` est généré : le corriger à la main serait écrasé, et la CI refuse un fichier périmé. Les corrections vont dans les fichiers de contenu.
+
+**Interface**
+
+- L’application se redessine entièrement à chaque interaction, donc `render` retient l’élément focalisé et le retrouve après coup. Tout nouvel élément interactif doit porter un attribut listé dans `FOCUS_KEYS`, ou un `id`.
+- La zone d’annonce vit dans `index.html`, hors de `#app` : à l’intérieur elle serait effacée à chaque rendu. Elle met les messages en file, car deux annonces peuvent tomber dans la même action.
+- `choiceGroup` rend tous les groupes de propositions, exercices comme sondes : en double, une correction d’accessibilité n’en touchait qu’un.
+- Les couleurs de texte passent par `--gold-text` et `--muted`, calibrées AA. `--gold` est réservé au graphique, et `--gold-light` est le seul doré lisible sur fond vert.
+- Le contenu utilisateur ou distant inséré dans le HTML passe par `escapeHtml`.
+
+**Outillage**
+
+- `normalize.js` est l’unique normaliseur de texte, `day.js` l’unique calcul de jour. L’ordre des opérations dans `normalize.js` n’est pas indifférent : décomposer, retirer les seules marques latines, recomposer, puis traiter l’arabe. Tout retirer d’un coup casse ئ et ؤ, et « نائب » devient « نايب ».
+- `project.test.mjs` garde le cache de `sw.js`, les contrôles du workflow et l’unicité de ces deux implémentations. Ces trois listes étaient tenues à la main, et leurs oublis sont silencieux.
 
 ## 8. Limites connues
 
-- Les statistiques commencent à la date d’installation du journal d’activité ; les anciennes réponses maîtrisées n’ont pas d’historique rétroactif.
-- Le journal est limité à 1 000 tentatives et ne constitue pas une conservation analytique illimitée.
-- Le découpage des exercices en cinq catégories est un choix pédagogique, à confirmer lors de la relecture du corpus par un enseignant.
-- Le corpus a reçu une relecture assistée, pas une validation d'arabophone qualifié : sept corrections nettes ont été appliquées, mais l'exactitude d'ensemble n'est pas garantie.
-- Les 54 secondes explications et leurs exemples n'ont pas été relus par un enseignant. C'est la plus grande surface de contenu non validée du projet.
-- Le glossaire emploie la terminologie classique ; ses 59 définitions n'ont pas été relues par un enseignant.
-- Les jalons fondés sur le journal d'activité dépendent des 1 000 dernières tentatives : un historique très ancien peut sortir du journal et, en théorie, faire disparaître « Semaine régulière » ou « Retour tenu ».
-- Le placement au premier module raté est une heuristique simple, pas un modèle psychométrique : il suppose que le parcours est strictement progressif.
-- La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur réel.
-- L'accessibilité a été vérifiée au clavier et par contrôle programmatique des contrastes et des noms accessibles, mais pas avec un vrai lecteur d'écran ni par une personne concernée.
-- Les compteurs de maîtrise ont baissé pour les comptes existants au passage à la maîtrise révocable : c'est attendu, les données ne sont pas perdues.
-- Les 133 exercices sont 54 questions écrites, 54 consolidations générées automatiquement et 25 constructions par blocs.
-- `app.js` concentre encore beaucoup de responsabilités et deviendra difficile à maintenir si le contenu grandit fortement.
-- `sync.test.mjs` couvre le parcours complet inscription, première synchronisation vide, deux appareils, pannes réseau et isolation entre comptes, mais contre un faux Supabase : il ne remplace pas un test dans un vrai navigateur contre le vrai service.
-- La suppression définitive du compte dépend de la fonction `delete_own_account` ; elle doit être déployée sur le projet Supabase existant avant que le bouton fonctionne complètement.
+**Contenu — la dette principale.**
+
+- Le corpus a reçu une relecture assistée, pas la validation d’un arabophone qualifié. Sept corrections nettes ont été appliquées ; l’exactitude d’ensemble n’est pas garantie, et les vocalisations n’ont pas été vérifiées caractère par caractère.
+- Les 54 secondes explications et leurs exemples n’ont jamais été relus : c’est la plus grande surface de contenu non validée.
+- Les 59 définitions du glossaire emploient la terminologie classique mais n’ont pas été relues.
+- Le classement des 54 exercices en cinq catégories est un choix pédagogique non validé.
+- Les 133 exercices sont 54 questions écrites, 54 consolidations générées et 25 constructions par blocs : le contenu original est plus mince que le total ne le suggère.
+
+**Mesure et heuristiques.**
+
+- Les statistiques commencent à l’installation du journal d’activité : pas d’historique rétroactif.
+- Le journal est plafonné à 1 000 tentatives. Un historique très ancien peut donc en sortir et, en théorie, faire disparaître les jalons « Semaine régulière » ou « Retour tenu ».
+- Le placement au premier module raté est une heuristique simple : elle suppose un parcours strictement progressif.
+- La session rapide vise cinq minutes par un nombre fixe de dix exercices, sans minuteur.
+- Les compteurs de maîtrise ont baissé pour les comptes existants au passage à la maîtrise révocable. C’est attendu ; aucune donnée n’est perdue.
+
+**Vérifications qui manquent.**
+
+- `sync.test.mjs` couvre inscription, première synchronisation vide, deux appareils, pannes réseau et isolation entre comptes — mais contre un faux Supabase. Rien ne remplace un test dans un vrai navigateur contre le vrai service.
+- L’accessibilité a été vérifiée au clavier et par contrôle programmatique des contrastes et des noms accessibles, jamais avec un vrai lecteur d’écran ni par une personne concernée.
 - La page Confidentialité décrit l’usage réel des données mais n’a pas été relue juridiquement.
-- La voix arabe dépend du système et du navigateur ; la qualité varie selon l’appareil.
-- La qualité grammaticale de tout le corpus doit encore être relue par un arabophone qualifié.
 
-## 9. Roadmap restante priorisée
+**Technique.**
 
-### P0 — Fiabilité et confiance
+- `app.js` concentre encore les vues, la navigation et l’orchestration. Le contenu en est sorti, le reste non.
+- La voix arabe dépend du système et du navigateur ; la qualité varie beaucoup selon l’appareil.
 
-1. Déployer `delete_own_account` sur le projet Supabase existant, puis vérifier la suppression avec un compte de test.
-2. Compléter la couverture par un test dans un vrai navigateur, contre un projet Supabase de test : inscription, confirmation e-mail et synchronisation entre deux sessions réelles.
-3. Faire relire par un enseignant d’arabe. Le dossier est prêt : envoyer https://derkitoo.github.io/irab/revue.html, ou la version imprimée. Il couvre les 25 leçons, les 54 exercices écrits, les 54 secondes explications et leurs exemples, les 59 définitions du glossaire et le classement en cinq catégories, avec 23 points déjà signalés comme incertains. Reporter ensuite les corrections dans les fichiers de contenu, jamais dans `revue.html`.
-4. Faire relire la page Confidentialité par un regard juridique avant toute diffusion large.
+## 9. Ce qui reste à faire
 
-Terminés dans le sprint 1 : messages d’erreur explicites avec nouvelle tentative, page Confidentialité et suppression des données, versionnage du format de progression, test complet de la couche de synchronisation.
+Rien de ce qui suit ne peut être fait par un agent seul : chaque point demande une personne, un compte ou une décision.
 
-### P1 — Expérience pédagogique
+**D’abord.**
 
-1. Faire tester l’application avec un vrai lecteur d’écran, idéalement par une personne qui en utilise un.
+1. **Faire relire le corpus par un enseignant d’arabe.** Le dossier est prêt : envoyer https://derkitoo.github.io/irab/revue.html ou sa version imprimée. Il couvre les 25 leçons, les 54 exercices, les 54 secondes explications, les 59 définitions et le classement, avec 23 points déjà signalés comme incertains et un repère citable par élément. Reporter les corrections dans les fichiers de contenu, puis régénérer.
+2. **Faire relire la page Confidentialité** par un regard juridique avant toute diffusion large.
+3. **Faire tester avec un vrai lecteur d’écran**, idéalement par quelqu’un qui en utilise un au quotidien.
 
-### P2 — Contenu et produit
+**Ensuite.**
 
-1. Créer une interface d’administration ou un format de contenu externe afin de ne plus modifier `app.js` pour chaque leçon.
-2. Ajouter des enregistrements audio humains, avec licences documentées, en complément de la synthèse vocale.
-3. Préparer les traductions de l’interface sans dupliquer le contenu.
-4. Définir une stratégie produit avant toute monétisation : public cible, métriques pédagogiques, support et politique de conservation des données.
+4. Tester la synchronisation dans un vrai navigateur contre un projet Supabase de test : inscription, confirmation e-mail, deux sessions réelles. Suppose d’accepter une dépendance à Playwright, donc la fin du « zéro dépendance ».
+5. Enregistrements audio humains, avec licences documentées, en complément de la synthèse vocale.
+6. Préparer les traductions de l’interface sans dupliquer le contenu. Gros remaniement mécanique de `app.js`, sans bénéfice tant qu’aucune deuxième langue n’existe.
+7. Format de contenu externe ou interface d’administration, si le corpus grandit beaucoup.
+8. Définir une stratégie produit avant toute monétisation : public visé, métriques pédagogiques, support, conservation des données.
 
-## 10. Proposition des trois prochains sprints
+## 10. Définition de « terminé »
 
-### Sprint 1 — Sécurité utilisateur (livré)
-
-- confidentialité et suppression de compte ;
-- erreurs réseau compréhensibles ;
-- versionnage du format de progression ;
-- test complet de la couche de synchronisation.
-
-### Sprint 2 — Session intelligente (livré)
-
-- session rapide de dix exercices ;
-- catégories d’erreurs et révision ciblée par catégorie ;
-- reprise à la question interrompue ;
-- fuseau local pour les jours, les séries et l’objectif.
-
-### Consolidation (livrée, hors sprint)
-
-- un seul normaliseur de texte, qui cesse d’abîmer les lettres porteuses de hamza ;
-- un seul calcul du jour local, l’alias `dateKey` supprimé ;
-- un seul rendu pour les groupes de propositions ;
-- un balayage des exercices par rendu au lieu de trois ;
-- `project.test.mjs` garde le cache, le workflow et l’unicité de ces implémentations.
-
-### Sprint 9 — Dossier de relecture (livré)
-
-- `revue.html` réunit les 25 leçons, les 54 exercices avec leur double explication, les 59 définitions et le classement en catégories ;
-- repères stables `L-01`, `E-01`, `G-01` pour répondre point par point, zone d’annotation par élément, mise en page imprimable ;
-- 23 points signalés par ⚑ : ce que j’ai écrit ou ce que je sais discutable ;
-- généré depuis les sources, la CI échoue s’il est périmé.
-
-### Sprint 8 — Jalons du parcours (livré)
-
-- six jalons : première analyse, erreur retournée, module bouclé, semaine régulière, retour tenu, parcours terminé ;
-- dérivés de l’historique, donc jamais révoqués ;
-- annoncés une fois, consultables dans le bilan.
-
-### Sprint 7 — Positionnement initial (livré)
-
-- une sonde par module, arrêt après deux échecs consécutifs ;
-- placement au premier module raté ;
-- le coach part de là tant que rien n’est terminé.
-
-### Sprint 6 — Recherche dans le contenu (livré)
-
-- index sur les 25 leçons, les 54 exercices et les 59 termes ;
-- recherche en français, en translittération et en arabe ;
-- accès depuis l’en-tête et par la touche « / ».
-
-### Sprint 5 — Quand l’apprenant bloque (livré)
-
-- seconde explication pour chacun des 54 exercices écrits ;
-- exemple supplémentaire analysé pour les points les plus glissants ;
-- déclenchement au deuxième échec, pas avant.
-
-### Sprint 4 — Accessibilité et confort d’usage (livré)
-
-- navigation clavier et conservation du focus ;
-- annonces pour lecteur d’écran ;
-- contrastes AA et mouvement réduit ;
-- heure personnelle de remise à zéro de l’objectif.
-
-### Sprint 3 — Qualité du contenu (partiellement livré)
-
-- correction du corpus : sept corrections appliquées ;
-- glossaire de 59 termes relié aux leçons ;
-- séparation du contenu et du moteur d’interface ;
-- relecture grammaticale experte : **reste à faire**, elle demande un enseignant d’arabe.
-
-## 11. Définition de « terminé » pour un futur jalon
-
-Un jalon est terminé lorsque :
+Un jalon n’est terminé que lorsque :
 
 - les anciens comptes et sauvegardes restent lisibles ;
-- le mode invité et le mode connecté sont testés ;
-- la fusion sur deux appareils ne perd ni ne duplique les données ;
-- les tests Node et `git diff --check` passent ;
-- l’interface est vérifiée sur ordinateur et mobile ;
-- le cache PWA est renouvelé si nécessaire ;
-- les workflows GitHub sont verts ;
-- la version réellement servie par GitHub Pages est contrôlée.
+- le mode invité et le mode connecté sont tous deux testés ;
+- la fusion sur deux appareils ne perd ni ne duplique rien ;
+- les 19 suites de tests et `git diff --check` passent ;
+- l’interface est vérifiée sur ordinateur **et** à 360 px de large ;
+- le cache PWA est renouvelé si un fichier caché a changé ;
+- les deux workflows GitHub sont verts ;
+- la version réellement servie par GitHub Pages est contrôlée, et pas seulement le succès du push.
