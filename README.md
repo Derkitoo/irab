@@ -1,69 +1,26 @@
 # Iʿrāb FR
 
-Application indépendante d’apprentissage de la grammaire arabe et du iʿrāb pour francophones.
+Apprendre la grammaire arabe et le iʿrāb en français : reconnaître la nature d’un mot, sa fonction, l’état que cette fonction impose et la marque qui le rend visible.
 
-La passation complète, les décisions techniques et la roadmap restante sont disponibles dans [`HANDOFF.md`](./HANDOFF.md).
+**→ [Essayer l’application](https://derkitoo.github.io/irab/)**
 
-## Contenu actuel
+12 modules, 25 leçons et 133 exercices, du « ce mot est-il un nom, un verbe ou une particule ? » jusqu’à l’analyse complète d’une phrase. Utilisable sans compte, hors ligne, et installable comme application.
 
-- 12 modules progressifs
-- 25 leçons bilingues français–arabe
-- 133 exercices avec correction expliquée et consolidation
-- construction du iʿrāb par blocs ordonnables
-- sélection directe de mots et exercices de terminaisons
-- tableau de maîtrise par compétence
-- révision ciblée des erreurs
-- répétition espacée avec échéances adaptatives
-- moteur de répétition testé automatiquement
-- lecture audio arabe par synthèse vocale du navigateur
-- progression sauvegardée dans le navigateur
-- interface responsive mobile et ordinateur
-- application PWA installable
-- fonctionnement hors ligne
-- export et restauration de la progression entre appareils
-- mode invité et interface de compte
-- synchronisation Supabase active
-- bilan pédagogique : réussite, activité sur sept jours, série active, maîtrise par thème et erreurs fréquentes
-- coach pédagogique avec objectif quotidien réglable et recommandation adaptée aux lacunes
-- page Confidentialité, effacement local et suppression définitive du compte
-- messages d’erreur réseau explicites avec bouton de nouvelle tentative
-- format de progression versionné et migré automatiquement
-- session rapide de dix exercices composée par le coach
-- catégories d’erreurs et révision ciblée par nature, fonction, état, marque ou analyse
-- reprise d’une leçon à la question interrompue
-- jours, séries et objectif quotidien dans le fuseau de l’appareil
-- glossaire français–arabe de 59 termes, chacun relié aux leçons qui l’emploient
-- contenu des leçons séparé du moteur d’interface
-- navigation clavier, annonces pour lecteur d’écran et contrastes AA
-- heure personnelle de remise à zéro de l’objectif quotidien
-- seconde explication et exemple supplémentaire quand la même erreur revient
-- recherche sur les leçons, les exercices et le glossaire, en français comme en arabe
-- test de positionnement initial pour démarrer au bon module
-- six jalons sobres, dérivés de l’historique et jamais révoqués
+## Ce qu’on y trouve
 
-## Faire relire le contenu
+**Des exercices qui expliquent.** QCM, sélection de mots, terminaisons, et construction du iʿrāb en assemblant des blocs. Chaque correction justifie la réponse ; quand le même exercice est raté une seconde fois, une explication différente prend un autre angle et ajoute souvent un exemple analysé. L’arabe se fait lire à voix haute par le navigateur.
 
-Le dossier de relecture réunit tout ce qui attend la validation d’un enseignant d’arabe : leçons, exercices, secondes explications, glossaire et classement en catégories.
+**Un parcours qui s’adapte.** Test de positionnement facultatif pour démarrer au bon module. Répétition espacée, révision ciblée des erreurs, y compris par type — nature, fonction, état, marque, analyse. Coach avec objectif quotidien réglable, session rapide de dix exercices, reprise à la question quittée. Bilan détaillé et six jalons pour les étapes qui comptent.
 
-- version en ligne : https://derkitoo.github.io/irab/revue.html
-- régénérer après une modification du contenu : `node tools/build-review.mjs`
+**De quoi chercher.** Glossaire de 59 termes de grammaire, chacun relié aux leçons qui l’emploient. Recherche sur tout le contenu, en français, en translittération ou en arabe — vocalisé ou non.
 
-`revue.html` est un fichier généré. Les corrections se reportent dans les fichiers de contenu, puis on régénère.
+**Une progression qui reste.** Sauvegardée dans le navigateur, exportable en JSON, et synchronisable entre appareils avec un compte Supabase optionnel. Page Confidentialité, effacement local et suppression définitive du compte.
 
-## Activer les comptes Supabase
+**Accessible.** Navigation clavier complète, annonces pour lecteur d’écran, arabe balisé pour être prononcé correctement, contrastes conformes AA, mouvement réduit respecté.
 
-1. Créer un projet Supabase.
-2. Exécuter `supabase/schema.sql` dans l’éditeur SQL du projet.
-3. Copier l’URL du projet et la clé publique dans `supabase-config.js`.
-4. Ajouter `https://derkitoo.github.io/irab/` aux URL de redirection autorisées dans Supabase Auth.
+## Lancer et vérifier
 
-La progression locale est fusionnée avec la progression distante lors de la connexion. La clé `service_role` ne doit jamais être ajoutée au projet web.
-
-Le script SQL crée aussi la fonction `delete_own_account`, seul chemin autorisé pour qu’un utilisateur supprime lui-même son compte depuis le navigateur. Sans elle, la page Confidentialité supprime la progression synchronisée et déconnecte l’utilisateur, puis signale que le compte lui-même n’a pas pu être supprimé.
-
-## Lancer localement
-
-Depuis ce dossier :
+Aucune dépendance à installer : HTML, CSS et modules JavaScript natifs, sans étape de compilation.
 
 ```powershell
 python -m http.server 5200 --bind 127.0.0.1
@@ -71,4 +28,38 @@ python -m http.server 5200 --bind 127.0.0.1
 
 Puis ouvrir `http://127.0.0.1:5200/`.
 
-Le projet est volontairement autonome : HTML, CSS et JavaScript natifs, sans dépendance à Arabiya.
+Avant de pousser :
+
+```powershell
+Get-ChildItem *.js -Exclude *.test.mjs | ForEach-Object { node --check $_.Name }
+Get-ChildItem *.test.mjs | ForEach-Object { node $_.Name }
+node tools/build-review.mjs --check
+git diff --check
+```
+
+Les 19 suites de tests couvrent la répétition espacée, la fusion entre appareils, les migrations de format, le corpus lui-même et la cohérence du dépôt. `.github/workflows/pages.yml` rejoue tout à chaque poussée, et un test échoue si un module ou une suite y manque.
+
+Après toute modification d’un fichier mis en cache, incrémenter `CACHE` dans `sw.js`, sinon les appareils déjà installés gardent l’ancienne version.
+
+## Modifier le contenu
+
+Les leçons vivent dans `content-core.js` et `content-advanced.js`, hors du moteur d’interface. `curriculum.js` en dérive les passes de consolidation et les constructions par blocs. Les catégories d’exercices sont dans `question-topics.js`, les secondes explications dans `explanations.js`, le glossaire dans `glossary.js`.
+
+Le contenu attend la validation d’un enseignant d’arabe. Le dossier de relecture réunit tout ce qui doit être vérifié, avec un repère citable par élément :
+
+**→ [Dossier de relecture](https://derkitoo.github.io/irab/revue.html)**
+
+Il est **généré** par `node tools/build-review.mjs` : les corrections se reportent dans les fichiers de contenu, jamais dans `revue.html`.
+
+## Activer les comptes Supabase
+
+1. Créer un projet Supabase.
+2. Exécuter `supabase/schema.sql` dans son éditeur SQL — il crée la table, ses règles RLS et la fonction `delete_own_account`.
+3. Renseigner l’URL du projet et la clé publique dans `supabase-config.js`.
+4. Déclarer `https://derkitoo.github.io/irab/` comme Site URL et Redirect URL dans Supabase Auth.
+
+La clé `service_role` ne doit jamais entrer dans ce dépôt. La progression locale est fusionnée avec la progression distante à la connexion, sans doublon ni perte.
+
+## Aller plus loin
+
+[`HANDOFF.md`](./HANDOFF.md) décrit l’architecture fichier par fichier, les données synchronisées et leurs règles de fusion, les décisions qu’il vaut mieux ne pas défaire et pourquoi, les limites connues et ce qui reste à faire.
